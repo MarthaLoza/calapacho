@@ -1,0 +1,205 @@
+<!-- FORMULARIO DE GUIAS DE REMISION -->
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="mb-32">Empresa de emisión</h4>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <mat-form-field class="example-full-width" appearance="outline">
+                            <mat-label>Empresa</mat-label>
+                            <input matInput type="text"
+                                matInput
+                                [formControl]="myControl"
+                                [matAutocomplete]="auto"
+                                value="">
+                            <mat-autocomplete #auto="matAutocomplete">
+                                <mat-option *ngFor="let option of filteredOptions | async" [value]="option">{{option}}</mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-lg-6">
+                        <mat-form-field class="example-full-width" appearance="outline">
+                            <mat-label>RUC</mat-label>
+                            <input matInput type="text" 
+                                matInput
+                                [formControl]="myControl"
+                                [matAutocomplete]="auto"
+                                value="">
+                            <mat-autocomplete #auto="matAutocomplete">
+                                <mat-option *ngFor="let option of filteredOptions | async" [value]="option">{{option}}</mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="mb-32">Empresa remitente</h4>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <mat-form-field class="w-100 fs-16" appearance="outline">
+                            <mat-label>Empresa</mat-label>
+                            <input matInput type="text"
+                                matInput
+                                [formControl]="myControl"
+                                [matAutocomplete]="auto"
+                                value="">
+                            <mat-autocomplete #auto="matAutocomplete">
+                                <mat-option *ngFor="let option of filteredOptions | async" [value]="option">{{option}}</mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-lg-6">
+                        <mat-form-field class="w-100 fs-16" appearance="outline">
+                            <mat-label>RUC</mat-label>
+                            <input matInput type="text"
+                                matInput
+                                [formControl]="myControl"
+                                [matAutocomplete]="auto"
+                                value="">
+                            <mat-autocomplete #auto="matAutocomplete">
+                                <mat-option *ngFor="let option of filteredOptions | async" [value]="option">{{option}}</mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="mb-32">Dirección de destino</h4>
+                <div class="row">
+                    <div class="col-lg-3">
+                        <mat-form-field class="w-100 fs-16" appearance="outline">
+                            <mat-label>Provincia</mat-label>
+                            <input matInput type="text" 
+                                matInput
+                                [formControl]="myControl"
+                                [matAutocomplete]="auto"
+                                value="">
+                            <mat-autocomplete #auto="matAutocomplete">
+                                <mat-option *ngFor="let option of filteredOptions | async" [value]="option">{{option}}</mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-lg-3">
+                        <mat-form-field class="w-100 fs-16" appearance="outline">
+                            <mat-label>Distrito</mat-label>
+                            <input matInput type="text"
+                                matInput
+                                [formControl]="myControl"
+                                [matAutocomplete]="auto"
+                                value="">
+                            <mat-autocomplete #auto="matAutocomplete">
+                                <mat-option *ngFor="let option of filteredOptions | async" [value]="option">{{option}}</mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                    </div>
+                    <div class="col-lg-6">
+                        <mat-form-field class="w-100 fs-16" appearance="outline">
+                            <mat-label>Dirección</mat-label>
+                            <input matInput type="text"
+                                matInput
+                                [formControl]="myControl"
+                                [matAutocomplete]="auto"
+                                value="">
+                            <mat-autocomplete #auto="matAutocomplete">
+                                <mat-option *ngFor="let option of filteredOptions | async" [value]="option">{{option}}</mat-option>
+                            </mat-autocomplete>
+                        </mat-form-field>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="mb-32">Envíos por guías de remisión</h4>
+                <div class="row">
+                    <div class="col-lg-11">
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <mat-form-field class="w-100 fs-16" appearance="outline">
+                                    <mat-label>Código</mat-label>
+                                    <input matInput type="text" value="">
+                                </mat-form-field>
+                            </div>
+                            <div class="col-lg-3">
+                                <mat-form-field class="w-100 fs-16" appearance="outline">
+                                    <mat-label>Cantidad</mat-label>
+                                    <input matInput type="text" value="">
+                                </mat-form-field>
+                            </div>
+                            <div class="col-lg-3">
+                                <mat-form-field class="w-100 fs-16" appearance="outline">
+                                    <mat-label>Unidad de medida</mat-label>
+                                    <input matInput type="text"
+                                        matInput
+                                        [formControl]="myControl"
+                                        [matAutocomplete]="auto"
+                                        value="">
+                                    <mat-autocomplete #auto="matAutocomplete">
+                                        <mat-option *ngFor="let option of filteredOptions | async" [value]="option">{{option}}</mat-option>
+                                    </mat-autocomplete>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-lg-3">
+                                <mat-form-field class="w-100 fs-16" appearance="outline">
+                                    <mat-label>Peso</mat-label>
+                                    <input matInput type="text" value="">
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-1">
+                        <button mat-mini-fab color="primary" (click)="onePlus()">
+                            <mat-icon>plus_one</mat-icon>
+                        </button>
+                    </div>
+                    <div class="col-lg-11" *ngFor="let i of getNumberArray(maxNumber)">
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <mat-form-field class="w-100 fs-16" appearance="outline">
+                                    <mat-label>Código</mat-label>
+                                    <input matInput type="text" value="">
+                                </mat-form-field>
+                            </div>
+                            <div class="col-lg-3">
+                                <mat-form-field class="w-100 fs-16" appearance="outline">
+                                    <mat-label>Cantidad</mat-label>
+                                    <input matInput type="text" value="">
+                                </mat-form-field>
+                            </div>
+                            <div class="col-lg-3">
+                                <mat-form-field class="w-100 fs-16" appearance="outline">
+                                    <mat-label>Unidad de medida</mat-label>
+                                    <input matInput type="text"
+                                        matInput
+                                        [formControl]="myControl"
+                                        [matAutocomplete]="auto"
+                                        value="">
+                                    <mat-autocomplete #auto="matAutocomplete">
+                                        <mat-option *ngFor="let option of filteredOptions | async" [value]="option">{{option}}</mat-option>
+                                    </mat-autocomplete>
+                                </mat-form-field>
+                            </div>
+                            <div class="col-lg-3">
+                                <mat-form-field class="w-100 fs-16" appearance="outline">
+                                    <mat-label>Peso</mat-label>
+                                    <input matInput type="text" value="">
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
