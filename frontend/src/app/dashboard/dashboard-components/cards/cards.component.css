@@ -1,0 +1,25 @@
+.reloj {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 70px;
+    /*background-color: #f0f0f0;
+    border: 1px solid #ccc;*/
+  }
+  
+  .reloj div {
+    font-size: 30px;
+    padding: 5px;
+  }
+  /*
+  .hora {
+    border-right: 1px solid #ccc;
+  }
+  
+  .minuto {
+    border-right: 1px solid #ccc;
+  }
+  
+  .segundo {
+  }*/

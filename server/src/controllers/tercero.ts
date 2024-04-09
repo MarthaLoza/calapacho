@@ -6,14 +6,14 @@ class TerceroController {
     
     public async newTercero (req: Request, res: Response) {
 
-        const { codigo, nombre, nomaux, ciftyp,  cif } = req.body;
-        let m_tcif = 'DNI';
+        const { codigo, nombre, nomaux, ciftyp,  cif, coment, estado } = req.body;
+        let m_tcif = 'RUC';
 
         // Validamos si el tercero existe en la base de datos por el cif
         const m_exist = await Ctercero.findOne({where: {cif: cif}})
 
         // Confirmamos que tipo de cif es
-        if(ciftyp == '1') m_tcif = 'RUC';
+        if(ciftyp == '1') m_tcif = 'DNI';
         if(ciftyp == '2') m_tcif = 'Canet de extrangería';
 
         if(m_exist) {
@@ -26,11 +26,13 @@ class TerceroController {
             //Guardamos al tercer en la base de datos
 
             await Ctercero.create({
-                codigo: codigo,
-                nombre: nombre,
-                nomaux: nomaux,
-                ciftyp: ciftyp,
-                cif: cif
+                codigo  : codigo,
+                nombre  : nombre,
+                nomaux  : nomaux,
+                ciftyp  : ciftyp,
+                cif     : cif,
+                coment  : coment,
+                estado  : estado
             })
 
             res.json({

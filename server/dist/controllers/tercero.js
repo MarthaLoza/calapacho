@@ -15,13 +15,13 @@ const ctercero_1 = require("../models/ctercero");
 class TerceroController {
     newTercero(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { codigo, nombre, nomaux, ciftyp, cif } = req.body;
-            let m_tcif = 'DNI';
+            const { codigo, nombre, nomaux, ciftyp, cif, coment, estado } = req.body;
+            let m_tcif = 'RUC';
             // Validamos si el tercero existe en la base de datos por el cif
             const m_exist = yield ctercero_1.Ctercero.findOne({ where: { cif: cif } });
             // Confirmamos que tipo de cif es
             if (ciftyp == '1')
-                m_tcif = 'RUC';
+                m_tcif = 'DNI';
             if (ciftyp == '2')
                 m_tcif = 'Canet de extrangería';
             if (m_exist) {
@@ -36,7 +36,9 @@ class TerceroController {
                     nombre: nombre,
                     nomaux: nomaux,
                     ciftyp: ciftyp,
-                    cif: cif
+                    cif: cif,
+                    coment: coment,
+                    estado: estado
                 });
                 res.json({
                     msg: `El  registro se creó exitosamente`

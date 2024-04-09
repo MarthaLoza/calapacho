@@ -4,10 +4,16 @@
   <div class="col-lg-4">
     <div>
       <mat-card class="overflow-hidden">
-        <div>
-          <img style="height: 121px;" src="./../../../../assets/images/card1.jpg" class="w-100" alt="">
-        </div>
         <mat-calendar [(selected)]="selected"></mat-calendar>
+        <div>
+          <div class="reloj">
+            <div class="hora">{{ hora }} : </div>
+            <div class="minuto">{{ minuto }} : </div>
+            <div class="segundo">{{ segundo }}  </div>
+            <div class="segundo">{{ ampm }}</div>
+          </div>
+          <!--<img style="height: 121px;" src="./../../../../assets/images/card1.jpg" class="w-100" alt="">-->
+        </div>
       </mat-card>
     </div>
   </div>
