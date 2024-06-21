@@ -1,73 +1,54 @@
 <div class="card">
     <div class="card-body">
-        <form [formGroup]="formularioTercero" (ngSubmit)="Enviar()">
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
             <h4 class="mb-32">Datos Principales</h4>
             <div class="row">
-                <div class="col-lg-6">
-                    <mat-form-field class="w-100 fs-16" appearance="outline">
-                        <mat-label>Tipo de tercero</mat-label>
-                        <mat-select formControlName="tercerControl" [(ngModel)]="index_tt" (ngModelChange)="onSelectChange()">
-                            <mat-option *ngFor="let row of options_tt" [value]="row.value">{{row.label}}</mat-option>
+                <div *ngFor="let field of fields" class="col-6">
+                    <mat-form-field class="w-100 fs-16" *ngIf="field.type !== 'checkbox'" appearance="outline">
+                        <mat-label>{{ field.label }}</mat-label>
+                        <input *ngIf="field.type === 'text' || field.type === 'email'" matInput [formControlName]="field.name"
+                            [type]="field.type" (ngModelChange)="field.onChange ? field.onChange() : null">
+                        <mat-select *ngIf="field.type === 'select'" [formControlName]="field.name" (ngModelChange)="field.onChange ? field.onChange() : null">
+                            <mat-option *ngFor="let option of field.options" [value]="option.value">
+                                {{ option.label }}
+                            </mat-option>
                         </mat-select>
-                        <mat-error *ngIf="error">Este campo es requerido</mat-error>
+                        <mat-error *ngIf="form.get(field.name)?.invalid">
+                            {{ getErrorMessage(field.name) }}
+                        </mat-error>
                     </mat-form-field>
-                </div>
-                <div class="col-lg-6">
-                    <mat-form-field class="w-100 fs-16" appearance="outline">
-                        <mat-label>Código</mat-label>
-                        <input matInput disabled type="text" [value]="cod_tercer">
-                    </mat-form-field>
-                </div>
-                <div class="col-lg-6">
-                    <mat-form-field class="w-100 fs-16" appearance="outline">
-                        <mat-label>Nombre o Razon social</mat-label>
-                        <input formControlName="nombreControl" matInput [(ngModel)]="nom_tercer" type="text" value="">
-                        <mat-error *ngIf="error">Este campo es requerido</mat-error>
-                    </mat-form-field>
-                </div>
-                <div class="col-lg-6">
-                    <mat-form-field class="w-100 fs-16" appearance="outline">
-                        <mat-label>Nombre auxiliar</mat-label>
-                        <input matInput formControlName="auxiliControl" [(ngModel)]="nom_aux_tercer" type="text" value="">
-                        <mat-error *ngIf="error">Este campo es requerido</mat-error>
 
-                    </mat-form-field>
-                </div>
-                <div class="col-lg-6">
-                    <mat-form-field class="w-100 fs-16" appearance="outline">
-                        <mat-label>Tipo de documento</mat-label>
-                        <mat-select formControlName="tipdocControl" [(ngModel)]="tip_doc_tercer">
-                            <mat-option *ngFor="let row of options_td" [value]="row.value">{{row.label}}</mat-option>
-                        </mat-select>
-                        <mat-error *ngIf="error">Este campo es requerido</mat-error>
-                    </mat-form-field>
-                </div>
-                <div class="col-lg-6">
-                    <mat-form-field class="w-100 fs-16" appearance="outline">
-                        <mat-label>Numero de documento</mat-label>
-                        <input matInput formControlName="documeControl" [(ngModel)]="doc_tercer" type="text" value="">
-                        <mat-error *ngIf="error">Este campo es requerido</mat-error>
-                    </mat-form-field>
-                </div>
-                <div class="col-lg-6">
-                    <mat-form-field class="w-100 fs-16" appearance="outline">
-                        <mat-label>Comentario</mat-label>
-                        <input matInput formControlName="comentControl" [(ngModel)]="com_tercer" type="text" value="">
-                    </mat-form-field>
-                </div>
-                <div class="col-lg-6">
-                    <mat-form-field class="w-100 fs-16" appearance="outline">
-                        <mat-label>Estado</mat-label>
-                        <mat-select formControlName="estadoControl" [(ngModel)]="est_tercer">
-                            <mat-option *ngFor="let row of options_te" [value]="row.value">{{row.label}}</mat-option>
-                        </mat-select>
-                        <mat-error *ngIf="error">Este campo es requerido</mat-error>
-                    </mat-form-field>
+                    <mat-checkbox *ngIf="field.type === 'checkbox'" [formControlName]="field.name"
+                        [disabled]="field.disabled ?? false">
+                        {{ field.label }}
+                    </mat-checkbox>
                 </div>
             </div>
-            <div class="button">
-                <button mat-flat-button class="boton" type="submit" color="primary">Entrar</button>
+            <h4 class="mb-32">Dirección y datos de contacto</h4>
+            <div class="row">
+                <div *ngFor="let field of fields2" class="col-6">
+                    <mat-form-field class="w-100 fs-16" *ngIf="field.type !== 'checkbox'" appearance="outline">
+                        <mat-label>{{ field.label }}</mat-label>
+                        <input *ngIf="field.type === 'text' || field.type === 'email'" matInput [formControlName]="field.name"
+                            [type]="field.type" (ngModelChange)="field.onChange ? field.onChange() : null">
+                        <mat-select *ngIf="field.type === 'select'" [formControlName]="field.name" (ngModelChange)="field.onChange ? field.onChange() : null">
+                            <mat-option *ngFor="let option of field.options" [value]="option.value">
+                                {{ option.label }}
+                            </mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="form.get(field.name)?.invalid">
+                            {{ getErrorMessage(field.name) }}
+                        </mat-error>
+                    </mat-form-field>
+
+                    <mat-checkbox *ngIf="field.type === 'checkbox'" [formControlName]="field.name"
+                        [disabled]="field.disabled ?? false">
+                        {{ field.label }}
+                    </mat-checkbox>
+                </div>
             </div>
+            <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Enviar</button>
         </form>
     </div>
 </div>
+<notifier-container></notifier-container>

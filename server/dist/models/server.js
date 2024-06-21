@@ -17,6 +17,7 @@ const cors_1 = __importDefault(require("cors"));
 const menu_1 = __importDefault(require("../router/menu"));
 const user_1 = __importDefault(require("../router/user"));
 const tercero_1 = __importDefault(require("../router/tercero"));
+const adress_1 = __importDefault(require("../router/adress"));
 const user_2 = require("./user");
 class Server {
     constructor() {
@@ -36,6 +37,7 @@ class Server {
         this.app.use('/api/menu', menu_1.default);
         this.app.use('/api', user_1.default);
         this.app.use('/api/tercero/user', tercero_1.default);
+        this.app.use('/api/adress', adress_1.default);
     }
     midlewares() {
         //Parseo body

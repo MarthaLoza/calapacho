@@ -12,22 +12,22 @@ import { UserService } from 'src/app/services/user.service';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
-  user_name: string = '';
-  user_password: string = '';
-  loading: boolean = false;
+  user_name     : string  = '';
+  user_password : string  = '';
+  loading       : boolean = false;
 
   convertToUpperCase() {
     this.user_name = this.user_name.toUpperCase();
   }
 
-  constructor(private notify: NotifierService,
-    private _userServices: UserService,
-    private router: Router,
-    private _errorservices: ErrorService) {
+  constructor(
+    private notify          : NotifierService,
+    private _userServices   : UserService,
+    private router          : Router,
+    private _errorservices  : ErrorService) {
   }
 
   ngOnInit(): void {
-    
   }
 
   login(){
@@ -40,10 +40,10 @@ export class LoginComponent implements OnInit {
 
     // Creamos el body
     const user : User = {
-      user_code: '',
-      user_name: this.user_name,
-      user_password: this.user_password,
-      user_email: ''
+      user_code     : '',
+      user_name     : this.user_name,
+      user_password : this.user_password,
+      user_email    : ''
     }
 
     this.loading = true;    

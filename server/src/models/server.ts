@@ -3,6 +3,7 @@ import cors from 'cors';
 import routesMenu from '../router/menu';
 import routesUser from '../router/user';
 import ruotesTercero from '../router/tercero';
+import adressRoutes from '../router/adress';
 import { User } from './user';
 
 
@@ -30,6 +31,7 @@ class Server{
         this.app.use('/api/menu', routesMenu);
         this.app.use('/api', routesUser);
         this.app.use('/api/tercero/user', ruotesTercero);
+        this.app.use('/api/adress', adressRoutes);
     }
 
     midlewares() {

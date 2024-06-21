@@ -21,6 +21,7 @@ import { ButtonsComponent } from './buttons/buttons.component';
 import { TooltipsComponent } from './tooltips/tooltips.component';
 import { RemisionComponent } from './remision/remision.component';
 import { TerceroComponent } from './tercero/tercero.component';
+import { NotifierModule } from 'angular-notifier';
 
 
 
@@ -45,7 +46,8 @@ import { TerceroComponent } from './tercero/tercero.component';
     AlertsComponent,
     GridListComponent,
     TooltipsComponent,
-    FormsModule
+    FormsModule,
+    NotifierModule
   ],
   exports: [
     AlertsComponent,
@@ -62,6 +64,7 @@ import { TerceroComponent } from './tercero/tercero.component';
     SliderComponent,
     SlideToggleComponent,
     ButtonsComponent,
+    NotifierModule,
   ],
   declarations: [
     RemisionComponent,
