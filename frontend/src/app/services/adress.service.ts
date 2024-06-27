@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, catchError, throwError } from 'rxjs';
 import { environment } from 'src/environments/environment.development';
 import { Selector } from '../components/tercero/tercero.component';
 
@@ -16,9 +16,20 @@ export class AdressService {
     this.myAppUrl = environment.endpoint;
     this.myApiUrl = 'api';
   }
+  
+  /** Lista de departamentos */
+  getDeparta(): Observable<Selector[]> {
+    return this.http.get<Selector[]>(`${this.myAppUrl}${this.myApiUrl}/adress/departa`)
+  }
 
-  getCodigo(): Observable<Selector[]> {
-    return this.http.get<Selector[]>(`${this.myAppUrl}${this.myApiUrl}/adress/departa`);
+  /** Lista de provincias segun departamento */
+  postProvincia(coddep: string): Observable<Selector[]> {
+    return this.http.post<Selector[]>(`${this.myAppUrl}${this.myApiUrl}/adress/provincia/${coddep}`, {})
+  }
+
+  /** Lista de distritos degun departamento y provincia */
+  postDistrito(coddep: string, codprv: string): Observable<Selector[]> {
+    return this.http.post<Selector[]>(`${this.myAppUrl}${this.myApiUrl}/adress/distrito/${coddep}/${codprv}`, {})
   }
 
 }

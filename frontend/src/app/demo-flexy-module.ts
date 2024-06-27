@@ -38,7 +38,7 @@
  import { MatTooltipModule } from '@angular/material/tooltip';
  import { MatStepperModule } from '@angular/material/stepper';
  import { MatBadgeModule } from '@angular/material/badge';
- import { MatNativeDateModule, MatRippleModule } from '@angular/material/core';
+ import { MatNativeDateModule, MatOptionModule, MatRippleModule } from '@angular/material/core';
  import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
  
  import { CdkTableModule } from '@angular/cdk/table';
@@ -96,7 +96,8 @@
          ObserversModule,
          OverlayModule,
          PlatformModule,
-         PortalModule
+         PortalModule,
+         MatOptionModule,
      ]
  })
  export class DemoFlexyModule { }

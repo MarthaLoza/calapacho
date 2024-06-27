@@ -4,9 +4,9 @@
             <h4 class="mb-32">Datos Principales</h4>
             <div class="row">
                 <div *ngFor="let field of fields" class="col-6">
-                    <mat-form-field class="w-100 fs-16" *ngIf="field.type !== 'checkbox'" appearance="outline">
+                    <mat-form-field class="w-100 fs-16" *ngIf="field.type !== 'checkbox'" appearance="outline" [class.mat-form-field-invalid]="form.get(field.name)?.invalid && (form.get(field.name)?.dirty || form.get(field.name)?.touched)">
                         <mat-label>{{ field.label }}</mat-label>
-                        <input *ngIf="field.type === 'text' || field.type === 'email'" matInput [formControlName]="field.name"
+                        <input *ngIf="field.type === 'text'" matInput [formControlName]="field.name"
                             [type]="field.type" (ngModelChange)="field.onChange ? field.onChange() : null">
                         <mat-select *ngIf="field.type === 'select'" [formControlName]="field.name" (ngModelChange)="field.onChange ? field.onChange() : null">
                             <mat-option *ngFor="let option of field.options" [value]="option.value">
@@ -17,19 +17,14 @@
                             {{ getErrorMessage(field.name) }}
                         </mat-error>
                     </mat-form-field>
-
-                    <mat-checkbox *ngIf="field.type === 'checkbox'" [formControlName]="field.name"
-                        [disabled]="field.disabled ?? false">
-                        {{ field.label }}
-                    </mat-checkbox>
                 </div>
             </div>
             <h4 class="mb-32">Dirección y datos de contacto</h4>
             <div class="row">
                 <div *ngFor="let field of fields2" class="col-6">
-                    <mat-form-field class="w-100 fs-16" *ngIf="field.type !== 'checkbox'" appearance="outline">
+                    <mat-form-field class="w-100 fs-16" *ngIf="field.type !== 'checkbox'" appearance="outline" [class.mat-form-field-invalid]="form.get(field.name)?.invalid && (form.get(field.name)?.dirty || form.get(field.name)?.touched)">
                         <mat-label>{{ field.label }}</mat-label>
-                        <input *ngIf="field.type === 'text' || field.type === 'email'" matInput [formControlName]="field.name"
+                        <input *ngIf="field.type === 'text'" matInput [formControlName]="field.name"
                             [type]="field.type" (ngModelChange)="field.onChange ? field.onChange() : null">
                         <mat-select *ngIf="field.type === 'select'" [formControlName]="field.name" (ngModelChange)="field.onChange ? field.onChange() : null">
                             <mat-option *ngFor="let option of field.options" [value]="option.value">
@@ -40,11 +35,6 @@
                             {{ getErrorMessage(field.name) }}
                         </mat-error>
                     </mat-form-field>
-
-                    <mat-checkbox *ngIf="field.type === 'checkbox'" [formControlName]="field.name"
-                        [disabled]="field.disabled ?? false">
-                        {{ field.label }}
-                    </mat-checkbox>
                 </div>
             </div>
             <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Enviar</button>

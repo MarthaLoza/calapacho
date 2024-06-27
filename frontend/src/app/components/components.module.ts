@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgFor } from '@angular/common';
 import { AlertsComponent } from './alerts/alerts.component';
 import { FeatherModule } from 'angular-feather';
 import { allIcons } from 'angular-feather/icons';
@@ -22,8 +22,8 @@ import { TooltipsComponent } from './tooltips/tooltips.component';
 import { RemisionComponent } from './remision/remision.component';
 import { TerceroComponent } from './tercero/tercero.component';
 import { NotifierModule } from 'angular-notifier';
-
-
+import { MatSelectModule } from '@angular/material/select';
+import { MatOptionModule } from '@angular/material/core';
 
 @NgModule({
   imports: [
@@ -47,9 +47,13 @@ import { NotifierModule } from 'angular-notifier';
     GridListComponent,
     TooltipsComponent,
     FormsModule,
-    NotifierModule
+    NotifierModule,
+    MatSelectModule,
+    MatOptionModule,
+    NgFor
   ],
   exports: [
+    ReactiveFormsModule,
     AlertsComponent,
     FormsComponent,
     GridListComponent,
@@ -65,6 +69,10 @@ import { NotifierModule } from 'angular-notifier';
     SlideToggleComponent,
     ButtonsComponent,
     NotifierModule,
+    DemoFlexyModule,
+    MatSelectModule,
+    MatOptionModule,
+    NgFor,
   ],
   declarations: [
     RemisionComponent,

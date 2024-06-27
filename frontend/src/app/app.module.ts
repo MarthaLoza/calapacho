@@ -21,6 +21,8 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { ComponentsModule } from './components/components.module';
 import { LoginModule } from './login/login.module';
 import { NotifierModule } from 'angular-notifier';
+import { MatSelectModule } from '@angular/material/select';
+import { MatOptionModule } from '@angular/material/core';
 
 @NgModule({
   declarations: [
@@ -54,7 +56,10 @@ import { NotifierModule } from 'angular-notifier';
         behaviour: {
           stacking: false
         }
-    })
+      }),
+    
+    MatSelectModule,
+    MatOptionModule
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: AddTokenInterceptor, multi: true }

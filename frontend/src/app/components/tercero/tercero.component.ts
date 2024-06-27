@@ -4,6 +4,8 @@ import { ErrorService } from 'src/app/services/error.service';
 import { TerceroService } from 'src/app/services/tercero.service';
 import { numericValidator } from 'src/assets/validator';
 import { AdressService } from 'src/app/services/adress.service';
+import { NotifierService } from 'angular-notifier';
+import { Router, NavigationEnd } from '@angular/router';
 
 //** Creación de una interfaz para los input de tipo select */
 export interface Selector {
@@ -56,31 +58,9 @@ export class TerceroComponent implements OnInit {
     { label: 'Dirección 4',        value: '4' },
   ]
 
-  options_dis: Selector[] = [
-    { label: 'Lima',        value: 'L' },
-    { label: 'Arequipa',    value: 'A' },
-    { label: 'Cusco',       value: 'C' },
-    { label: 'Puno',        value: 'P' },
-    { label: 'Tacna',       value: 'T' },
-  ]
-
-  options_prv: Selector[] = [
-    { label: 'Lima',        value: 'L' },
-    { label: 'Arequipa',    value: 'A' },
-    { label: 'Cusco',       value: 'C' },
-    { label: 'Puno',        value: 'P' },
-    { label: 'Tacna',       value: 'T' },
-  ]
-
-  options_dep: Selector[] = [] /* [
-    { label: 'Lima',        value: 'L' },
-    { label: 'Arequipa',    value: 'A' },
-    { label: 'Cusco',       value: 'C' },
-    { label: 'Puno',        value: 'P' },
-    { label: 'Tacna',       value: 'T' },
-  ] */
-
-  
+  options_dis: Selector[] = []
+  options_prv: Selector[] = []
+  options_dep: Selector[] = []
 
   /** Creación de un formulario */
   form: FormGroup;
@@ -97,27 +77,32 @@ export class TerceroComponent implements OnInit {
 
   fields2: Field[] = [
     { type: 'select',   label: 'Tipo de dirección',     name: 'tipdir',     required: true,   options: this.options_di  },
-    { type: 'text',     label: 'Dirección',             name: 'direccion',  required: true, },
+    { type: 'select',   label: 'Departameto',           name: 'coddep',     required: true,   options: this.options_dep, onChange: this.onPrvChange.bind(this) ,defaultValue: '15' },
+    { type: 'select',   label: 'Provincia',             name: 'codprv',     required: true,   options: this.options_prv, onChange: this.onDisChange.bind(this) },
     { type: 'select',   label: 'Distrito',              name: 'coddis',     required: true,   options: this.options_dis },
-    { type: 'select',   label: 'Provincia',             name: 'codprv',     required: true,   options: this.options_prv},
-    { type: 'select',   label: 'Departameto',           name: 'coddep',     required: true,   options: this.options_dep },
+    { type: 'text',     label: 'Dirección',             name: 'direcc',     required: true, },
     { type: 'text',     label: 'Contacto',              name: 'contac',     required: true  },
     { type: 'text',     label: 'Num. Celular',          name: 'telef1',     required: false },
     { type: 'text',     label: 'Correo Electronico',    name: 'email',      required: true  },
   ];
 
-  constructor(private __formbuilder: FormBuilder,
-    private __errorservices: ErrorService,
-    private __tercerService: TerceroService,
-    private __adressService: AdressService,
-    private cdr: ChangeDetectorRef) {
+  constructor(
+    private __formbuilder   : FormBuilder,
+    private __errorservices : ErrorService,
+    private __tercerService : TerceroService,
+    private __adressService : AdressService,
+    private __changeDetRef  : ChangeDetectorRef,
+    private __notifyService : NotifierService,
+    private __router        : Router,
+  ) {
     /** Uso de FormBuilder para crear el formulario */
     this.form = this.__formbuilder.group({});
-    this.getDepartamentos()
     this.createForm();
   }
   
   ngOnInit(): void {
+    this.getDepartamentos();
+    this.onPrvChange();
   }
 
   /**  Método para crear los campos del formulario */
@@ -139,9 +124,7 @@ export class TerceroComponent implements OnInit {
     });
   }
 
-  /**
-   * Método para obtener el código del tercero
-   */
+  /** Método para obtener el código del tercero */
   onSelectChange(): void {
     if(this.form.get('terType')?.value){
       this.__tercerService.getCodigo(this.form.get('terType')?.value)
@@ -154,6 +137,20 @@ export class TerceroComponent implements OnInit {
             this.__errorservices.msjError(error);
           }
         );
+    }
+  }
+
+  /** Metodo que escucha el cambio de departamentos y trae las provincias */
+  onPrvChange(): void {
+    if(this.form.get('coddep')?.value){
+      this.getProvincias(this.form.get('coddep')?.value);
+    }
+  }
+
+  /** Metodo que escucha el cambio de provincias y trae las distritos */
+  onDisChange(): void {
+    if(this.form.get('coddep')?.value && this.form.get('codprv')?.value){
+      this.getDistritos(this.form.get('coddep')?.value, this.form.get('codprv')?.value);
     }
   }
 
@@ -180,36 +177,84 @@ export class TerceroComponent implements OnInit {
 
   /** Método para traer los departamentos */
   getDepartamentos() {
-    this.__adressService.getCodigo()
-      .subscribe(
-        (response: Selector[]) => {
-          this.options_dep = response;  
-          console.log(this.options_dep, '1');
-                  
-        },
-        (error: any) => {
-          this.__errorservices.msjError(error);
-        }
-        );
-        console.log(this.options_dep, '2');
+    this.__adressService.getDeparta()
+      .subscribe(data => {
+         //this.options_dep = data;
+          this.updateFieldOptions('coddep', data);
+          this.__changeDetRef.detectChanges();
+      });
+  }
+
+  /** Método para traer las provincias segun el departamento */
+  getProvincias(coddep: string) {
+    this.__adressService.postProvincia(coddep)
+      .subscribe(data => {
+          this.updateFieldOptions('codprv', data);
+          this.__changeDetRef.detectChanges();
+      });
+  }
+
+  /** Metodo para traer los distritos segun departamento y provincia */
+  getDistritos(coddep: string, codprv: string) {
+    this.__adressService.postDistrito(coddep, codprv)
+      .subscribe(data => {
+          this.updateFieldOptions('coddis', data);
+          this.__changeDetRef.detectChanges();
+      });
+  }
+
+  /** Metodo para actualizar el option */
+  updateFieldOptions(fieldName: string, options: Selector[]) {
+    const field = this.fields2.find(f => f.name === fieldName);
+    if (field) {
+        field.options = options;
+    }
+  }
+
+  /** Método para resetear el formulario y mantener los valores predeterminados */
+  resetForm() {
+    this.form.reset();
+    this.fields.forEach(field => {
+      this.form.get(field.name)?.setValue(field.defaultValue ?? '');
+    });
+    this.fields2.forEach(field => {
+      this.form.get(field.name)?.setValue(field.defaultValue ?? '');
+    });
+  }  
+  
+  debugFormStates() {
+    Object.keys(this.form.controls).forEach(key => {
+      const control = this.form.get(key);
+      console.log(key, 'pristine:', control?.pristine, 'untouched:', control?.untouched, 'status:', control?.status);
+    });
+  }
+
+  resetComponent() {
+    const currentUrl = this.__router.url;
+  
+    this.__router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+      this.__router.navigate([currentUrl]);
+    });
   }
   
-  /** Metodo para optener los datos insertados en el formulario */
+
+  /** Metodo para optener los datos del formulario e insertarlo */
   onSubmit() {
     if (this.form.valid) {
-      console.log(this.form.value);
       this.__tercerService.postCodigo(this.form.value)
         .subscribe(
           (response: any) => {
-            console.log(response);
+            this.__notifyService.notify('success', response.msg);
+            setTimeout(() => {
+              this.resetForm();
+            }, 2000);
           },
           (error: any) => {
             this.__errorservices.msjError(error);
           }
         );
-      
     }
   }
-
+  
   
 }

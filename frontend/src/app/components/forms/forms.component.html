@@ -39,8 +39,20 @@
         <mat-radio-button value="2" class="d-block mb-16">Male</mat-radio-button>
         <mat-radio-button value="3" class="d-block mb-36">Other</mat-radio-button>
       </mat-radio-group>
-
-      <button mat-button class="btn btn-info fw-normal" (click)="onBack()" type="submit">Submit</button>
+      <h4>Basic mat-select</h4>
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline">
+          <mat-label>Favorite food</mat-label>
+          <mat-select formControlName="selection">
+            <mat-option *ngFor="let food of options_dep" [value]="food.value">
+              {{food.label}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        
+        <!-- <button mat-button class="btn btn-info fw-normal" (click)="onBack()" type="submit">Submit</button> -->
+        <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">Enviar</button>
+      </form>
     </form>
   </div>
 </div>

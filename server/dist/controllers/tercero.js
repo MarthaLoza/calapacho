@@ -8,14 +8,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.terceroController = void 0;
 const sequelize_1 = require("sequelize");
 const ctercero_1 = require("../models/ctercero");
+const cterdire_1 = require("../models/cterdire");
+const connection_1 = __importDefault(require("../db/connection"));
 class TerceroController {
     newTercero(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { codigo, nombre, nomaux, ciftyp, cif, coment, estado } = req.body;
+            const { codigo, nombre, nomaux, ciftyp, cif, coment, estado, tipdir, direcc, coddep, codprv, coddis, telef1, email, contac } = req.body;
             let m_tcif = 'RUC';
             // Validamos si el tercero existe en la base de datos por el cif
             const m_exist = yield ctercero_1.Ctercero.findOne({ where: { cif: cif } });
@@ -29,8 +34,10 @@ class TerceroController {
                     msg: `Ya existe un registro con este ${m_tcif}.`
                 });
             }
+            /** Iniciamos una transacción (rollback) */
+            const transaction = yield connection_1.default.transaction();
             try {
-                //Guardamos al tercer en la base de datos
+                /** Guardamos la información del tercero */
                 yield ctercero_1.Ctercero.create({
                     codigo: codigo,
                     nombre: nombre,
@@ -39,12 +46,29 @@ class TerceroController {
                     cif: cif,
                     coment: coment,
                     estado: estado
-                });
+                }, { transaction });
+                /** Guardamos la información de dirección */
+                yield cterdire_1.Cterdire.create({
+                    codigo: codigo,
+                    tipdir: tipdir,
+                    direcc: direcc,
+                    coddep: coddep,
+                    codprv: codprv,
+                    coddis: coddis,
+                    telef1: telef1,
+                    email: email,
+                    contac: contac
+                }, { transaction });
+                /** Si todo va bien, confirmamos la transacción */
+                yield transaction.commit();
                 res.json({
                     msg: `El  registro se creó exitosamente`
                 });
             }
             catch (error) {
+                /** Si hay un error, revertimos todas las operaciones realizadas en la transacción */
+                yield transaction.rollback();
+                /** Retornamos un error controlado */
                 res.status(400).json({
                     msg: 'Upps ocurrio un error',
                     error

@@ -10,8 +10,9 @@ class AdressRoutes {
     }
 
     config() {
-        this.router.get('/departa',  adressController.getDeparta)
-        //this.router.get('/create/:cod', terceroController.getCodTercero)
+        this.router.get('/departa',  adressController.getDeparta);
+        this.router.post('/provincia/:coddep', adressController.getProvincia);
+        this.router.post('/distrito/:coddep/:codprv', adressController.getDistrito);
     }
 
 }
