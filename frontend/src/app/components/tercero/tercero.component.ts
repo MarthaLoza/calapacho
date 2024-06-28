@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ErrorService } from 'src/app/services/error.service';
 import { TerceroService } from 'src/app/services/tercero.service';
@@ -6,6 +6,8 @@ import { numericValidator } from 'src/assets/validator';
 import { AdressService } from 'src/app/services/adress.service';
 import { NotifierService } from 'angular-notifier';
 import { Router, NavigationEnd } from '@angular/router';
+import { MatTableDataSource } from '@angular/material/table';
+import { MatPaginator } from '@angular/material/paginator';
 
 //** Creación de una interfaz para los input de tipo select */
 export interface Selector {
@@ -14,22 +16,11 @@ export interface Selector {
 }
 
 export interface PeriodicElement {
-  id: number;
-  name: string;
-  work: string;
-  project: string;
-  priority: string;
-  badge: string;
-  budget: string;
+  seqno   : number;
+  codigo  : string;
+  nombre  : string;
+  cif     : string;
 }
-
-/* const ELEMENT_DATA: PeriodicElement[] = [
-  { id: 1, name: 'Deep Javiya', work: 'Frontend Devloper', project: 'Flexy Angular', priority: 'Low', badge: 'badge-info', budget: '$3.9k' },
-  { id: 2, name: 'Nirav Joshi', work: 'Project Manager', project: 'Hosting Press HTML', priority: 'Medium', badge: 'badge-primary', budget: '$24.5k' },
-  { id: 3, name: 'Sunil Joshi', work: 'Web Designer', project: 'Elite Admin', priority: 'High', badge: 'badge-danger', budget: '$12.8k' },
-  { id: 4, name: 'Maruti Makwana', work: 'Backend Devloper', project: 'Material Pro', priority: 'Critical', badge: 'badge-success', budget: '$2.4k' },
-];
- */
 
 /** Cración de una interfaz para los campos del formulario */
 interface Field {
@@ -104,13 +95,15 @@ export class TerceroComponent implements OnInit {
     { type: 'text',     label: 'Correo Electronico',    name: 'email',      required: false },
   ];
 
-  displayedColumns: string[] = ['id', 'assigned', 'name', 'priority', 'budget'];
-  dataSource : PeriodicElement[] = [
-    /* { id: 1, name: 'Deep Javiya', work: 'Frontend Devloper', project: 'Flexy Angular', priority: 'Low', badge: 'badge-info', budget: '$3.9k' },
-    { id: 2, name: 'Nirav Joshi', work: 'Project Manager', project: 'Hosting Press HTML', priority: 'Medium', badge: 'badge-primary', budget: '$24.5k' },
-    { id: 3, name: 'Sunil Joshi', work: 'Web Designer', project: 'Elite Admin', priority: 'High', badge: 'badge-danger', budget: '$12.8k' },
-    { id: 4, name: 'Maruti Makwana', work: 'Backend Devloper', project: 'Material Pro', priority: 'Critical', badge: 'badge-success', budget: '$2.4k' },
-   */];;
+  /** Columnas de la tabla */
+  displayedColumns  : string[] = ['seqno', 'codigo', 'nombre', 'cif'];
+  dataSource: MatTableDataSource<PeriodicElement>;
+
+  @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
+
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator || null;
+  }
 
   constructor(
     private __formbuilder   : FormBuilder,
@@ -123,6 +116,7 @@ export class TerceroComponent implements OnInit {
   ) {
     /** Uso de FormBuilder para crear el formulario */
     this.form = this.__formbuilder.group({});
+    this.dataSource = new MatTableDataSource<PeriodicElement>([]);
     this.createForm();
   }
   
@@ -207,7 +201,7 @@ export class TerceroComponent implements OnInit {
     this.__tercerService.getListaTerceros()
       .subscribe(
         (response: any) => {
-          this.dataSource = response;
+          this.dataSource.data = response;
         },
         (error: any) => {
           this.__errorservices.msjError(error);

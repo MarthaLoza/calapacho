@@ -102,9 +102,8 @@ class TerceroController {
 
     public async getTerceros (req: Request, res: Response) {
         const tercero = await Ctercero.findAll({
-            attributes: [['seqno', 'id'],       ['codigo', 'name'], 
-                         ['nombre', 'project'], ['nomaux', 'priority'], 
-                         ['cif', 'badge'],      ['coment', 'budget']]
+            attributes: ['seqno', 'codigo', 'nombre', 'cif'],
+            order: [['seqno', 'ASC']]
         });
 
         res.json(tercero);

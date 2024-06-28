@@ -105,9 +105,8 @@ class TerceroController {
     getTerceros(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const tercero = yield ctercero_1.Ctercero.findAll({
-                attributes: [['seqno', 'id'], ['codigo', 'name'],
-                    ['nombre', 'project'], ['nomaux', 'priority'],
-                    ['cif', 'badge'], ['coment', 'budget']]
+                attributes: ['seqno', 'codigo', 'nombre', 'cif'],
+                order: [['seqno', 'ASC']]
             });
             res.json(tercero);
         });

@@ -9,6 +9,8 @@ import { NgApexchartsModule } from 'ng-apexcharts';
 import { SalesComponent } from './dashboard-components/sales/sales.component';
 import { ActivityComponent } from './dashboard-components/activity/activity.component';
 import { ProductComponent } from './dashboard-components/product/product.component';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatTableModule } from '@angular/material/table';
 
 
 
@@ -24,7 +26,9 @@ import { ProductComponent } from './dashboard-components/product/product.compone
     CommonModule,
     DemoFlexyModule,
     FormsModule,
-    NgApexchartsModule
+    NgApexchartsModule,
+    MatTableModule,
+    MatPaginatorModule
   ],
   exports: [
     DashboardComponent,

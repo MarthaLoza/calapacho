@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment.development';
+import { PeriodicElement } from '../components/tercero/tercero.component';
 
 @Injectable({
   providedIn: 'root'
@@ -24,8 +25,8 @@ export class TerceroService {
     return this.http.post<string>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/create`, data);
   }
 
-  getListaTerceros(): Observable<any> {
-    return this.http.get(`${this.myAppUrl}${this.myApiUrl}/tercero/user/list`);
+  getListaTerceros(): Observable<PeriodicElement[]> {
+    return this.http.get<PeriodicElement[]>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/list`);
   }
 
 }
