@@ -22,7 +22,7 @@ class TerceroController {
         return __awaiter(this, void 0, void 0, function* () {
             const { codigo, nombre, nomaux, ciftyp, cif, coment, estado, tipdir, direcc, coddep, codprv, coddis, telef1, email, contac } = req.body;
             let m_tcif = 'RUC';
-            // Validamos si el tercero existe en la base de datos por el cif
+            // Valworkamos si el tercero existe en la base de datos por el cif
             const m_exist = yield ctercero_1.Ctercero.findOne({ where: { cif: cif } });
             // Confirmamos que tipo de cif es
             if (ciftyp == '1')
@@ -100,6 +100,16 @@ class TerceroController {
                 codigo = `${cod}0001`;
             // Retornamos una respuesta
             res.json(codigo);
+        });
+    }
+    getTerceros(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const tercero = yield ctercero_1.Ctercero.findAll({
+                attributes: [['seqno', 'id'], ['codigo', 'name'],
+                    ['nombre', 'project'], ['nomaux', 'priority'],
+                    ['cif', 'badge'], ['coment', 'budget']]
+            });
+            res.json(tercero);
         });
     }
 }

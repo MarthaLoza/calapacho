@@ -13,6 +13,24 @@ export interface Selector {
   value     : string;
 }
 
+export interface PeriodicElement {
+  id: number;
+  name: string;
+  work: string;
+  project: string;
+  priority: string;
+  badge: string;
+  budget: string;
+}
+
+/* const ELEMENT_DATA: PeriodicElement[] = [
+  { id: 1, name: 'Deep Javiya', work: 'Frontend Devloper', project: 'Flexy Angular', priority: 'Low', badge: 'badge-info', budget: '$3.9k' },
+  { id: 2, name: 'Nirav Joshi', work: 'Project Manager', project: 'Hosting Press HTML', priority: 'Medium', badge: 'badge-primary', budget: '$24.5k' },
+  { id: 3, name: 'Sunil Joshi', work: 'Web Designer', project: 'Elite Admin', priority: 'High', badge: 'badge-danger', budget: '$12.8k' },
+  { id: 4, name: 'Maruti Makwana', work: 'Backend Devloper', project: 'Material Pro', priority: 'Critical', badge: 'badge-success', budget: '$2.4k' },
+];
+ */
+
 /** Cración de una interfaz para los campos del formulario */
 interface Field {
   type          : string;
@@ -76,15 +94,23 @@ export class TerceroComponent implements OnInit {
   ];
 
   fields2: Field[] = [
-    { type: 'select',   label: 'Tipo de dirección',     name: 'tipdir',     required: true,   options: this.options_di  },
+    { type: 'select',   label: 'Tipo de dirección',     name: 'tipdir',     required: true,   options: this.options_di, defaultValue: '0'},
     { type: 'select',   label: 'Departameto',           name: 'coddep',     required: true,   options: this.options_dep, onChange: this.onPrvChange.bind(this) ,defaultValue: '15' },
     { type: 'select',   label: 'Provincia',             name: 'codprv',     required: true,   options: this.options_prv, onChange: this.onDisChange.bind(this) },
     { type: 'select',   label: 'Distrito',              name: 'coddis',     required: true,   options: this.options_dis },
     { type: 'text',     label: 'Dirección',             name: 'direcc',     required: true, },
-    { type: 'text',     label: 'Contacto',              name: 'contac',     required: true  },
-    { type: 'text',     label: 'Num. Celular',          name: 'telef1',     required: false },
-    { type: 'text',     label: 'Correo Electronico',    name: 'email',      required: true  },
+    { type: 'text',     label: 'Contacto',              name: 'contac',     required: false },
+    { type: 'text',     label: 'Num. Celular',          name: 'telef1',     required: true },
+    { type: 'text',     label: 'Correo Electronico',    name: 'email',      required: false },
   ];
+
+  displayedColumns: string[] = ['id', 'assigned', 'name', 'priority', 'budget'];
+  dataSource : PeriodicElement[] = [
+    /* { id: 1, name: 'Deep Javiya', work: 'Frontend Devloper', project: 'Flexy Angular', priority: 'Low', badge: 'badge-info', budget: '$3.9k' },
+    { id: 2, name: 'Nirav Joshi', work: 'Project Manager', project: 'Hosting Press HTML', priority: 'Medium', badge: 'badge-primary', budget: '$24.5k' },
+    { id: 3, name: 'Sunil Joshi', work: 'Web Designer', project: 'Elite Admin', priority: 'High', badge: 'badge-danger', budget: '$12.8k' },
+    { id: 4, name: 'Maruti Makwana', work: 'Backend Devloper', project: 'Material Pro', priority: 'Critical', badge: 'badge-success', budget: '$2.4k' },
+   */];;
 
   constructor(
     private __formbuilder   : FormBuilder,
@@ -101,6 +127,7 @@ export class TerceroComponent implements OnInit {
   }
   
   ngOnInit(): void {
+    this.getListaTerceros();
     this.getDepartamentos();
     this.onPrvChange();
   }
@@ -173,6 +200,19 @@ export class TerceroComponent implements OnInit {
       return 'Solo se aceptan números';
     }
     return '';
+  }
+
+  /** Método para traer la lista de terceros */
+  getListaTerceros() {
+    this.__tercerService.getListaTerceros()
+      .subscribe(
+        (response: any) => {
+          this.dataSource = response;
+        },
+        (error: any) => {
+          this.__errorservices.msjError(error);
+        }
+      );
   }
 
   /** Método para traer los departamentos */

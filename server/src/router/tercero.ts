@@ -12,6 +12,7 @@ class TerceroRoutes {
     config() {
         this.router.post('/create',  terceroController.newTercero)
         this.router.get('/create/:cod', terceroController.getCodTercero)
+        this.router.get('/list', terceroController.getTerceros)
     }
 
 }
