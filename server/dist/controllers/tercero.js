@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.terceroController = void 0;
 const sequelize_1 = require("sequelize");
 const ctercero_1 = require("../models/ctercero");
-const cterdire_1 = require("../models/cterdire");
 const connection_1 = __importDefault(require("../db/connection"));
 class TerceroController {
     newTercero(req, res) {
@@ -48,17 +47,17 @@ class TerceroController {
                     estado: estado
                 }, { transaction });
                 /** Guardamos la información de dirección */
-                yield cterdire_1.Cterdire.create({
-                    codigo: codigo,
-                    tipdir: tipdir,
-                    direcc: direcc,
-                    coddep: coddep,
-                    codprv: codprv,
-                    coddis: coddis,
-                    telef1: telef1,
-                    email: email,
-                    contac: contac
-                }, { transaction });
+                /* await Cterdire.create({
+                    codigo  : codigo,
+                    tipdir  : tipdir,
+                    direcc  : direcc,
+                    coddep  : coddep,
+                    codprv  : codprv,
+                    coddis  : coddis,
+                    telef1  : telef1,
+                    email   : email,
+                    contac  : contac
+                }, { transaction }); */
                 /** Si todo va bien, confirmamos la transacción */
                 yield transaction.commit();
                 res.json({
@@ -107,6 +106,15 @@ class TerceroController {
             const tercero = yield ctercero_1.Ctercero.findAll({
                 attributes: ['seqno', 'codigo', 'nombre', 'cif'],
                 order: [['seqno', 'ASC']]
+            });
+            res.json(tercero);
+        });
+    }
+    getOneTercero(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { seqno } = req.params;
+            const tercero = yield ctercero_1.Ctercero.findOne({
+                where: { seqno }
             });
             res.json(tercero);
         });

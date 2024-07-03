@@ -40,7 +40,7 @@ class TerceroController {
             }, { transaction });
 
             /** Guardamos la información de dirección */
-            await Cterdire.create({
+            /* await Cterdire.create({
                 codigo  : codigo,
                 tipdir  : tipdir,
                 direcc  : direcc,
@@ -50,7 +50,7 @@ class TerceroController {
                 telef1  : telef1,
                 email   : email,
                 contac  : contac
-            }, { transaction });
+            }, { transaction }); */
 
             /** Si todo va bien, confirmamos la transacción */
             await transaction.commit();
@@ -104,6 +104,16 @@ class TerceroController {
         const tercero = await Ctercero.findAll({
             attributes: ['seqno', 'codigo', 'nombre', 'cif'],
             order: [['seqno', 'ASC']]
+        });
+
+        res.json(tercero);
+    }
+
+    public async getOneTercero (req: Request, res: Response) {
+        const { seqno } = req.params;
+
+        const tercero = await Ctercero.findOne({
+            where: { seqno }
         });
 
         res.json(tercero);

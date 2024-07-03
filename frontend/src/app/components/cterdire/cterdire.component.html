@@ -1,0 +1,67 @@
+<div class="card">
+    <div class="card-body">
+        <form [formGroup]="form2" (ngSubmit)="onSubmitDirec()">
+            <div class="buttons">
+                <button mat-fab color="primary" type="submit" [disabled]="form2.invalid">
+                    <mat-icon>add</mat-icon>
+                </button>
+            </div>
+            <div class="row">
+                <div *ngFor="let field of fields2" class="col-6">
+                    <mat-form-field class="w-100 fs-16" *ngIf="field.type !== 'checkbox'" appearance="outline" [class.mat-form-field-invalid]="form2.get(field.name)?.invalid && (form2.get(field.name)?.dirty || form2.get(field.name)?.touched)">
+                        <mat-label>{{ field.label }}</mat-label>
+                        <input *ngIf="field.type === 'text'" matInput [formControlName]="field.name"
+                            [type]="field.type" (ngModelChange)="field.onChange ? field.onChange() : null">
+                        <mat-select *ngIf="field.type === 'select'" [formControlName]="field.name" (ngModelChange)="field.onChange ? field.onChange() : null">
+                            <mat-option *ngFor="let option of field.options" [value]="option.value">
+                                {{ option.label }}
+                            </mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="form2.get(field.name)?.invalid">
+                            {{ getErrorMessage(field.name) }}
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+            </div>
+        </form>
+        <!-- Vista de terceros -->
+        <div class="table-responsive">
+            <table mat-table [dataSource]="dataSource" class="text-nowrap w-100">
+        
+                <!-- Id Column -->
+                <ng-container matColumnDef="nomdir">
+                    <th mat-header-cell *matHeaderCellDef> Tip. Dirección </th>
+                    <td mat-cell class="fw-medium op-7" *matCellDef="let element"> {{element.nomdir}} </td>
+                </ng-container>
+            
+                <!-- Código Column -->
+                <ng-container matColumnDef="direcc">
+                    <th mat-header-cell *matHeaderCellDef> Dirección </th>
+                    <td mat-cell *matCellDef="let element">
+                    <p class="mb-0 fw-medium op-7">{{ element.direcc }}</p>
+                    </td>
+                </ng-container>
+            
+                <!-- Nombre Column -->
+                <ng-container matColumnDef="telef1">
+                    <th mat-header-cell *matHeaderCellDef> Celular </th>
+                    <td mat-cell *matCellDef="let element">
+                    <p class="mb-0 fw-medium op-7">{{element.telef1}}</p>
+                    </td>
+                </ng-container>
+            
+                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                <tr 
+                    mat-row 
+                    (click)="onRowClicked(row)"
+                    [class.selected]="selectedRow === row"
+                    *matRowDef="let row; columns: displayedColumns;"></tr>
+            </table>
+        
+            <mat-paginator [pageSizeOptions]="[5, 10, 20]"
+                            showFirstLastButtons
+                            aria-label="Select page of periodic elements">
+            </mat-paginator>
+        </div>
+    </div>
+</div>

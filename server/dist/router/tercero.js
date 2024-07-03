@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const tercero_1 = require("../controllers/tercero");
+const cterdire_1 = require("../controllers/cterdire");
 class TerceroRoutes {
     constructor() {
         this.router = (0, express_1.Router)();
@@ -11,6 +12,9 @@ class TerceroRoutes {
         this.router.post('/create', tercero_1.terceroController.newTercero);
         this.router.get('/create/:cod', tercero_1.terceroController.getCodTercero);
         this.router.get('/list', tercero_1.terceroController.getTerceros);
+        this.router.post('/list/:seqno', tercero_1.terceroController.getOneTercero);
+        this.router.post('/list/direcciones/:codigo', cterdire_1.cterdireController.getDirecciones);
+        this.router.post('/list/direccion/:codigo/:tipdir', cterdire_1.cterdireController.getOneDireccion);
     }
 }
 const terceroRoutes = new TerceroRoutes();

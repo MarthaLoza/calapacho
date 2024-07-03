@@ -1,0 +1,33 @@
+/** Estilos para formulario y botón */
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin: -9px 0px 16px 0px;
+}
+
+/** Estilos para la tabla */
+.demo-row-is-clicked {
+    //font-weight: bold;
+    background-color : #dfdbf9
+  }
+  
+  .selected {
+    background-color : #dfdbf9
+  }
+  
+  .demo-table {
+    width: 100%;
+  }
+  
+  .mat-mdc-row .mat-mdc-cell {
+    border-bottom: 1px solid transparent;
+    border-top: 1px solid transparent;
+    cursor: pointer;
+  }
+  
+  .mat-mdc-row:hover .mat-mdc-cell {
+    //border-color: currentColor;
+    background-color : #dfdbf9
+  }
+  

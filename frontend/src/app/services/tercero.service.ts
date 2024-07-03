@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment.development';
-import { PeriodicElement } from '../components/tercero/tercero.component';
+import { DirecTercero, DireccElement, TercerElement } from '../interfaces/user';
 
 @Injectable({
   providedIn: 'root'
@@ -25,8 +25,20 @@ export class TerceroService {
     return this.http.post<string>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/create`, data);
   }
 
-  getListaTerceros(): Observable<PeriodicElement[]> {
-    return this.http.get<PeriodicElement[]>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/list`);
+  getListaTerceros(): Observable<TercerElement[]> {
+    return this.http.get<TercerElement[]>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/list`);
+  }
+
+  getOneTercero(seqno: number): Observable<string> {
+    return this.http.post<string>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/list/${seqno}`, {});
+  }
+
+  getDireccionesTercero(codigo: string): Observable<Array<DireccElement>> {
+    return this.http.post<Array<DireccElement>>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/list/direcciones/${codigo}`, {});
+  }
+
+  getOneDireccionTercero(codigo: string, tipdir: number): Observable<DirecTercero> {
+    return this.http.post<DirecTercero>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/list/direccion/${codigo}/${tipdir}`, {});
   }
 
 }

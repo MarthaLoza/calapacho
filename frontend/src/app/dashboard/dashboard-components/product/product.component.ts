@@ -27,6 +27,7 @@ export class ProductComponent implements OnInit {
 
   displayedColumns: string[] = ['id', 'assigned', 'name', 'priority', 'budget'];
   dataSource = ELEMENT_DATA;
+  clickedRows = new Set<PeriodicElement>();
 
   constructor() { }
 

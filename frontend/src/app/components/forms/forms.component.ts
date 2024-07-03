@@ -6,11 +6,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { Router } from '@angular/router';
-import { Selector } from '../tercero/tercero.component';
 import { AdressService } from 'src/app/services/adress.service';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { NgFor } from '@angular/common';
+import { Selector } from 'src/app/interfaces/user';
 
 interface Food {
   value: string;

@@ -24,6 +24,7 @@ import { TerceroComponent } from './tercero/tercero.component';
 import { NotifierModule } from 'angular-notifier';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
+import { CterdireComponent } from './cterdire/cterdire.component';
 
 @NgModule({
   imports: [
@@ -77,6 +78,7 @@ import { MatOptionModule } from '@angular/material/core';
   declarations: [
     RemisionComponent,
     TerceroComponent,
+    CterdireComponent,
   ]
 })
 export class ComponentsModule { }

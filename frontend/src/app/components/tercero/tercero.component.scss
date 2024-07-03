@@ -14,6 +14,11 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  margin: -9px 0px 16px 0px;
+}
+
+.buttons button {
+  margin: 0px 8px;
 }
 
 
@@ -39,4 +44,30 @@ th.mat-header-cell {
 
 .mat-header-cell {
   font-size: 14px;
+}
+
+
+
+/*.demo-row-is-clicked {
+  font-weight: bold;
+  background-color : #dfdbf9
+}*/
+
+.selected {
+  background-color : #dfdbf9
+}
+
+.demo-table {
+  width: 100%;
+}
+
+.mat-mdc-row .mat-mdc-cell {
+  border-bottom: 1px solid transparent;
+  border-top: 1px solid transparent;
+  cursor: pointer;
+}
+
+.mat-mdc-row:hover .mat-mdc-cell {
+  //border-color: currentColor;
+  background-color : #dfdbf9
 }
