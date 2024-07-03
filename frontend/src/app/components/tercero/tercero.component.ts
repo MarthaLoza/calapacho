@@ -72,6 +72,7 @@ export class TerceroComponent implements OnInit {
     this.form       = this.__formbuilder.group({});
     this.dataSource = new MatTableDataSource<TercerElement>([]);
     this.createForm();
+    this.listenToFormChanges();
   }
   
   ngOnInit(): void {
@@ -89,9 +90,24 @@ export class TerceroComponent implements OnInit {
     });
   }
 
+  /** Metodo que escucha al formulario, si se edita se desactiva el botón de reset */
+  listenToFormChanges() {
+
+    /** Recorremos el formulario */
+    this.fields.forEach(field => {
+
+      const control = this.form.get(field.name); /** Se obtiene el controlName de cada input */
+      this.form.valueChanges.subscribe(() => {
+        /** Validammos si se toca algun input */
+        if(control?.pristine == false || control?.untouched == false){
+          this.valid_bot_reset = true;
+        }
+      });      
+    });
+  }
+
   /** Método para manejar el clic en una fila de la tabla */
   onRowClicked(row: TercerElement | null = null) {
-
     this.selectedRow = row ? row : this.dataSource.data[0];
     this.__tercerService.getOneTercero(this.selectedRow.seqno)
       .subscribe(
@@ -106,6 +122,7 @@ export class TerceroComponent implements OnInit {
           this.form.get('estado')?.setValue(response.estado);
 
           this.cod_tercer = response.codigo;
+          this.valid_bot_reset = false;
         },
         (error: any) => {
           this.__errorservices.msjError(error);
@@ -167,11 +184,18 @@ export class TerceroComponent implements OnInit {
   /** Método para resetear el formulario y mantener los valores predeterminados */
   resetForm() {
     this.form.reset();
+
+    /** Asigno los datos por defecto del formulario */
     this.fields.forEach(field => {
       this.form.get(field.name)?.setValue(field.defaultValue ?? '');
     });
-  }  
+    
+    this.valid_bot_reset  = true;   /** Desactivo el botón de reset */
+    this.cod_tercer       = '';     /** Vacio el valor del código tercer */
+    this.dataSource.data  = [];     /** Vacio la tabla */
+  }
   
+  /** Método para obtener los estados del formulario */
   debugFormStates() {
     Object.keys(this.form.controls).forEach(key => {
       const control = this.form.get(key);
@@ -179,6 +203,7 @@ export class TerceroComponent implements OnInit {
     });
   }
 
+  /** Método para resetear el componente y te redirige de nuevo al mismo */
   resetComponent() {
     const currentUrl = this.__router.url;
   
@@ -187,7 +212,6 @@ export class TerceroComponent implements OnInit {
     });
   }
   
-
   /** Metodo para optener los datos del formulario e insertarlo */
   onSubmit() {
     if (this.form.valid) {

@@ -4,7 +4,13 @@
                 <div class="card-body">
                     <form [formGroup]="form" (ngSubmit)="onSubmit()">
                         <div class="buttons">
-                            <button mat-fab color="primary" type="submit" [disabled]="valid_bot_reset">
+                            <button 
+                                mat-fab 
+                                color="primary" 
+                                type="button" 
+                                [disabled]="valid_bot_reset"
+                                (click)="resetForm()"
+                            >
                                 <mat-icon>description</mat-icon>
                             </button>
                             <button mat-fab color="primary" type="submit" [disabled]="form.invalid">

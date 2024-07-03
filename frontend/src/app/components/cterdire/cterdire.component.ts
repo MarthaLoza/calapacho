@@ -184,6 +184,14 @@ export class CterdireComponent {
             this.__errorservices.msjError(error);
           }
         );
+    }else{
+      this.form2.reset();
+      /** Agregamos los datos por default al formulario */
+      this.fields2.forEach(field => {
+        this.form2.get(field.name)?.setValue(field.defaultValue ?? '');
+      });
+      /** La tabla no tendrá datos */
+      this.dataSource.data = [];
     }
   }
 
