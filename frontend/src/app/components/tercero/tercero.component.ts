@@ -46,13 +46,18 @@ export class TerceroComponent implements OnInit {
     { type: 'select',   label: 'Estado',                name: 'estado',   required: true, options: this.options_te, defaultValue: 'A'  },
   ];
   
-  cod_tercer      = '';
-  valid_bot_reset = false;
+  cod_tercer        = '';     // Variable para controlar el código del tercero
+  valid_bot_reset   = false;  // Variable para controlar el botón de reset
+  valid_bot_update  = true;   // Variable para controlar el botón de actualizar
+  valid_bot_delete  = false;  // Variable para controlar el botón de eliminar
+  user_action       = true;   // Variable para controlar la acción del usuario
+  index_table       = 0;      // Variable para controlar el indice de la tabla
+  seqno_tercer      = null;   // Variable para controlar el seqno del tercero
 
   /** Columnas de la tabla */
   displayedColumns  : string[] = ['seqno', 'codigo', 'nombre', 'cif'];
   dataSource        : MatTableDataSource<TercerElement>;
-  clickedRows       = new Set<TercerElement>();
+  //clickedRows       = new Set<TercerElement>();
   selectedRow       : TercerElement | null = null;
   
   @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
@@ -90,6 +95,33 @@ export class TerceroComponent implements OnInit {
     });
   }
 
+  buildValidators(field: Field) {
+    const validators = field.required ? [Validators.required] : [];
+    if (field.validators) {
+      validators.push(...field.validators);
+    }
+    return validators;
+  }
+
+  /* *************************************************************************** */
+  /*                        Metodos que escuchan a campos                        */
+  /* *************************************************************************** */
+
+  /** Método para obtener el código del tercero */
+  onSelectChange(): void {
+    if(this.user_action && this.form.get('terType')?.value) {
+      this.__tercerService.getCodigo(this.form.get('terType')?.value)
+        .subscribe(
+          (response: any) => {
+            this.form.get('codigo')?.setValue(response);
+          },
+          (error: any) => {
+            this.__errorservices.msjError(error);
+          }
+        );
+    }
+  }
+
   /** Metodo que escucha al formulario, si se edita se desactiva el botón de reset */
   listenToFormChanges() {
 
@@ -100,7 +132,12 @@ export class TerceroComponent implements OnInit {
       this.form.valueChanges.subscribe(() => {
         /** Validammos si se toca algun input */
         if(control?.pristine == false || control?.untouched == false){
-          this.valid_bot_reset = true;
+          this.valid_bot_reset  = true;
+          this.valid_bot_delete = true;
+
+          if(this.selectedRow) {
+            this.valid_bot_update = false; // Activamos el botón de actualizar
+          }
         }
       });      
     });
@@ -108,50 +145,39 @@ export class TerceroComponent implements OnInit {
 
   /** Método para manejar el clic en una fila de la tabla */
   onRowClicked(row: TercerElement | null = null) {
-    this.selectedRow = row ? row : this.dataSource.data[0];
-    this.__tercerService.getOneTercero(this.selectedRow.seqno)
-      .subscribe(
-        (response: any) => {
-          this.form.get('terType')?.setValue(response.codigo[0]);
-          this.form.get('codigo')?.setValue(response.codigo);
-          this.form.get('nombre')?.setValue(response.nombre);
-          this.form.get('nomaux')?.setValue(response.nomaux);
-          this.form.get('ciftyp')?.setValue(response.ciftyp);
-          this.form.get('cif')?.setValue(response.cif);
-          this.form.get('coment')?.setValue(response.coment);
-          this.form.get('estado')?.setValue(response.estado);
+    
+    /** Le damos el valor de la primera fila de la tabla */
+    this.selectedRow = row ? row : this.dataSource.data[this.index_table];
+    
+    this.user_action = false; // Desactivo la accion del usuario
+    
+    const data = this.selectedRow;
+    /** Se pinta la información en los compos del formulario */
+    this.form.get('terType')?.setValue(data?.codigo[0]);
+    this.form.get('codigo')?.setValue(data?.codigo);
+    this.form.get('nombre')?.setValue(data?.nombre);
+    this.form.get('nomaux')?.setValue(data?.nomaux);
+    this.form.get('ciftyp')?.setValue(data?.ciftyp);
+    this.form.get('cif')?.setValue(data?.cif);
+    this.form.get('coment')?.setValue(data?.coment);
+    this.form.get('estado')?.setValue(data?.estado);
 
-          this.cod_tercer = response.codigo;
-          this.valid_bot_reset = false;
-        },
-        (error: any) => {
-          this.__errorservices.msjError(error);
-        }
-      );
+    this.cod_tercer       = data?.codigo;
+
+    this.valid_bot_reset  = false;  // Activo el botón de reset
+    this.valid_bot_update = true;   // Desactivo el botón de actualizar
+    this.valid_bot_delete = false;  // Activo el botón de eliminar
+    this.user_action      = true;   // Activo la acción del usuario
   }
 
-  /** Método para obtener el código del tercero */
-  onSelectChange(): void {
-    if(this.form.get('terType')?.value){
-      this.__tercerService.getCodigo(this.form.get('terType')?.value)
-        .subscribe(
-          (response: any) => {
-            this.form.get('codigo')?.setValue(response);
-            
-          },
-          (error: any) => {
-            this.__errorservices.msjError(error);
-          }
-        );
-    }
-  }
+  /** Metodo para guardar el id de la selección del tercero de la tabla */
+  restoreSelectedRow() {
+    let selectedRowId     = this.selectedRow ? this.selectedRow.seqno : this.seqno_tercer;
+    const newSelectedRow  = this.dataSource.data.find(row => row.seqno === selectedRowId);
 
-  buildValidators(field: Field) {
-    const validators = field.required ? [Validators.required] : [];
-    if (field.validators) {
-      validators.push(...field.validators);
+    if (newSelectedRow) {
+      this.onRowClicked(newSelectedRow);
     }
-    return validators;
   }
 
   /** Método para obtener mensajes de error */
@@ -167,13 +193,31 @@ export class TerceroComponent implements OnInit {
     return '';
   }
 
+  /* *************************************************************************** */
+  /*                        Metodos que traen datos                              */
+  /* *************************************************************************** */
+
   /** Método para traer la lista de terceros */
   getListaTerceros() {
     this.__tercerService.getListaTerceros()
       .subscribe(
         (response: any) => {
+          /** Asignamos los datos a dataSource */
           this.dataSource.data = response;
-          this.onRowClicked();
+
+          /** Si no se a selccionado nada (al inicio) */
+          if(!this.selectedRow) {
+            this.onRowClicked();
+          }else{
+            /** if para tomar la selección de un tercero que acabamos de insertar */
+            if(this.seqno_tercer){
+              console.log(this.seqno_tercer, "SEQNO");
+              
+              this.selectedRow.seqno = this.seqno_tercer;
+            }
+            /** Llamamos al metodo que guarda seqnos del tercero */
+            this.restoreSelectedRow();
+          }
         },
         (error: any) => {
           this.__errorservices.msjError(error);
@@ -181,18 +225,26 @@ export class TerceroComponent implements OnInit {
       );
   }
 
+  /* *************************************************************************** */
+  /*                           Limpieza de formulario                            */
+  /* *************************************************************************** */
+
   /** Método para resetear el formulario y mantener los valores predeterminados */
   resetForm() {
-    this.form.reset();
-
+    this.form.reset();        // Reseteo el formulario
+    //this.user_action = false; // Desactivo la acción del usuario
+    
     /** Asigno los datos por defecto del formulario */
     this.fields.forEach(field => {
-      this.form.get(field.name)?.setValue(field.defaultValue ?? '');
+      this.form.get(field.name)?.setValue(field.defaultValue ?? '');      
     });
     
-    this.valid_bot_reset  = true;   /** Desactivo el botón de reset */
-    this.cod_tercer       = '';     /** Vacio el valor del código tercer */
-    this.dataSource.data  = [];     /** Vacio la tabla */
+    this.valid_bot_reset  = true;   // Desactivo el botón de reset
+    this.valid_bot_update = true;   // Desactivo el botón de actualizar
+    this.valid_bot_delete = true;   // Desactivo el botón de eliminar
+    this.cod_tercer       = '';     // Vacio el valor del código tercer
+    this.dataSource.data  = [];     // Vacio la tabla
+    this.selectedRow      = null;   // Vacio la fila seleccionada
   }
   
   /** Método para obtener los estados del formulario */
@@ -211,16 +263,47 @@ export class TerceroComponent implements OnInit {
       this.__router.navigate([currentUrl]);
     });
   }
+
+  /* *************************************************************************** */
+  /*                           Botones del formulario                            */
+  /* *************************************************************************** */
   
   /** Metodo para optener los datos del formulario e insertarlo */
   onSubmit() {
     if (this.form.valid) {
-      this.__tercerService.postCodigo(this.form.value)
+      /** Validamos que se vuelva a calcular el código terero */
+      this.onSelectChange();
+
+      setTimeout(() => {
+        
+        /** Insertamos el nuevo tercero */
+        this.__tercerService.postTercero(this.form.value)
+        .subscribe(
+          (response: any) => {
+            this.seqno_tercer = response.data.seqno;
+            this.__notifyService.notify('success', response.msg);
+            setTimeout(() => {
+              this.getListaTerceros()
+            }, 1000);            
+          },
+          (error: any) => {
+            this.__errorservices.msjError(error);
+            console.log(error);            
+          }
+          );
+      }, 2000);
+    }
+  }
+
+  /** Método para actualizar un tercero */
+  updateForm(){
+    if(this.form.valid){
+      this.__tercerService.putTercero(this.form.value, this.selectedRow?.seqno || 0)
         .subscribe(
           (response: any) => {
             this.__notifyService.notify('success', response.msg);
             setTimeout(() => {
-              this.resetForm();
+              this.getListaTerceros()
             }, 2000);
           },
           (error: any) => {
@@ -228,6 +311,11 @@ export class TerceroComponent implements OnInit {
           }
         );
     }
+  }
+
+  /** Metodo para eliminar un tercero */
+  deleteForm() {
+    
   }
   
 }

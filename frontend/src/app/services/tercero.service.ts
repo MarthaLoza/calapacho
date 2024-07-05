@@ -21,7 +21,7 @@ export class TerceroService {
     return this.http.get<string>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/create/${codigo}`);
   }
 
-  postCodigo(data: object): Observable<string> {
+  postTercero(data: object): Observable<string> {
     return this.http.post<string>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/create`, data);
   }
 
@@ -39,6 +39,14 @@ export class TerceroService {
 
   getOneDireccionTercero(codigo: string, tipdir: number): Observable<DirecTercero> {
     return this.http.post<DirecTercero>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/list/direccion/${codigo}/${tipdir}`, {});
+  }
+
+  putTercero(data: object, seqno: number): Observable<string> {
+    return this.http.put<string>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/update/${seqno}`, data);
+  }
+
+  deleteTercero(seqno: number): Observable<string> {
+    return this.http.delete<string>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/delete/${seqno}`);
   }
 
 }

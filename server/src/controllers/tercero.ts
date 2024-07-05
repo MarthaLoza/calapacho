@@ -6,6 +6,7 @@ import sequelize from "../db/connection";
 
 class TerceroController {
     
+    /** Nuevo tercero */
     public async newTercero (req: Request, res: Response) {
 
         const { codigo, nombre, nomaux, ciftyp,  cif, coment, estado, tipdir, direcc, coddep, codprv, coddis, telef1, email, contac } = req.body;
@@ -29,7 +30,7 @@ class TerceroController {
 
         try {
             /** Guardamos la información del tercero */
-            await Ctercero.create({
+            const data = await Ctercero.create({
                 codigo  : codigo,
                 nombre  : nombre,
                 nomaux  : nomaux,
@@ -56,7 +57,8 @@ class TerceroController {
             await transaction.commit();
 
             res.json({
-                msg: `El  registro se creó exitosamente`
+                msg     : `El  registro se creó exitosamente`,
+                data
             })
 
         } catch (error) {
@@ -71,6 +73,7 @@ class TerceroController {
         }
     }
 
+    /** Trae el código del tercero correlativo */
     public async getCodTercero (req: Request, res: Response){
         // Traemos los parametros que vienen desde la URL
         const { cod } = req.params;
@@ -100,15 +103,19 @@ class TerceroController {
         
     }
 
+    /** Lista de terceros */
     public async getTerceros (req: Request, res: Response) {
         const tercero = await Ctercero.findAll({
-            attributes: ['seqno', 'codigo', 'nombre', 'cif'],
+            attributes: [ 'seqno',      'codigo',       'nombre', 
+                          'nomaux',     'ciftyp',       'cif', 
+                          'estado',     'coment' ],
             order: [['seqno', 'ASC']]
         });
 
         res.json(tercero);
     }
 
+    /** Trae un tercero */
     public async getOneTercero (req: Request, res: Response) {
         const { seqno } = req.params;
 
@@ -117,6 +124,66 @@ class TerceroController {
         });
 
         res.json(tercero);
+    }
+
+    /** Edita un tercero */
+    public async editTercero (req: Request, res: Response) {
+        const { seqno } = req.params;
+        const { codigo, nombre, nomaux, ciftyp, cif, coment, estado } = req.body;
+
+        const tercero = await Ctercero.update({
+            codigo, nombre, nomaux, ciftyp, cif, coment, estado
+        }, {
+            where: { seqno }
+        });
+
+        res.json({
+            msg: 'El registro se actualizó exitosamente'
+        });
+    }
+
+    /** Elimina un tercero */
+    public async deleteTercero (req: Request, res: Response) {
+        const { seqno } = req.params;
+
+        /** Iniciamos una transacción (rollback) */
+        const transaction = await sequelize.transaction();
+
+        try {
+
+            /** Eliminación del tercero */
+            const tercero = await Ctercero.destroy({
+                where: { seqno }
+            });
+
+            /** Obtenemos el código del tercero */
+            const codTercero = await Ctercero.findOne({
+                attributes: ['codigo'],
+                where: { seqno }
+            });
+
+            /** Eliminación de la dirección del tercero */
+            const direcciones = await Cterdire.destroy({
+                where: { codigo: codTercero }
+            });
+            
+            /** Si todo va bien, confirmamos la transacción */
+            await transaction.commit();
+
+            res.json({
+                msg: 'El registro se eliminó exitosamente'
+            });
+            
+        } catch (error) {
+            /** Si hay un error, revertimos todas las operaciones */
+            await transaction.rollback();
+
+            /** Retornamos un error controlado */
+            res.status(400).json({
+                msg: 'Upps ocurrio un error',
+                error
+            });
+        }
     }
 }
 

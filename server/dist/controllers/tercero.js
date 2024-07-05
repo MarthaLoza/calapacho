@@ -15,8 +15,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.terceroController = void 0;
 const sequelize_1 = require("sequelize");
 const ctercero_1 = require("../models/ctercero");
+const cterdire_1 = require("../models/cterdire");
 const connection_1 = __importDefault(require("../db/connection"));
 class TerceroController {
+    /** Nuevo tercero */
     newTercero(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { codigo, nombre, nomaux, ciftyp, cif, coment, estado, tipdir, direcc, coddep, codprv, coddis, telef1, email, contac } = req.body;
@@ -37,7 +39,7 @@ class TerceroController {
             const transaction = yield connection_1.default.transaction();
             try {
                 /** Guardamos la información del tercero */
-                yield ctercero_1.Ctercero.create({
+                const data = yield ctercero_1.Ctercero.create({
                     codigo: codigo,
                     nombre: nombre,
                     nomaux: nomaux,
@@ -61,7 +63,8 @@ class TerceroController {
                 /** Si todo va bien, confirmamos la transacción */
                 yield transaction.commit();
                 res.json({
-                    msg: `El  registro se creó exitosamente`
+                    msg: `El  registro se creó exitosamente`,
+                    data
                 });
             }
             catch (error) {
@@ -75,6 +78,7 @@ class TerceroController {
             }
         });
     }
+    /** Trae el código del tercero correlativo */
     getCodTercero(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             // Traemos los parametros que vienen desde la URL
@@ -101,15 +105,19 @@ class TerceroController {
             res.json(codigo);
         });
     }
+    /** Lista de terceros */
     getTerceros(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const tercero = yield ctercero_1.Ctercero.findAll({
-                attributes: ['seqno', 'codigo', 'nombre', 'cif'],
+                attributes: ['seqno', 'codigo', 'nombre',
+                    'nomaux', 'ciftyp', 'cif',
+                    'estado', 'coment'],
                 order: [['seqno', 'ASC']]
             });
             res.json(tercero);
         });
     }
+    /** Trae un tercero */
     getOneTercero(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { seqno } = req.params;
@@ -117,6 +125,58 @@ class TerceroController {
                 where: { seqno }
             });
             res.json(tercero);
+        });
+    }
+    /** Edita un tercero */
+    editTercero(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { seqno } = req.params;
+            const { codigo, nombre, nomaux, ciftyp, cif, coment, estado } = req.body;
+            const tercero = yield ctercero_1.Ctercero.update({
+                codigo, nombre, nomaux, ciftyp, cif, coment, estado
+            }, {
+                where: { seqno }
+            });
+            res.json({
+                msg: 'El registro se actualizó exitosamente'
+            });
+        });
+    }
+    /** Elimina un tercero */
+    deleteTercero(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { seqno } = req.params;
+            /** Iniciamos una transacción (rollback) */
+            const transaction = yield connection_1.default.transaction();
+            try {
+                /** Eliminación del tercero */
+                const tercero = yield ctercero_1.Ctercero.destroy({
+                    where: { seqno }
+                });
+                /** Obtenemos el código del tercero */
+                const codTercero = yield ctercero_1.Ctercero.findOne({
+                    attributes: ['codigo'],
+                    where: { seqno }
+                });
+                /** Eliminación de la dirección del tercero */
+                const direcciones = yield cterdire_1.Cterdire.destroy({
+                    where: { codigo: codTercero }
+                });
+                /** Si todo va bien, confirmamos la transacción */
+                yield transaction.commit();
+                res.json({
+                    msg: 'El registro se eliminó exitosamente'
+                });
+            }
+            catch (error) {
+                /** Si hay un error, revertimos todas las operaciones */
+                yield transaction.rollback();
+                /** Retornamos un error controlado */
+                res.status(400).json({
+                    msg: 'Upps ocurrio un error',
+                    error
+                });
+            }
         });
     }
 }

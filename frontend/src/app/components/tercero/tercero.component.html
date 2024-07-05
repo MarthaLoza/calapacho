@@ -4,17 +4,42 @@
                 <div class="card-body">
                     <form [formGroup]="form" (ngSubmit)="onSubmit()">
                         <div class="buttons">
+                            <!-- Botón limpiar -->
                             <button 
                                 mat-fab 
-                                color="primary" 
-                                type="button" 
-                                [disabled]="valid_bot_reset"
-                                (click)="resetForm()"
+                                color       = "primary" 
+                                type        = "button" 
+                                [disabled]  = "valid_bot_reset"
+                                (click)     = "resetForm()"
                             >
                                 <mat-icon>description</mat-icon>
                             </button>
+
+                            <!-- Botón guardar -->
                             <button mat-fab color="primary" type="submit" [disabled]="form.invalid">
                                 <mat-icon>add</mat-icon>
+                            </button>
+
+                            <!-- Botón actualizar -->
+                            <button 
+                                mat-fab 
+                                color       = "primary" 
+                                type        = "button" 
+                                [disabled]  = valid_bot_update
+                                (click)     = "updateForm()"
+                            >
+                                <mat-icon>save</mat-icon>
+                            </button>
+
+                            <!-- Botón eliminar -->
+                            <button 
+                                mat-fab 
+                                color       = "primary" 
+                                type        = "button" 
+                                [disabled]  = valid_bot_delete
+                                (click)     = "deleteForm()"
+                            >
+                                <mat-icon>delete</mat-icon>
                             </button>
                         </div>
                         <div class="row">

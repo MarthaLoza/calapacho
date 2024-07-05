@@ -26,7 +26,11 @@ export interface TercerElement {
     seqno   : number;
     codigo  : string;
     nombre  : string;
+    nomaux  : string;
+    ciftyp  : string;
     cif     : string;
+    estado  : string;
+    coment  : string;
 }
 
 export interface DireccElement {

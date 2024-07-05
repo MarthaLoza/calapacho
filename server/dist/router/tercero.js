@@ -15,6 +15,8 @@ class TerceroRoutes {
         this.router.post('/list/:seqno', tercero_1.terceroController.getOneTercero);
         this.router.post('/list/direcciones/:codigo', cterdire_1.cterdireController.getDirecciones);
         this.router.post('/list/direccion/:codigo/:tipdir', cterdire_1.cterdireController.getOneDireccion);
+        this.router.put('/update/:seqno', tercero_1.terceroController.editTercero);
+        this.router.delete('/delete/:seqno', tercero_1.terceroController.deleteTercero);
     }
 }
 const terceroRoutes = new TerceroRoutes();
