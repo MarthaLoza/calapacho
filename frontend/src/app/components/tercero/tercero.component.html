@@ -2,7 +2,7 @@
         <mat-tab label="Datos Principales">
             <div class="card">
                 <div class="card-body">
-                    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+                    <form [formGroup]="form" (ngSubmit)="insertForm()">
                         <div class="buttons">
                             <!-- Botón limpiar -->
                             <button 
@@ -37,7 +37,7 @@
                                 color       = "primary" 
                                 type        = "button" 
                                 [disabled]  = valid_bot_delete
-                                (click)     = "deleteForm()"
+                                (click)     = "openDialog()"
                             >
                                 <mat-icon>delete</mat-icon>
                             </button>

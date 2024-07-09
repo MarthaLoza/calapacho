@@ -4,31 +4,93 @@ import { Ctercero } from "../models/ctercero";
 import { Cterdire } from "../models/cterdire";
 import sequelize from "../db/connection";
 
+/** Función para generar el código del tercero */
+async function generateCodigoTercero(cod: string): Promise<string> {
+    const codTercero = await Ctercero.findOne({
+        attributes: {
+            include: [
+                [
+                    Sequelize.literal(`(
+                        SELECT '${cod}' || LPAD(CAST(CAST(SUBSTRING(codigo FROM 2 FOR 4) AS INTEGER) + 1 AS VARCHAR), 4, '0')
+                        FROM ctercero
+                        WHERE codigo = (SELECT MAX(codigo) FROM ctercero WHERE codigo LIKE '${cod}____')
+                    )`), 'getCodigo'
+                ]
+            ]
+        }
+    });
+
+    let codigo = codTercero?.dataValues.getCodigo;
+
+    if (!codigo) codigo = `${cod}0001`;
+
+    return codigo;
+}
+
 class TerceroController {
-    
+
+    constructor() {
+    }
+
+    /** Método para generar el tercero por medio de API */
+    public async calculateCodTercero (req: Request, res: Response) {
+        
+        try {
+            const { cod }   = req.params;
+            const codigo    = await generateCodigoTercero(cod);
+
+            res.json(codigo);
+
+        } catch (error) {
+            res.status(500).json({ 
+                msg: 'Error al calcular el código del tercero', 
+                error 
+            });
+        }
+    }
+
     /** Nuevo tercero */
     public async newTercero (req: Request, res: Response) {
 
-        const { codigo, nombre, nomaux, ciftyp,  cif, coment, estado, tipdir, direcc, coddep, codprv, coddis, telef1, email, contac } = req.body;
-        let m_tcif = 'RUC';
+        const { terType, nombre, nomaux, ciftyp,  cif, coment, estado, tipdir, direcc, coddep, codprv, coddis, telef1, email, contac } = req.body;
+        console.log(terType, 'terType');
+        let mCif = null;
+        let mErr = null;
+        
+        switch (ciftyp) {
+            case '0':
+                if(cif.length != 11) mErr = 'El RUC debe tener 11 caracteres.'
+                mCif = 'RUC';
+                break;
 
-        // Valworkamos si el tercero existe en la base de datos por el cif
-        const m_exist = await Ctercero.findOne({where: {cif: cif}})
+            case '1':
+                if(cif.length != 8) mErr = 'El DNI debe tener 8 caracteres.'
+                mCif = 'DNI';
+                break;
 
-        // Confirmamos que tipo de cif es
-        if(ciftyp == '1') m_tcif = 'DNI';
-        if(ciftyp == '2') m_tcif = 'Canet de extrangería';
+            case '2':
+                if(cif.length != 12) mErr = 'La canet de extrangería debe tener 12 caracteres.'
+                mCif = 'Canet de extrangería';
+                break;
+        }
 
-        if(m_exist) {
+        // Validamos si el tercero existe en la base de datos por el cif
+        const mExist = await Ctercero.findOne({where: {cif: cif}})
+        
+        if(mExist || mErr) {
             return res.status(400).json({
-                msg: `Ya existe un registro con este ${m_tcif}.`
+                msg: mErr || `Ya existe un registro con este ${mCif}.`
             })
         }
-        
+
         /** Iniciamos una transacción (rollback) */
         const transaction = await sequelize.transaction();
 
         try {
+
+            /** Volvemos a calcular el código del tercero */
+            let codigo = await generateCodigoTercero(terType);
+
             /** Guardamos la información del tercero */
             const data = await Ctercero.create({
                 codigo  : codigo,
@@ -58,49 +120,20 @@ class TerceroController {
 
             res.json({
                 msg     : `El  registro se creó exitosamente`,
-                data
+                data 
             })
 
         } catch (error) {
             /** Si hay un error, revertimos todas las operaciones realizadas en la transacción */
             await transaction.rollback();
-
+            console.log(error);
+            
             /** Retornamos un error controlado */
             res.status(400).json({
-                msg: 'Upps ocurrio un error',
+                msg: 'Upps ocurrio un error123',
                 error
             })
         }
-    }
-
-    /** Trae el código del tercero correlativo */
-    public async getCodTercero (req: Request, res: Response){
-        // Traemos los parametros que vienen desde la URL
-        const { cod } = req.params;
-
-        // Se realiza la consutla SQL para poder generar el código que necesitamos
-        const codTercero = await Ctercero.findOne({
-            attributes: {
-                include: [
-                    [
-                        Sequelize.literal(`(
-                            SELECT '${cod}' || LPAD(CAST(CAST(SUBSTRING(codigo FROM 2 FOR 4) AS INTEGER) + 1 AS VARCHAR), 4, '0')
-                            FROM ctercero
-                            WHERE codigo = (SELECT MAX(codigo) FROM ctercero WHERE codigo LIKE '${cod}____')
-                        )`), 'getCodigo'
-                    ]
-                ]
-            }
-        })
-        
-        let codigo = codTercero?.dataValues.getCodigo;
-
-        // Condiciamos si el código aun no existe
-        if(!codigo) codigo = `${cod}0001`;
-
-        // Retornamos una respuesta
-        res.json(codigo)
-        
     }
 
     /** Lista de terceros */
@@ -109,7 +142,7 @@ class TerceroController {
             attributes: [ 'seqno',      'codigo',       'nombre', 
                           'nomaux',     'ciftyp',       'cif', 
                           'estado',     'coment' ],
-            order: [['seqno', 'ASC']]
+            order: [['seqno', 'DESC']]
         });
 
         res.json(tercero);
@@ -144,7 +177,7 @@ class TerceroController {
 
     /** Elimina un tercero */
     public async deleteTercero (req: Request, res: Response) {
-        const { seqno } = req.params;
+        const { codigo } = req.params;
 
         /** Iniciamos una transacción (rollback) */
         const transaction = await sequelize.transaction();
@@ -153,25 +186,19 @@ class TerceroController {
 
             /** Eliminación del tercero */
             const tercero = await Ctercero.destroy({
-                where: { seqno }
-            });
-
-            /** Obtenemos el código del tercero */
-            const codTercero = await Ctercero.findOne({
-                attributes: ['codigo'],
-                where: { seqno }
+                where: { codigo }
             });
 
             /** Eliminación de la dirección del tercero */
             const direcciones = await Cterdire.destroy({
-                where: { codigo: codTercero }
+                where: { codigo }
             });
             
             /** Si todo va bien, confirmamos la transacción */
             await transaction.commit();
 
             res.json({
-                msg: 'El registro se eliminó exitosamente'
+                msg: 'El registro a sido eliminado'
             });
             
         } catch (error) {
@@ -187,4 +214,4 @@ class TerceroController {
     }
 }
 
-export const terceroController = new TerceroController();
+export let terceroController = new TerceroController();

@@ -17,27 +17,83 @@ const sequelize_1 = require("sequelize");
 const ctercero_1 = require("../models/ctercero");
 const cterdire_1 = require("../models/cterdire");
 const connection_1 = __importDefault(require("../db/connection"));
+/** Función para generar el código del tercero */
+function generateCodigoTercero(cod) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const codTercero = yield ctercero_1.Ctercero.findOne({
+            attributes: {
+                include: [
+                    [
+                        sequelize_1.Sequelize.literal(`(
+                        SELECT '${cod}' || LPAD(CAST(CAST(SUBSTRING(codigo FROM 2 FOR 4) AS INTEGER) + 1 AS VARCHAR), 4, '0')
+                        FROM ctercero
+                        WHERE codigo = (SELECT MAX(codigo) FROM ctercero WHERE codigo LIKE '${cod}____')
+                    )`), 'getCodigo'
+                    ]
+                ]
+            }
+        });
+        let codigo = codTercero === null || codTercero === void 0 ? void 0 : codTercero.dataValues.getCodigo;
+        if (!codigo)
+            codigo = `${cod}0001`;
+        return codigo;
+    });
+}
 class TerceroController {
+    constructor() {
+    }
+    /** Método para generar el tercero por medio de API */
+    calculateCodTercero(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { cod } = req.params;
+                const codigo = yield generateCodigoTercero(cod);
+                res.json(codigo);
+            }
+            catch (error) {
+                res.status(500).json({
+                    msg: 'Error al calcular el código del tercero',
+                    error
+                });
+            }
+        });
+    }
     /** Nuevo tercero */
     newTercero(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { codigo, nombre, nomaux, ciftyp, cif, coment, estado, tipdir, direcc, coddep, codprv, coddis, telef1, email, contac } = req.body;
-            let m_tcif = 'RUC';
-            // Valworkamos si el tercero existe en la base de datos por el cif
-            const m_exist = yield ctercero_1.Ctercero.findOne({ where: { cif: cif } });
-            // Confirmamos que tipo de cif es
-            if (ciftyp == '1')
-                m_tcif = 'DNI';
-            if (ciftyp == '2')
-                m_tcif = 'Canet de extrangería';
-            if (m_exist) {
+            const { terType, nombre, nomaux, ciftyp, cif, coment, estado, tipdir, direcc, coddep, codprv, coddis, telef1, email, contac } = req.body;
+            console.log(terType, 'terType');
+            let mCif = null;
+            let mErr = null;
+            switch (ciftyp) {
+                case '0':
+                    if (cif.length != 11)
+                        mErr = 'El RUC debe tener 11 caracteres.';
+                    mCif = 'RUC';
+                    break;
+                case '1':
+                    if (cif.length != 8)
+                        mErr = 'El DNI debe tener 8 caracteres.';
+                    mCif = 'DNI';
+                    break;
+                case '2':
+                    if (cif.length != 12)
+                        mErr = 'La canet de extrangería debe tener 12 caracteres.';
+                    mCif = 'Canet de extrangería';
+                    break;
+            }
+            // Validamos si el tercero existe en la base de datos por el cif
+            const mExist = yield ctercero_1.Ctercero.findOne({ where: { cif: cif } });
+            if (mExist || mErr) {
                 return res.status(400).json({
-                    msg: `Ya existe un registro con este ${m_tcif}.`
+                    msg: mErr || `Ya existe un registro con este ${mCif}.`
                 });
             }
             /** Iniciamos una transacción (rollback) */
             const transaction = yield connection_1.default.transaction();
             try {
+                /** Volvemos a calcular el código del tercero */
+                let codigo = yield generateCodigoTercero(terType);
                 /** Guardamos la información del tercero */
                 const data = yield ctercero_1.Ctercero.create({
                     codigo: codigo,
@@ -70,39 +126,13 @@ class TerceroController {
             catch (error) {
                 /** Si hay un error, revertimos todas las operaciones realizadas en la transacción */
                 yield transaction.rollback();
+                console.log(error);
                 /** Retornamos un error controlado */
                 res.status(400).json({
-                    msg: 'Upps ocurrio un error',
+                    msg: 'Upps ocurrio un error123',
                     error
                 });
             }
-        });
-    }
-    /** Trae el código del tercero correlativo */
-    getCodTercero(req, res) {
-        return __awaiter(this, void 0, void 0, function* () {
-            // Traemos los parametros que vienen desde la URL
-            const { cod } = req.params;
-            // Se realiza la consutla SQL para poder generar el código que necesitamos
-            const codTercero = yield ctercero_1.Ctercero.findOne({
-                attributes: {
-                    include: [
-                        [
-                            sequelize_1.Sequelize.literal(`(
-                            SELECT '${cod}' || LPAD(CAST(CAST(SUBSTRING(codigo FROM 2 FOR 4) AS INTEGER) + 1 AS VARCHAR), 4, '0')
-                            FROM ctercero
-                            WHERE codigo = (SELECT MAX(codigo) FROM ctercero WHERE codigo LIKE '${cod}____')
-                        )`), 'getCodigo'
-                        ]
-                    ]
-                }
-            });
-            let codigo = codTercero === null || codTercero === void 0 ? void 0 : codTercero.dataValues.getCodigo;
-            // Condiciamos si el código aun no existe
-            if (!codigo)
-                codigo = `${cod}0001`;
-            // Retornamos una respuesta
-            res.json(codigo);
         });
     }
     /** Lista de terceros */
@@ -112,7 +142,7 @@ class TerceroController {
                 attributes: ['seqno', 'codigo', 'nombre',
                     'nomaux', 'ciftyp', 'cif',
                     'estado', 'coment'],
-                order: [['seqno', 'ASC']]
+                order: [['seqno', 'DESC']]
             });
             res.json(tercero);
         });
@@ -145,27 +175,22 @@ class TerceroController {
     /** Elimina un tercero */
     deleteTercero(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { seqno } = req.params;
+            const { codigo } = req.params;
             /** Iniciamos una transacción (rollback) */
             const transaction = yield connection_1.default.transaction();
             try {
                 /** Eliminación del tercero */
                 const tercero = yield ctercero_1.Ctercero.destroy({
-                    where: { seqno }
-                });
-                /** Obtenemos el código del tercero */
-                const codTercero = yield ctercero_1.Ctercero.findOne({
-                    attributes: ['codigo'],
-                    where: { seqno }
+                    where: { codigo }
                 });
                 /** Eliminación de la dirección del tercero */
                 const direcciones = yield cterdire_1.Cterdire.destroy({
-                    where: { codigo: codTercero }
+                    where: { codigo }
                 });
                 /** Si todo va bien, confirmamos la transacción */
                 yield transaction.commit();
                 res.json({
-                    msg: 'El registro se eliminó exitosamente'
+                    msg: 'El registro a sido eliminado'
                 });
             }
             catch (error) {

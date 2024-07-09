@@ -17,8 +17,8 @@ export class TerceroService {
     this.myApiUrl = 'api';
   }
 
-  getCodigo(codigo: string): Observable<string> {
-    return this.http.get<string>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/create/${codigo}`);
+  getCodigo(cod: string): Observable<string> {
+    return this.http.get<string>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/create/${cod}`);
   }
 
   postTercero(data: object): Observable<string> {
@@ -45,8 +45,8 @@ export class TerceroService {
     return this.http.put<string>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/update/${seqno}`, data);
   }
 
-  deleteTercero(seqno: number): Observable<string> {
-    return this.http.delete<string>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/delete/${seqno}`);
+  deleteTercero(codigo: string): Observable<string> {
+    return this.http.delete<string>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/delete/${codigo}`);
   }
 
 }

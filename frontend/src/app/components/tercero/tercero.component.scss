@@ -32,26 +32,6 @@ td.mat-cell {
   padding: 16px;
 }
 
-th.mat-header-cell:first-of-type,
-td.mat-cell:first-of-type,
-td.mat-footer-cell:first-of-type {
-  padding: 16px;
-}
-
-th.mat-header-cell {
-  padding: 16px;
-}
-
-.mat-header-cell {
-  font-size: 14px;
-}
-
-
-
-/*.demo-row-is-clicked {
-  font-weight: bold;
-  background-color : #dfdbf9
-}*/
 
 .selected {
   background-color : #dfdbf9
@@ -71,3 +51,10 @@ th.mat-header-cell {
   //border-color: currentColor;
   background-color : #dfdbf9
 }
+
+
+.mdc-data-table__cell {
+  padding: 0px 16px !important;
+}
+
+

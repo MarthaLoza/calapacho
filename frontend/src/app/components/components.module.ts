@@ -25,6 +25,7 @@ import { NotifierModule } from 'angular-notifier';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { CterdireComponent } from './cterdire/cterdire.component';
+import { DialogDeleteComponent } from './dialogs/dialog-delete/dialog-delete.component';
 
 @NgModule({
   imports: [
@@ -79,6 +80,7 @@ import { CterdireComponent } from './cterdire/cterdire.component';
     RemisionComponent,
     TerceroComponent,
     CterdireComponent,
+    DialogDeleteComponent,
   ]
 })
 export class ComponentsModule { }
