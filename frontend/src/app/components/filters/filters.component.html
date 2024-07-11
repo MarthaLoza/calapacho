@@ -1,0 +1,31 @@
+<div class="card">
+    <div class="card-body">
+        <h4>Consulta de campos</h4>
+        <form [formGroup]="form" (ngSubmit)="searchBoton()">
+            <div class="row">
+                <div *ngFor="let field of fields" class="col-md-6">
+                    <mat-form-field class="w-100 fs-16" appearance="outline">
+                        <mat-label>{{ field.label }}</mat-label>
+                        <input *ngIf="field.type === 'text'" matInput [formControlName]="field.name">
+                        <mat-select *ngIf="field.type === 'select'" [formControlName]="field.name">
+                            <mat-option *ngFor="let option of field.options" [value]="option.value">
+                                {{ option.label }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
+            <div class="button">
+                <button mat-fab color = "primary" type = "submit" >
+                    <mat-icon>play_arrow</mat-icon>
+                </button>
+
+                <!-- <mat-divider [inset]="true" [vertical]="true"></mat-divider>
+                
+                <button mat-fab color = "accent" type = "button" (click)="resetForm()" >
+                    <mat-icon>description</mat-icon>
+                </button> -->
+            </div>
+        </form>
+    </div>
+</div>

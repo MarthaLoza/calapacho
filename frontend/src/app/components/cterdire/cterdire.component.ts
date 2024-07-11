@@ -38,6 +38,9 @@ export class CterdireComponent {
     { type: 'text',     label: 'Correo Electronico',    name: 'email',      required: false },
   ];
 
+  validacion_if     : boolean = true;
+  arr_data          : Field[] = []; 
+
   private _cod_tercer: string | undefined;
 
   @Input()
@@ -59,6 +62,7 @@ export class CterdireComponent {
 
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator || null;
+    this.dataFilter(this.fields2);
   }
   
 
@@ -96,6 +100,17 @@ export class CterdireComponent {
       validators.push(...field.validators);
     }
     return validators;
+  }
+
+  dataFilter(data: Field[]) {
+    data.forEach(field => {
+      this.arr_data.push({
+        type: field.type,
+        label: field.label,
+        name: field.name,
+        options: field.options,
+      });
+    });
   }
 
   /** Metodo que escucha el cambio de departamentos y trae las provincias */
@@ -233,5 +248,17 @@ export class CterdireComponent {
   onSubmitDirec() {
     console.log(this.form2.value);
     
+  }
+
+  searchBoton() {
+    this.validacion_if = !this.validacion_if;
+  }
+
+  searchEvent(filterData: object): void {
+    console.log(filterData);
+    
+    
+    this.validacion_if  = !this.validacion_if;
+
   }
 }

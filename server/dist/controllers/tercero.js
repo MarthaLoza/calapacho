@@ -135,16 +135,44 @@ class TerceroController {
             }
         });
     }
-    /** Lista de terceros */
+    /** Lista de terceros con o sin filtro */
     getTerceros(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const tercero = yield ctercero_1.Ctercero.findAll({
-                attributes: ['seqno', 'codigo', 'nombre',
-                    'nomaux', 'ciftyp', 'cif',
-                    'estado', 'coment'],
-                order: [['seqno', 'DESC']]
-            });
-            res.json(tercero);
+            const { terType, codigo, nombre, nomaux, ciftyp, cif, coment, estado } = req.body;
+            // Crear el objeto de condiciones
+            const conditions = [];
+            if (terType)
+                conditions.push({ codigo: { [sequelize_1.Op.like]: `${terType}%` } });
+            if (codigo)
+                conditions.push({ codigo: { [sequelize_1.Op.like]: codigo } });
+            if (nombre)
+                conditions.push({ nombre: { [sequelize_1.Op.like]: `%${nombre}%` } });
+            if (nomaux)
+                conditions.push({ nomaux: { [sequelize_1.Op.like]: `%${nomaux}%` } });
+            if (ciftyp)
+                conditions.push({ ciftyp: { [sequelize_1.Op.like]: ciftyp } });
+            if (cif)
+                conditions.push({ cif: { [sequelize_1.Op.like]: `%${cif}%` } });
+            if (coment)
+                conditions.push({ coment: { [sequelize_1.Op.like]: `%${coment}%` } });
+            if (estado)
+                conditions.push({ estado: { [sequelize_1.Op.like]: estado } });
+            // Crear la condición principal utilizando Op.and si hay condiciones, de lo contrario usar 1=1
+            const condition = conditions.length > 0 ? { [sequelize_1.Op.and]: conditions } : {};
+            try {
+                const tercero = yield ctercero_1.Ctercero.findAll({
+                    where: condition,
+                    attributes: [
+                        'seqno', 'codigo', 'nombre', 'nomaux', 'ciftyp', 'cif', 'estado', 'coment'
+                    ],
+                    order: [['seqno', 'DESC']]
+                });
+                res.json(tercero);
+            }
+            catch (error) {
+                console.error(error);
+                res.status(500).send('Error al obtener los terceros');
+            }
         });
     }
     /** Trae un tercero */

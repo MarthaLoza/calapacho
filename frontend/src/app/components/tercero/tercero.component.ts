@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ErrorService } from 'src/app/services/error.service';
 import { TerceroService } from 'src/app/services/tercero.service';
@@ -10,18 +10,20 @@ import { MatPaginator } from '@angular/material/paginator';
 import { Field, Selector, TercerElement } from 'src/app/interfaces/user';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogDeleteComponent } from '../dialogs/dialog-delete/dialog-delete.component';
+import { DialogUpdateComponent } from '../dialogs/dialog-update/dialog-update.component';
+import { DialogFilterComponent } from '../dialogs/dialog-filter/dialog-filter.component';
 
 @Component({
   selector: 'app-tercero',
   templateUrl: './tercero.component.html',
   styleUrls: ['./tercero.component.scss']
 })
-export class TerceroComponent implements OnInit {
+export class TerceroComponent implements OnInit, AfterViewInit {
 
   options_tt: Selector[] = [
-    { label: 'Usuario',     value: 'C' },
-    { label: 'Empresa',     value: 'E' },
-    { label: 'Conductor',   value: 'T' },
+    { label: 'Usuario',         value: 'C' },
+    { label: 'Empresa',         value: 'E' },
+    { label: 'Transportista',   value: 'T' },
   ];
 
   options_td: Selector[] = [
@@ -36,8 +38,8 @@ export class TerceroComponent implements OnInit {
   ];
   
   /** Creación de un formulario */
-  form  : FormGroup;
-  fields: Field[] = [
+  form    : FormGroup;
+  fields  : Field[] = [
     { type: 'select',   label: 'Tipo de tercero',       name: 'terType',  required: true, options: this.options_tt, onChange: this.onGenerateCodeChange.bind(this)  },
     { type: 'text',     label: 'Código',                name: 'codigo',   required: true,                           },
     { type: 'text',     label: 'Nombre o Razon social', name: 'nombre',   required: true                            },
@@ -48,20 +50,25 @@ export class TerceroComponent implements OnInit {
     { type: 'select',   label: 'Estado',                name: 'estado',   required: true, options: this.options_te, defaultValue: 'A'  },
   ];
   
-  cod_tercer        = '';     // Variable para controlar el código del tercero
-  valid_bot_reset   = false;  // Variable para controlar el botón de reset
-  valid_bot_update  = true;   // Variable para controlar el botón de actualizar
-  valid_bot_delete  = false;  // Variable para controlar el botón de eliminar
-  user_action       = true;   // Variable para controlar la acción del usuario
-  index_table       = 0;      // Variable para controlar el indice de la tabla
-  seqno_tercer      = null;   // Variable para controlar el seqno del tercero
+  cod_tercer        = '';                 // Variable para controlar el código del tercero
+  valid_bot_reset   = false;              // Variable para controlar el botón de reset
+  valid_bot_update  = true;               // Variable para controlar el botón de actualizar
+  valid_bot_delete  = false;              // Variable para controlar el botón de eliminar
+  valid_bot_prev    = false;              // Variable para controlar el botón de retroceder
+  valid_bot_next    = false;              // Variable para controlar el botón de avanzar
+  user_action       = true;               // Variable para controlar la acción del usuario
+  index_table       = 0;                  // Variable para controlar el indice de la tabla
+  seqno_tercer      = null;               // Variable para controlar el seqno del tercero
+  validacion_if     = true;               // Validación de la tabla y el filtro
+  arr_data          : Field[] = [];       // Array para enviar datos al filtro
+  filter_data       : object  = {};       // Objeto para enviar datos al servicio de filtro
 
   /** Columnas de la tabla */
   displayedColumns  : string[] = ['seqno', 'codigo', 'nombre', 'cif'];
   dataSource        : MatTableDataSource<TercerElement>;
   selectedRow       : TercerElement | null = null;
   
-  @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
+  @ViewChild(MatPaginator) paginator    : MatPaginator | undefined;
 
   ngAfterViewInit() {
     this.dataSource.paginator = this.paginator || null;
@@ -83,7 +90,8 @@ export class TerceroComponent implements OnInit {
   }
   
   ngOnInit(): void {
-    this.getListaTerceros();
+    this.getListaTerceros(this.filter_data);
+    this.dataFilter(this.fields);
   }
 
   /**  Método para crear los campos del formulario */
@@ -105,8 +113,23 @@ export class TerceroComponent implements OnInit {
     return validators;
   }
 
+  dataFilter(data: Field[]) {
+    data.forEach(field => {
+      this.arr_data.push({
+        type: field.type,
+        label: field.label,
+        name: field.name,
+        options: field.options,
+      });
+    });
+  }
+
+  /* *************************************************************************** */
+  /*                        Métodos para abrir Dialogos                          */
+  /* *************************************************************************** */
+
   /** Método para abrir el dialogo de eliminar un registro */
-  openDialog(): void {
+  openDialogDelete(): void {
     const dialogRef = this.__dialog.open(DialogDeleteComponent, {});
 
     dialogRef.afterClosed().subscribe(result => {
@@ -114,6 +137,18 @@ export class TerceroComponent implements OnInit {
         this.deleteForm();
       }
     });
+  }
+
+  /** Método para abrir el dialogo de Campos pendientes */
+  openDialogUpdate(): Promise<boolean> {
+    const dialogRef = this.__dialog.open(DialogUpdateComponent, {});
+
+    return dialogRef.afterClosed().toPromise();
+  }
+
+  /** Método para abrir el dialogo de No hay registros al filtrar */
+  openDialogFilter(): void {
+    this.__dialog.open(DialogFilterComponent, {});
   }
 
   /* *************************************************************************** */
@@ -150,8 +185,7 @@ export class TerceroComponent implements OnInit {
 
           if(this.selectedRow) {
             /** Igualamos el valor del botón a la validación del fomulario
-             * para asegurarnos que no se pase ninguna validación de campos
-             */
+             * para asegurarnos que no se pase ninguna validación de campos */
             this.valid_bot_update = !this.form.valid; // Activamos el botón de actualizar
           }
         }
@@ -160,10 +194,25 @@ export class TerceroComponent implements OnInit {
   }
 
   /** Método para manejar el clic en una fila de la tabla */
-  onRowClicked(row: TercerElement | null = null) {
+  onRowClicked(row: TercerElement | null = null, index: number = 0) {
     
     /** Le damos el valor de la primera fila de la tabla */
-    this.selectedRow = row ? row : this.dataSource.data[this.index_table];
+    if (row) {
+      this.selectedRow = row;
+      this.index_table = this.dataSource.data.indexOf(row);
+    } else {
+      this.selectedRow = this.dataSource.data[this.index_table];
+    }
+
+    /**  Calcula la página en la que debe estar el índice seleccionado */
+    const pageSize = this.paginator?.pageSize || 10;
+    const newPageIndex = Math.floor(this.index_table / pageSize);
+    
+    /** Si hay un paginator, cambia la página */
+    if (this.paginator) {
+      this.paginator.pageIndex = newPageIndex;
+      this.dataSource.paginator = this.paginator; // Refresca el paginator
+    }
     
     this.user_action = false; // Desactivo la accion del usuario
     
@@ -184,6 +233,9 @@ export class TerceroComponent implements OnInit {
     this.valid_bot_update = true;   // Desactivo el botón de actualizar
     this.valid_bot_delete = false;  // Activo el botón de eliminar
     this.user_action      = true;   // Activo la acción del usuario
+
+    this.valid_bot_prev   = this.index_table > 0 ? false : true;  // Condiciono el botón de retroceder
+    this.valid_bot_next   = this.index_table < this.dataSource.data.length - 1 ? false : true;  // Condiciono el botón de avanzar
   }
 
   /** Metodo para guardar el id de la selección del tercero de la tabla */
@@ -216,8 +268,8 @@ export class TerceroComponent implements OnInit {
   /* *************************************************************************** */
 
   /** Método para traer la lista de terceros */
-  getListaTerceros() {
-    this.__tercerService.getListaTerceros()
+  getListaTerceros(filterData: object) {
+    this.__tercerService.getListaTerceros(filterData)
       .subscribe(
         (response: any) => {
           /** Asignamos los datos a dataSource */
@@ -292,7 +344,7 @@ export class TerceroComponent implements OnInit {
           (response: any) => {
             this.seqno_tercer = response.data.seqno;                // Guardamos el seqno del tercero
             this.__notifyService.notify('success', response.msg);   // Mostramos un mensaje de notificación
-            this.getListaTerceros()                                 // Llamamos a los datos de la tabla
+            this.getListaTerceros(this.filter_data)                 // Llamamos a los datos de la tabla
           },
           (error: any) => {
             this.__errorservices.msjError(error);
@@ -310,7 +362,7 @@ export class TerceroComponent implements OnInit {
           (response: any) => {
             this.__notifyService.notify('success', response.msg);
             setTimeout(() => {
-              this.getListaTerceros()
+              this.getListaTerceros(this.filter_data)
             }, 1000);
           },
           (error: any) => {
@@ -329,12 +381,89 @@ export class TerceroComponent implements OnInit {
           this.dataSource.data  = [];
           this.selectedRow      = null;
           this.cod_tercer       = '';
-          this.getListaTerceros();
+          this.getListaTerceros(this.filter_data);
         },
         (error: any) => {
           this.__errorservices.msjError(error);
         }
       );
+  }
+
+  /** Método para retroceder entre las filas de la tabla */
+  async prevBoton() {
+    if (this.index_table > 0) {
+      if(this.valid_bot_update == false) {
+        const validation = await this.openDialogUpdate();
+        if(validation){
+          this.index_table--;
+          this.onRowClicked(this.dataSource.data[this.index_table], this.index_table);
+        }
+      } else {
+        this.index_table--;
+        this.onRowClicked(this.dataSource.data[this.index_table], this.index_table);
+      }
+    }    
+  }
+
+  /** Método para avanzar entre las filsa de la tabla */
+  async nextBoton() {    
+    if (this.index_table < this.dataSource.data.length - 1) {
+      
+      if(this.valid_bot_update == false) {
+        const validation = await this.openDialogUpdate();
+        if(validation){
+          this.index_table++;
+          this.onRowClicked(this.dataSource.data[this.index_table], this.index_table);
+        }
+      } else {
+        this.index_table++;
+        this.onRowClicked(this.dataSource.data[this.index_table], this.index_table);
+      }
+    }
+  }
+
+  /** Método para refrescar el componente */
+  async refreshBoton() {
+    if(this.valid_bot_update == false) {
+      const validation = await this.openDialogUpdate();
+      if(validation){
+        this.resetComponent();
+      }      
+    } else {
+      this.resetComponent();
+    }
+  }
+
+  /** Método para filtrar la tabla */
+  async searchBoton() {
+    if(this.valid_bot_update == false) {
+      const validation = await this.openDialogUpdate();
+      if(validation){
+        this.validacion_if = !this.validacion_if;
+      }
+    } else {
+        this.validacion_if = !this.validacion_if;
+    }
+  }
+
+  /* *************************************************************************** */
+  /*                                   Eventos                                   */
+  /* *************************************************************************** */
+
+  /** Método para buscar por filtros */
+  searchEvent(filterData: object): void {
+    
+    this.filter_data      = filterData;         // Apartir de ahora la lista de terceros se filtrará
+
+    this.dataSource.data  = [];                 // Vaciamos la tabla
+    this.selectedRow      = null;               // Vaciamos la fila seleccionada
+    this.cod_tercer       = '';                 // Vaciamos el código del tercero
+    this.form.reset();                          // Reseteamos el formulario
+
+    this.getListaTerceros(this.filter_data);    // Llamamos a los datos de la tabla
+    
+    this.validacion_if  = !this.validacion_if;
+
   }
   
 }

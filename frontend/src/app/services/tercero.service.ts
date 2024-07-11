@@ -25,8 +25,8 @@ export class TerceroService {
     return this.http.post<string>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/create`, data);
   }
 
-  getListaTerceros(): Observable<TercerElement[]> {
-    return this.http.get<TercerElement[]>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/list`);
+  getListaTerceros(data: object): Observable<TercerElement[]> {
+    return this.http.post<TercerElement[]>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/list`, data);
   }
 
   getOneTercero(seqno: number): Observable<string> {

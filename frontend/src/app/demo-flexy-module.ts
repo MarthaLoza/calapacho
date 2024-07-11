@@ -40,6 +40,7 @@
  import { MatBadgeModule } from '@angular/material/badge';
  import { MatNativeDateModule, MatOptionModule, MatRippleModule } from '@angular/material/core';
  import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+ import { MatDividerModule } from '@angular/material/divider';
  
  import { CdkTableModule } from '@angular/cdk/table';
  import { CdkAccordionModule } from '@angular/cdk/accordion';
@@ -98,6 +99,7 @@
          PlatformModule,
          PortalModule,
          MatOptionModule,
+         MatDividerModule,
      ]
  })
  export class DemoFlexyModule { }

@@ -15,7 +15,7 @@ export interface Field {
     label         : string;
     name          : string;
     options?      : Selector[];
-    required      : boolean;
+    required?     : boolean;
     disabled?     : boolean;
     onChange?     : () => void;
     validators?   : any[];

@@ -11,7 +11,7 @@ class TerceroRoutes {
     config() {
         this.router.get('/create/:cod', tercero_1.terceroController.calculateCodTercero);
         this.router.post('/create', tercero_1.terceroController.newTercero);
-        this.router.get('/list', tercero_1.terceroController.getTerceros);
+        this.router.post('/list', tercero_1.terceroController.getTerceros);
         this.router.post('/list/:seqno', tercero_1.terceroController.getOneTercero);
         this.router.post('/list/direcciones/:codigo', cterdire_1.cterdireController.getDirecciones);
         this.router.post('/list/direccion/:codigo/:tipdir', cterdire_1.cterdireController.getOneDireccion);

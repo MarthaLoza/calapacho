@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { Sequelize, literal } from "sequelize";
+import { Op, Sequelize, literal } from "sequelize";
 import { Ctercero } from "../models/ctercero";
 import { Cterdire } from "../models/cterdire";
 import sequelize from "../db/connection";
@@ -136,16 +136,39 @@ class TerceroController {
         }
     }
 
-    /** Lista de terceros */
+    /** Lista de terceros con o sin filtro */
     public async getTerceros (req: Request, res: Response) {
-        const tercero = await Ctercero.findAll({
-            attributes: [ 'seqno',      'codigo',       'nombre', 
-                          'nomaux',     'ciftyp',       'cif', 
-                          'estado',     'coment' ],
-            order: [['seqno', 'DESC']]
-        });
+        const { terType, codigo, nombre, nomaux, ciftyp, cif, coment, estado } = req.body;
+        
+        // Crear el objeto de condiciones
+        const conditions: { [key: string]: any }[] = [];
 
-        res.json(tercero);
+        if (terType) conditions.push({ codigo:  { [Op.like]: `${terType}%`  } });
+        if (codigo)  conditions.push({ codigo:  { [Op.like]: codigo         } });
+        if (nombre)  conditions.push({ nombre:  { [Op.like]: `%${nombre}%`  } });
+        if (nomaux)  conditions.push({ nomaux:  { [Op.like]: `%${nomaux}%`  } });
+        if (ciftyp)  conditions.push({ ciftyp:  { [Op.like]: ciftyp         } });
+        if (cif)     conditions.push({ cif:     { [Op.like]: `%${cif}%`     } });
+        if (coment)  conditions.push({ coment:  { [Op.like]: `%${coment}%`  } });
+        if (estado)  conditions.push({ estado:  { [Op.like]: estado         } });
+
+        // Crear la condición principal utilizando Op.and si hay condiciones, de lo contrario usar 1=1
+        const condition = conditions.length > 0 ? { [Op.and]: conditions } : {};
+
+        try {
+            const tercero = await Ctercero.findAll({
+              where: condition,
+              attributes: [
+                'seqno', 'codigo', 'nombre', 'nomaux', 'ciftyp', 'cif', 'estado', 'coment'
+              ],
+              order: [['seqno', 'DESC']]
+            });
+        
+            res.json(tercero);
+          } catch (error) {
+            console.error(error);
+            res.status(500).send('Error al obtener los terceros');
+          }
     }
 
     /** Trae un tercero */

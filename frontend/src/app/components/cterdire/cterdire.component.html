@@ -1,7 +1,10 @@
-<div class="card">
+<div class="card" *ngIf="validacion_if; else elseBlock">
     <div class="card-body">
         <form [formGroup]="form2" (ngSubmit)="onSubmitDirec()">
             <div class="buttons">
+                <button mat-fab color="primary" type="button" (click)="searchBoton()">
+                    <mat-icon>search</mat-icon>
+                </button>
                 <button mat-fab color="primary" type="submit" [disabled]="form2.invalid">
                     <mat-icon>add</mat-icon>
                 </button>
@@ -65,3 +68,8 @@
         </div>
     </div>
 </div>
+
+<!-- Filtro -->
+<ng-template #elseBlock>
+    <app-filters [arrData]="arr_data" (searchEvent)="searchEvent($event)"></app-filters>
+</ng-template>

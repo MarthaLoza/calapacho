@@ -26,6 +26,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { CterdireComponent } from './cterdire/cterdire.component';
 import { DialogDeleteComponent } from './dialogs/dialog-delete/dialog-delete.component';
+import { DialogUpdateComponent } from './dialogs/dialog-update/dialog-update.component';
+import { FiltersComponent } from './filters/filters.component';
+import { DialogFilterComponent } from './dialogs/dialog-filter/dialog-filter.component';
 
 @NgModule({
   imports: [
@@ -81,6 +84,9 @@ import { DialogDeleteComponent } from './dialogs/dialog-delete/dialog-delete.com
     TerceroComponent,
     CterdireComponent,
     DialogDeleteComponent,
+    DialogUpdateComponent,
+    FiltersComponent,
+    DialogFilterComponent,
   ]
 })
 export class ComponentsModule { }
