@@ -1,0 +1,21 @@
+.mdc-data-table__cell {
+    padding: 0px 16px !important;
+}
+
+.mat-mdc-row .mat-mdc-cell {
+    border-bottom: 1px solid transparent;
+    border-top: 1px solid transparent;
+    cursor: pointer;
+}
+
+.mat-mdc-row:hover .mat-mdc-cell {
+    background-color : #dfdbf9
+}
+
+.row-selection {
+    background-color : #dfdbf9
+}
+
+.mat-mdc-table .mdc-data-table__row {
+    height: 48px;
+}

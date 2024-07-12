@@ -13,6 +13,8 @@ export class ErrorService {
     if(e.error.msg) {
       this.notify.notify('error', e.error.msg)
     } else {
+      console.log(e, "ERROR SIN CONTROL");
+      
       this.notify.notify('error', 'Upps ocurrio un error, comuniquese con el administrador')
     }
   }

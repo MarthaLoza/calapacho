@@ -1,0 +1,26 @@
+<div class="table-responsive">
+    <table mat-table [dataSource]="dataSource" class="text-nowrap w-100">
+
+        <div *ngFor="let column of displayedColumns">
+            <!-- Column -->
+            <ng-container [matColumnDef]="column">
+              <th mat-header-cell *matHeaderCellDef> {{ generateColumnName(column) }} </th>
+              <td mat-cell *matCellDef="let element">  
+                <p class="mb-0 fw-medium op-7">{{element[column]}}</p>
+              </td>
+            </ng-container>
+        </div>
+  
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr 
+        mat-row
+        (click)="rowSelection(row)"
+        [class.row-selection]="selectedRow === row"
+        *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  
+    <mat-paginator [pageSizeOptions]="[5, 10, 20]"
+                   showFirstLastButtons
+                   aria-label="Select page of periodic elements">
+    </mat-paginator>
+  </div>

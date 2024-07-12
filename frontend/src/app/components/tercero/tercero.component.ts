@@ -9,9 +9,9 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { Field, Selector, TercerElement } from 'src/app/interfaces/user';
 import { MatDialog } from '@angular/material/dialog';
-import { DialogDeleteComponent } from '../dialogs/dialog-delete/dialog-delete.component';
-import { DialogUpdateComponent } from '../dialogs/dialog-update/dialog-update.component';
-import { DialogFilterComponent } from '../dialogs/dialog-filter/dialog-filter.component';
+import { DialogDeleteComponent } from '../form-dialogs/dialog-delete/dialog-delete.component';
+import { DialogUpdateComponent } from '../form-dialogs/dialog-update/dialog-update.component';
+import { DialogFilterComponent } from '../form-dialogs/dialog-filter/dialog-filter.component';
 
 @Component({
   selector: 'app-tercero',
@@ -63,6 +63,16 @@ export class TerceroComponent implements OnInit, AfterViewInit {
   arr_data          : Field[] = [];       // Array para enviar datos al filtro
   filter_data       : object  = {};       // Objeto para enviar datos al servicio de filtro
 
+
+
+  //table   : string = 'Ctercero';
+  //objCond : number = 0;
+
+  dataTable : Array<object> = [];
+
+
+
+
   /** Columnas de la tabla */
   displayedColumns  : string[] = ['seqno', 'codigo', 'nombre', 'cif'];
   dataSource        : MatTableDataSource<TercerElement>;
@@ -90,8 +100,9 @@ export class TerceroComponent implements OnInit, AfterViewInit {
   }
   
   ngOnInit(): void {
-    this.getListaTerceros(this.filter_data);
+    this.getListaTerceros(this.filter_data);    
     this.dataFilter(this.fields);
+    this.getLista();
   }
 
   /**  Método para crear los campos del formulario */
@@ -236,6 +247,7 @@ export class TerceroComponent implements OnInit, AfterViewInit {
 
     this.valid_bot_prev   = this.index_table > 0 ? false : true;  // Condiciono el botón de retroceder
     this.valid_bot_next   = this.index_table < this.dataSource.data.length - 1 ? false : true;  // Condiciono el botón de avanzar
+    //this.objCond          = this.selectedRow.seqno    
   }
 
   /** Metodo para guardar el id de la selección del tercero de la tabla */
@@ -274,11 +286,13 @@ export class TerceroComponent implements OnInit, AfterViewInit {
         (response: any) => {
           /** Asignamos los datos a dataSource */
           this.dataSource.data = response;
-
+          //this.dataTable = response;
           /** Si no se a selccionado nada (al inicio) */
           if(!this.selectedRow && !this.seqno_tercer) {
+            
             this.onRowClicked();
           } else {
+            
             if (this.selectedRow && this.seqno_tercer) {
               this.selectedRow.seqno = this.seqno_tercer;
             }
@@ -289,7 +303,7 @@ export class TerceroComponent implements OnInit, AfterViewInit {
         (error: any) => {
           this.__errorservices.msjError(error);
         }
-      );
+      );      
   }
 
   /* *************************************************************************** */
@@ -466,4 +480,44 @@ export class TerceroComponent implements OnInit, AfterViewInit {
 
   }
   
+
+
+
+
+
+
+
+  /* ************************************************************************************************** */
+  /*                                   TEEEEEEEEST                                                      */
+  /* ************************************************************************************************** */
+
+
+  getLista() {
+    this.__tercerService.getListaTerceros({})
+      .subscribe(
+        response => {
+          this.assembleTableData(response)
+        },
+        error => {
+          console.log(error);          
+        }
+      )
+  }
+
+  assembleTableData(data : Array<TercerElement>) {
+    let viewDataTable = [];
+
+    for(let fila of data) {
+      viewDataTable.push({
+        id      : fila.seqno,
+        codigo  : fila.codigo,
+        nombre  : fila.nombre,
+        nombre_auxiliar : fila.nomaux,
+        indentificación : fila.cif
+      })
+    }
+
+    this.dataTable = viewDataTable;
+  }
+
 }

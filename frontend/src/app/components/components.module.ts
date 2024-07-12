@@ -25,10 +25,12 @@ import { NotifierModule } from 'angular-notifier';
 import { MatSelectModule } from '@angular/material/select';
 import { MatOptionModule } from '@angular/material/core';
 import { CterdireComponent } from './cterdire/cterdire.component';
-import { DialogDeleteComponent } from './dialogs/dialog-delete/dialog-delete.component';
-import { DialogUpdateComponent } from './dialogs/dialog-update/dialog-update.component';
-import { FiltersComponent } from './filters/filters.component';
-import { DialogFilterComponent } from './dialogs/dialog-filter/dialog-filter.component';
+import { DialogDeleteComponent } from './form-dialogs/dialog-delete/dialog-delete.component';
+import { DialogUpdateComponent } from './form-dialogs/dialog-update/dialog-update.component';
+import { FiltersComponent } from './form-filters/filters.component';
+import { DialogFilterComponent } from './form-dialogs/dialog-filter/dialog-filter.component';
+import { ButtonDeleteComponent } from './form-buttons/button-delete/button-delete.component';
+import { FormTableComponent } from './form-table/form-table.component';
 
 @NgModule({
   imports: [
@@ -87,6 +89,8 @@ import { DialogFilterComponent } from './dialogs/dialog-filter/dialog-filter.com
     DialogUpdateComponent,
     FiltersComponent,
     DialogFilterComponent,
+    ButtonDeleteComponent,
+    FormTableComponent,
   ]
 })
 export class ComponentsModule { }
