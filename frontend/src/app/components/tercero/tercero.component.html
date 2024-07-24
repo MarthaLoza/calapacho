@@ -163,8 +163,19 @@
                 </div>
 
                 <mat-divider></mat-divider>
+
+                <!-- Button test -->
+                <app-button-arrows
+                    [numIndexButtonInput]   = "numIndexTableOutput"
+                    [numTotalDataTable]     = "dataTable.length"
+                    (numIndexButtonOutput)  = "IndexButtonOutput($event)"
+                ></app-button-arrows>
                 <!-- Table Test -->
-                <app-form-table [arrDataTable]="dataTable"></app-form-table>
+                <app-form-table
+                    [numIndexTableInput]    = "numIndexTableOutput"
+                    [arrDataTable]          = "dataTable" 
+                    (searchEvent)           = "IndexTableOutput($event)"
+                ></app-form-table>
             </div>
         </div>
     </mat-tab>

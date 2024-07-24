@@ -31,6 +31,7 @@ import { FiltersComponent } from './form-filters/filters.component';
 import { DialogFilterComponent } from './form-dialogs/dialog-filter/dialog-filter.component';
 import { ButtonDeleteComponent } from './form-buttons/button-delete/button-delete.component';
 import { FormTableComponent } from './form-table/form-table.component';
+import { ButtonArrowsComponent } from './form-buttons/button-arrows/button-arrows.component';
 
 @NgModule({
   imports: [
@@ -91,6 +92,7 @@ import { FormTableComponent } from './form-table/form-table.component';
     DialogFilterComponent,
     ButtonDeleteComponent,
     FormTableComponent,
+    ButtonArrowsComponent,
   ]
 })
 export class ComponentsModule { }

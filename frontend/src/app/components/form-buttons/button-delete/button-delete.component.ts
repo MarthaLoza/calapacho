@@ -19,9 +19,9 @@ import { QueryService } from 'src/app/services/query-basic.service';
 export class ButtonDeleteComponent {
 
   /** Información desde el padre */
-  @Input() disabled: boolean = false;
-  @Input() strTable: string  = '';
-  @Input() objCond : number  = 0;
+  @Input() disabled : boolean = false;
+  @Input() strTable : string  = '';
+  @Input() objCond  : number  = 0;
 
   constructor(
     private __notifyService : NotifierService,

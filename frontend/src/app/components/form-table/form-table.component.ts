@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Input, SimpleChanges, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 
@@ -10,11 +10,14 @@ import { MatTableDataSource } from '@angular/material/table';
 export class FormTableComponent implements AfterViewInit {
 
   /** Información del padre */
-  @Input() arrDataTable : Array<object> = [];
+  @Input() numIndexTableInput : number = 0;
+  @Input() arrDataTable       : Array<object> = [];
 
-  displayedColumns: string[] = [];
-  dataSource  = new MatTableDataSource<object>(this.arrDataTable);
-  selectedRow : object = {};
+  @Output() searchEvent = new EventEmitter<number>();
+
+  displayedColumns  : string[]  = [];
+  dataSource                    = new MatTableDataSource<object>(this.arrDataTable);
+  selectedRow       : object    = {};
 
   @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
 
@@ -23,23 +26,25 @@ export class FormTableComponent implements AfterViewInit {
   ngAfterViewInit() {
 
     this.obtainColumns(this.arrDataTable);
-    this.dataSource.paginator = this.paginator || null;  
+    this.dataSource.paginator = this.paginator || null;
+    
     
   }
 
   /** Método de angular, escucha cambios */
   ngOnChanges(changes: SimpleChanges) {
-
-    if (changes['arrDataTable']) {
+    
+    if (changes['arrDataTable'] || changes['numIndexTableInput']) {
 
       this.dataSource.data = this.arrDataTable;
       this.obtainColumns(this.arrDataTable);
       this.__changeDF.detectChanges();
-
+      
+      this.rowSelection({}, this.numIndexTableInput);
     }
   }
 
-  /** Método para obtener las columnas */
+  /** Método para obtener las columnas del array */
   obtainColumns( arrData: Array<object> ) {
     if(arrData.length > 0) {
 
@@ -54,7 +59,10 @@ export class FormTableComponent implements AfterViewInit {
     }
   }
 
-  /** Método para generar el nombre de las columnas */
+  /** 
+   * Método para generar el nombre de las columnas,
+   * Ej.: data_name = Data Name
+   */
   generateColumnName( column: string ) {
     const strFrase  = column.split('_');
     let strNewFrase = '';
@@ -67,11 +75,25 @@ export class FormTableComponent implements AfterViewInit {
   }
 
   /** Manejo de la sección de la fila */
-  rowSelection(row: object) {
-    if (row){
-      this.selectedRow = row;
-      console.log(this.dataSource.data.indexOf(row)); // Index de la fila seleccionada.
+  rowSelection(row: object, index: number = 0) {
+
+    if( Object.keys(row).length > 0 ){
+      index = this.dataSource.data.indexOf(row);
     }
+    
+    this.selectedRow = this.dataSource.data[index];
+
+    /**  Calcula la página en la que debe estar el índice seleccionado */
+    const pageSize      = this.paginator?.pageSize || 10;
+    const newPageIndex  = Math.floor(index / pageSize);
+
+    /** Si hay un paginator, cambia la página */
+    if (this.paginator) {
+      this.paginator.pageIndex  = newPageIndex;
+      this.dataSource.paginator = this.paginator; // Refresca el paginator
+    }
+    
+    this.searchEvent.emit(index);
   }
 
 }

@@ -19,6 +19,7 @@ const user_1 = __importDefault(require("../router/user"));
 const tercero_1 = __importDefault(require("../router/tercero"));
 const adress_1 = __importDefault(require("../router/adress"));
 const user_2 = require("./user");
+const query_basic_1 = __importDefault(require("../router/query-basic"));
 class Server {
     constructor() {
         this.app = (0, express_1.default)();
@@ -38,6 +39,7 @@ class Server {
         this.app.use('/api', user_1.default);
         this.app.use('/api/tercero/user', tercero_1.default);
         this.app.use('/api/adress', adress_1.default);
+        this.app.use('/query/basic', query_basic_1.default);
     }
     midlewares() {
         //Parseo body

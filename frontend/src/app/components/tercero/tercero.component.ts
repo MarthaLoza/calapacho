@@ -491,6 +491,7 @@ export class TerceroComponent implements OnInit, AfterViewInit {
   /*                                   TEEEEEEEEST                                                      */
   /* ************************************************************************************************** */
 
+  numIndexTableOutput = 0;
 
   getLista() {
     this.__tercerService.getListaTerceros({})
@@ -519,5 +520,17 @@ export class TerceroComponent implements OnInit, AfterViewInit {
 
     this.dataTable = viewDataTable;
   }
+
+  /** Index que sale de la selección de la tabla */
+  IndexTableOutput(index: number) {
+    this.numIndexTableOutput = index;    
+  }
+
+  /** Index que sale de la selección por botones(arrows) */
+  IndexButtonOutput(index: number) {
+    this.numIndexTableOutput = index;    
+  }
+
+
 
 }

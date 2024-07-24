@@ -5,6 +5,7 @@ import routesUser from '../router/user';
 import ruotesTercero from '../router/tercero';
 import adressRoutes from '../router/adress';
 import { User } from './user';
+import queryBasic from '../router/query-basic';
 
 
 class Server{
@@ -32,6 +33,7 @@ class Server{
         this.app.use('/api', routesUser);
         this.app.use('/api/tercero/user', ruotesTercero);
         this.app.use('/api/adress', adressRoutes);
+        this.app.use('/query/basic', queryBasic)
     }
 
     midlewares() {
