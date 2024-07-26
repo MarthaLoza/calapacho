@@ -19,7 +19,6 @@ import { SliderComponent } from './slider/slider.component';
 import { SlideToggleComponent } from './slide-toggle/slide-toggle.component';
 import { ButtonsComponent } from './buttons/buttons.component';
 import { TooltipsComponent } from './tooltips/tooltips.component';
-import { RemisionComponent } from './remision/remision.component';
 import { TerceroComponent } from './tercero/tercero.component';
 import { NotifierModule } from 'angular-notifier';
 import { MatSelectModule } from '@angular/material/select';
@@ -32,6 +31,8 @@ import { DialogFilterComponent } from './form-dialogs/dialog-filter/dialog-filte
 import { ButtonDeleteComponent } from './form-buttons/button-delete/button-delete.component';
 import { FormTableComponent } from './form-table/form-table.component';
 import { ButtonArrowsComponent } from './form-buttons/button-arrows/button-arrows.component';
+import { TercerosComponent } from './terceros/terceros.component';
+import { FormOneDataComponent } from './form-one-data/form-one-data.component';
 
 @NgModule({
   imports: [
@@ -83,7 +84,6 @@ import { ButtonArrowsComponent } from './form-buttons/button-arrows/button-arrow
     NgFor,
   ],
   declarations: [
-    RemisionComponent,
     TerceroComponent,
     CterdireComponent,
     DialogDeleteComponent,
@@ -93,6 +93,8 @@ import { ButtonArrowsComponent } from './form-buttons/button-arrows/button-arrow
     ButtonDeleteComponent,
     FormTableComponent,
     ButtonArrowsComponent,
+    TercerosComponent,
+    FormOneDataComponent,
   ]
 })
 export class ComponentsModule { }

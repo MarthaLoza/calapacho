@@ -2,8 +2,30 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-button-arrows',
-  templateUrl: './button-arrows.component.html',
-  styleUrls: ['./button-arrows.component.scss']
+  template: `
+      <button 
+        mat-fab 
+        color         = "primary" 
+        type          = "button"
+        [disabled]    = "boolDisabledButtonBack"
+        (click)       = "backButton()"
+      >
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <button 
+        mat-fab 
+        color         = "primary" 
+        type          = "button"
+        [disabled]    = "boolDisabledButtonNext"
+        (click)       = "nextButton()"
+      >
+        <mat-icon>arrow_forward</mat-icon>
+      </button>`,
+  styles: [`
+      button {
+        margin: 0px 8px;
+      }
+  `]
 })
 export class ButtonArrowsComponent {
 

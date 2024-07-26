@@ -68,7 +68,7 @@ export class TerceroComponent implements OnInit, AfterViewInit {
   //table   : string = 'Ctercero';
   //objCond : number = 0;
 
-  dataTable : Array<object> = [];
+
 
 
 
@@ -492,6 +492,7 @@ export class TerceroComponent implements OnInit, AfterViewInit {
   /* ************************************************************************************************** */
 
   numIndexTableOutput = 0;
+  dataTable : Array<object> = [];
 
   getLista() {
     this.__tercerService.getListaTerceros({})
@@ -505,6 +506,7 @@ export class TerceroComponent implements OnInit, AfterViewInit {
       )
   }
 
+  /** Selecciona la data que se muestra en la tabla */
   assembleTableData(data : Array<TercerElement>) {
     let viewDataTable = [];
 
@@ -523,12 +525,12 @@ export class TerceroComponent implements OnInit, AfterViewInit {
 
   /** Index que sale de la selección de la tabla */
   IndexTableOutput(index: number) {
-    this.numIndexTableOutput = index;    
+    this.numIndexTableOutput = index;
   }
 
   /** Index que sale de la selección por botones(arrows) */
   IndexButtonOutput(index: number) {
-    this.numIndexTableOutput = index;    
+    this.numIndexTableOutput = index;
   }
 
 

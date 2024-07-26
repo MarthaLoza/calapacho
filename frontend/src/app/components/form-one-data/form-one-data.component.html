@@ -1,0 +1,51 @@
+<div class="card">
+    <div class="card-body">
+        <form [formGroup]="form" (ngSubmit)="buttonInsert()">
+
+            <div class="buttons">
+
+                <!-- Botones flecha -->
+                <app-button-arrows
+                    [numIndexButtonInput]   = "numIndexTableOutput"
+                    [numTotalDataTable]     = "dataTable.length"
+                    (numIndexButtonOutput)  = "IndexButtonOutput($event)"
+                ></app-button-arrows>
+                
+                <!-- Botón guardar -->
+                <button 
+                    mat-fab color   = "primary" 
+                    type            = "submit" 
+                    [disabled]      = "form.invalid"
+                >
+                    <mat-icon>add</mat-icon>
+                </button>
+            </div>
+
+            <!-- Campos del formulario -->
+            <div class="row">
+                <div *ngFor="let field of fields" class="col-lg-6">
+                    <mat-form-field class="w-100 fs-16" *ngIf="field.type !== 'checkbox'" appearance="outline" [class.mat-form-field-invalid]="form.get(field.name)?.invalid && (form.get(field.name)?.dirty || form.get(field.name)?.touched)">
+                        <mat-label>{{ field.label }}</mat-label>
+                        <input *ngIf="field.type === 'text'" matInput [formControlName]="field.name"
+                            [type]="field.type" (ngModelChange)="field.onChange ? field.onChange() : null">
+                        <mat-select *ngIf="field.type === 'select'" [formControlName]="field.name" (ngModelChange)="field.onChange ? field.onChange() : null">
+                            <mat-option *ngFor="let option of field.options" [value]="option.value">
+                                {{ option.label }}
+                            </mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="form.get(field.name)?.invalid">
+                            {{ getErrorMessage(field.name) }}
+                        </mat-error>
+                    </mat-form-field>
+                </div>
+            </div>
+        </form>
+
+        <!-- Vista de la tabla -->
+        <app-form-table
+            [numIndexTableInput]    = "numIndexTableOutput"
+            [arrDataTable]          = "dataTable" 
+            (searchEvent)           = "IndexTableOutput($event)"
+        ></app-form-table>
+    </div>
+</div>

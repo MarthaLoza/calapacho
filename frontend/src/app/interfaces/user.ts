@@ -52,3 +52,20 @@ export interface DirecTercero {
     email : string;
 }
 
+export const arrTypeUser: Selector[] = [
+    { label: 'Usuario',         value: 'C' },
+    { label: 'Empresa',         value: 'E' },
+    { label: 'Transportista',   value: 'T' },
+];
+
+export const arrTypeCif: Selector[] = [
+    { label: 'RUC',         value: '0' },
+    { label: 'DNI',         value: '1' },
+    { label: 'Carnet Extranjería',  value: '2' },
+];
+
+export const arrTypeStatus: Selector[] = [
+    { label: 'Activo',      value: 'A' },
+    { label: 'Inactivo',    value: 'I' },
+];
+

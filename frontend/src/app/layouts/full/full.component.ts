@@ -37,9 +37,9 @@ export class FullComponent {
       menu: "Dashboard",
     },
     {
-      link: "/remision",
-      icon: "file-text",
-      menu: "Remisión",
+      link: "/terceros",
+      icon: "list",
+      menu: "Terceros",
     },
     {
       link: "/tercero",
