@@ -52,7 +52,7 @@ class TerceroController {
     /** Nuevo tercero */
     public async newTercero (req: Request, res: Response) {
 
-        const { terType, nombre, nomaux, ciftyp,  cif, coment, estado, tipdir, direcc, coddep, codprv, coddis, telef1, email, contac } = req.body;
+        const { terType,codigo, nombre, nomaux, ciftyp,  cif, coment, estado, tipdir, direcc, coddep, codprv, coddis, telef1, email, contac } = req.body;
         console.log(terType, 'terType');
         let mCif = null;
         let mErr = null;
@@ -89,7 +89,7 @@ class TerceroController {
         try {
 
             /** Volvemos a calcular el código del tercero */
-            let codigo = await generateCodigoTercero(terType);
+            //let codigo = await generateCodigoTercero(terType);
 
             /** Guardamos la información del tercero */
             const data = await Ctercero.create({
@@ -130,7 +130,7 @@ class TerceroController {
             
             /** Retornamos un error controlado */
             res.status(400).json({
-                msg: 'Upps ocurrio un error123',
+                msg: 'Upps ocurrio un error',
                 error
             })
         }

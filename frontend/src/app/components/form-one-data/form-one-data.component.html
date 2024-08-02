@@ -9,6 +9,7 @@
                     [numIndexButtonInput]   = "numIndexTableOutput"
                     [numTotalDataTable]     = "dataTable.length"
                     (numIndexButtonOutput)  = "IndexButtonOutput($event)"
+                    (boolActionButton)      = "boolActionButtonArrows($event)"
                 ></app-button-arrows>
                 
                 <!-- Botón guardar -->
@@ -19,12 +20,18 @@
                 >
                     <mat-icon>add</mat-icon>
                 </button>
+
+                <!-- Botón eliminar -->
+                <app-button-delete
+                    [disabled]  = "false"
+                    [arrData]   = "arrConditionDelete"
+                ></app-button-delete>
             </div>
 
             <!-- Campos del formulario -->
             <div class="row">
                 <div *ngFor="let field of fields" class="col-lg-6">
-                    <mat-form-field class="w-100 fs-16" *ngIf="field.type !== 'checkbox'" appearance="outline" [class.mat-form-field-invalid]="form.get(field.name)?.invalid && (form.get(field.name)?.dirty || form.get(field.name)?.touched)">
+                    <mat-form-field class="w-100 fs-16" appearance="outline" [class.mat-form-field-invalid]="form.get(field.name)?.invalid && (form.get(field.name)?.dirty || form.get(field.name)?.touched)">
                         <mat-label>{{ field.label }}</mat-label>
                         <input *ngIf="field.type === 'text'" matInput [formControlName]="field.name"
                             [type]="field.type" (ngModelChange)="field.onChange ? field.onChange() : null">
@@ -45,6 +52,7 @@
         <app-form-table
             [numIndexTableInput]    = "numIndexTableOutput"
             [arrDataTable]          = "dataTable" 
+            [boolActionButtonA]     = "boolActionButton"
             (searchEvent)           = "IndexTableOutput($event)"
         ></app-form-table>
     </div>

@@ -20,4 +20,8 @@ export class QueryService {
     return this.http.delete<string>(`${this.myAppUrl}${this.myApiUrl}/delete`, { body : data });
   }
 
+  insertOneRow(data: any): Observable<any> {
+    return this.http.post<string>(`${this.myAppUrl}${this.myApiUrl}/insert`, data);
+  }
+
 }

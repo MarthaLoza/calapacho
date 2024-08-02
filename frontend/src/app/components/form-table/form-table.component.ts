@@ -12,12 +12,14 @@ export class FormTableComponent implements AfterViewInit {
   /** Información del padre */
   @Input() numIndexTableInput : number = 0;
   @Input() arrDataTable       : Array<object> = [];
+  @Input() boolActionButtonA  : boolean = false;
 
   @Output() searchEvent = new EventEmitter<number>();
 
-  displayedColumns  : string[]  = [];
-  dataSource                    = new MatTableDataSource<object>(this.arrDataTable);
-  selectedRow       : object    = {};
+  displayedColumns    : string[]  = [];
+  dataSource                      = new MatTableDataSource<object>(this.arrDataTable);
+  selectedRow         : object    = {};
+  initialSelection    : boolean   = false;
 
   @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
 
@@ -27,19 +29,36 @@ export class FormTableComponent implements AfterViewInit {
 
     this.obtainColumns(this.arrDataTable);
     this.dataSource.paginator = this.paginator || null;
-    
-    
+
   }
 
   /** Método de angular, escucha cambios */
   ngOnChanges(changes: SimpleChanges) {
     
-    if (changes['arrDataTable'] || changes['numIndexTableInput']) {
+    if ((changes['arrDataTable'] && this.arrDataTable.length > 0)) {
 
       this.dataSource.data = this.arrDataTable;
       this.obtainColumns(this.arrDataTable);
       this.__changeDF.detectChanges();
+
+      /**
+       * Se llama al rowSelection por primera vez al iniciar la vista para 
+       * poder seleccionar el indice 0. Esto permite que el rowSelection se pueda 
+       * llamar al inicio cuando el arrDataTable tiene datos.
+       */
+      if (!this.initialSelection) {
+        this.rowSelection({}, 0);
+        this.initialSelection = true;
+      }
       
+    }
+
+    /**
+     * Se llama al rowSelection cuando se cambia el índice y cuando sea una acción 
+     * de botón, para evitar que se ejecute al inicio con la seleccion anterior, se 
+     * condiciona el initialSelection.
+     */
+    if(changes['boolActionButtonA'] && changes['numIndexTableInput'] && this.initialSelection) {
       this.rowSelection({}, this.numIndexTableInput);
     }
   }
@@ -75,13 +94,12 @@ export class FormTableComponent implements AfterViewInit {
   }
 
   /** Manejo de la sección de la fila */
-  rowSelection(row: object, index: number = 0) {
-
-    if( Object.keys(row).length > 0 ){
-      index = this.dataSource.data.indexOf(row);
-    }
+  rowSelection(row: object, index: number) {
+      
+    let numIndexSelection = this.dataSource.data.indexOf(row);
+    index = numIndexSelection == -1 ? index : numIndexSelection;
     
-    this.selectedRow = this.dataSource.data[index];
+    this.selectedRow = this.dataSource.data[index]; // Selecciona(pinta) la fila
 
     /**  Calcula la página en la que debe estar el índice seleccionado */
     const pageSize      = this.paginator?.pageSize || 10;

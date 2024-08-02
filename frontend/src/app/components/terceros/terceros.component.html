@@ -1,7 +1,22 @@
+<!-- 
+    arrFormField : Fields del fomulario
+    arrDataTable : Array de datos ordenados para la vista de la tabla
+    objDataForm  : Array de datos completos de la tabla
+    strTableName : Nombre de la tabla a utlizar en este componente
+    
+    arrDataOutput : Evento que devuelve un array de datos del formulario
+    boolFormOut   : Evento que devuelve los estados booleanos del formulario,
+                    como editado, validado, etc, además devuelve el fomulario completo. 
+-->
+
 <app-form-one-data
-    [arrFormField]  = "arrFormField"
-    [arrDataTable]  = "arrDataTable"
-    [objDataForm]   = "objDataForm"
-    (arrDataOut)    = "arrDataOut($event)"
-    (boolFormOut)   = "boolFormOut($event)"
+    [arrFormField]      = "arrFormField"
+    [arrDataTable]      = "arrDataTable"
+    [arrDataForm]       = "arrDataForm"
+    [strTablesNames]    = "strTablesNames"
+    [strIdName]         = "strIdName"
+    (arrDataOutput)     = "arrDataOutput($event)"
+    (boolFormOut)       = "boolFormOut($event)"
 ></app-form-one-data>
+
+<notifier-container></notifier-container>

@@ -33,9 +33,11 @@ export class ButtonArrowsComponent {
   @Input() numTotalDataTable  : number = 0;
   
   @Output() numIndexButtonOutput = new EventEmitter<number>();
+  @Output() boolActionButton     = new EventEmitter<boolean>();
 
   boolDisabledButtonBack: boolean = false;
   boolDisabledButtonNext: boolean = false;
+  boolActionButtonArrows: boolean = false;
 
   ngOnChanges() {
 
@@ -46,12 +48,16 @@ export class ButtonArrowsComponent {
 
   backButton() {
     this.numIndexButtonInput--;
+    this.boolActionButtonArrows = !this.boolActionButtonArrows;
     this.numIndexButtonOutput.emit(this.numIndexButtonInput);
+    this.boolActionButton.emit(this.boolActionButtonArrows);
   }
 
   nextButton() {
     this.numIndexButtonInput++;
+    this.boolActionButtonArrows = !this.boolActionButtonArrows;
     this.numIndexButtonOutput.emit(this.numIndexButtonInput);
+    this.boolActionButton.emit(this.boolActionButtonArrows);
   }
 
 }

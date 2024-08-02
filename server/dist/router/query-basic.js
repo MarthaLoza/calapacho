@@ -9,6 +9,7 @@ class QueryBasicRoutes {
     }
     config() {
         this.router.delete('/delete', query_basic_1.queryBasicController.deleteOneRow);
+        this.router.post('/insert', query_basic_1.queryBasicController.insertOneRow);
     }
 }
 const queryRoutes = new QueryBasicRoutes();

@@ -61,7 +61,7 @@ class TerceroController {
     /** Nuevo tercero */
     newTercero(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { terType, nombre, nomaux, ciftyp, cif, coment, estado, tipdir, direcc, coddep, codprv, coddis, telef1, email, contac } = req.body;
+            const { terType, codigo, nombre, nomaux, ciftyp, cif, coment, estado, tipdir, direcc, coddep, codprv, coddis, telef1, email, contac } = req.body;
             console.log(terType, 'terType');
             let mCif = null;
             let mErr = null;
@@ -93,7 +93,7 @@ class TerceroController {
             const transaction = yield connection_1.default.transaction();
             try {
                 /** Volvemos a calcular el código del tercero */
-                let codigo = yield generateCodigoTercero(terType);
+                //let codigo = await generateCodigoTercero(terType);
                 /** Guardamos la información del tercero */
                 const data = yield ctercero_1.Ctercero.create({
                     codigo: codigo,
@@ -129,7 +129,7 @@ class TerceroController {
                 console.log(error);
                 /** Retornamos un error controlado */
                 res.status(400).json({
-                    msg: 'Upps ocurrio un error123',
+                    msg: 'Upps ocurrio un error',
                     error
                 });
             }

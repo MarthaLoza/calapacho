@@ -16,9 +16,28 @@ exports.queryBasicController = void 0;
 const connection_1 = __importDefault(require("../db/connection"));
 const ctercero_1 = require("../models/ctercero");
 class QueryBasicController {
+    //private getModelMap(): { [key: string]: ModelStatic<Model<any, any>> } {
+    //    return {
+    //        'Ctercero': Ctercero,
+    //        'Cterdire': Cterdire
+    //    };
+    //}
+    //
+    //private getModelByName(tableName: string): ModelStatic<Model<any, any>> | null {
+    //    const modelMap = this.getModelMap();
+    //    return modelMap[tableName] || null;
+    //}
+    /**
+     * ["strTable", { id : 1 }]
+     *
+     * @param strTable          Nombre de la tabla
+     * @param objCondition      Condición de id para la eliminación
+     * @returns
+     */
     deleteOneRow(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const [strTable, objCondition] = req.body;
+            console.log(strTable, req);
             /** Mapeo de nombres de tablas a modelos */
             const modelMap = {
                 'Ctercero': ctercero_1.Ctercero
@@ -47,7 +66,49 @@ class QueryBasicController {
                 console.log(error);
                 /** Retornamos un error controlado */
                 res.status(400).json({
-                    msg: 'Upps ocurrio un error',
+                    msg: 'Upps ocurrio un error (deleteOneRow)',
+                    error: error
+                });
+            }
+        });
+    }
+    /**
+     * ["TableName", { nombre: "Juan" , apellido: "Perez" , ... }]
+     *
+     * @param strTable          Nombre de la tabla
+     * @param data              Datos a insertar
+     * @returns
+     */
+    insertOneRow(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            console.log(req.body, "BODY");
+            const [strtable, data] = req.body;
+            /** Mapeo de nombres de tablas a modelos */
+            const modelMap = {
+                'Ctercero': ctercero_1.Ctercero
+            };
+            const ModelToUse = modelMap[strtable];
+            if (!ModelToUse) {
+                return res.status(400).json({
+                    msg: 'Modelo no encontrado para la tabla especificada',
+                });
+            }
+            /** Iniciamos una transacción (rollback) */
+            const transaction = yield connection_1.default.transaction();
+            try {
+                /** Inserción de la data */
+                yield ModelToUse.create(data, { transaction });
+                /** Si todo va bien confirmamos la transacción */
+                yield transaction.commit();
+                res.json('El registro a sido creado correctamente ');
+            }
+            catch (error) {
+                /** Si hay un error, revertimos todas las operaciones */
+                yield transaction.rollback();
+                console.log(error);
+                /** Retornamos un error controlado */
+                res.status(400).json({
+                    msg: 'Upps ocurrio un error (insertOneRow)',
                     error: error
                 });
             }
