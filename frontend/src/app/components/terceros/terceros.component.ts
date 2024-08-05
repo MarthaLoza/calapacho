@@ -33,8 +33,9 @@ export class TercerosComponent {
   boolActionUser    = false;
   strInitialTercer  = '';
   strCodeGenerated  = null;
-  strTablesNames    = ['Ctercero', 'Cterdire'];
+  strTablesNames    = ['Cterdire', 'Ctercero']; // Si hay tanlas referenciadas, enviarla tabla principal al final
   strIdName         = 'codigo';
+  strColumnDelete   = 'terType';  // Secrea para poder enviar columnas que quiero eliminar de un objeto, en este caso del update
 
   arrDataTable : Array<object>          = []; // Datos de la tabla, ordenada para la vista del usuario
   arrDataForm  : Array<TercerElement>   = []; // Todos los datos de terceros
@@ -52,8 +53,6 @@ export class TercerosComponent {
     // Podemos acceder al componente formOneData después de la vista se ha inicializado
   }
 
-
-
   /******************************* */
   /*            EVENTOS            */
   /******************************* */
@@ -70,7 +69,11 @@ export class TercerosComponent {
     this.boolActionUser   = boolFormOut[3];
   }
 
-
+  boolRefreshTable(boolRefreshTable: boolean) {
+    if(boolRefreshTable){
+      this.getLista();
+    }
+  }
 
   /****************************************************** */
   /*    SE ALISTAN LOS DATOS PARA ENVIAR AL FOMULARIO     */
@@ -149,7 +152,7 @@ export class TercerosComponent {
       .pipe(
         switchMap((response: any) => {
           arrData.codigo = response;          
-          return this.__queryService.insertOneRow([this.strTablesNames, arrData]);
+          return this.__queryService.insertOneRow([this.strTablesNames[1], arrData]);
         }),
         catchError((error) => {
           this.__errorservices.msjError(error);

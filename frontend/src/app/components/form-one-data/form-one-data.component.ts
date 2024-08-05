@@ -13,10 +13,12 @@ export class FormOneDataComponent implements OnInit, OnChanges {
   @Input() arrDataForm    : Array<object> = []; // Todos los datos de terceros
   @Input() strTablesNames : Array<string> = []; // Nombre de la tabla
   @Input() strIdName      : string        = ''; // Nombre del campo id o condición a eliminar
+  @Input() strColumnDelete: string        = ''; // Nombre de la columna a eliminar
 
   @Output() arrDataOutput       = new EventEmitter<object>();
   @Output() boolFormOut         = new EventEmitter<Array<any>>();
   @Output() boolFormValidOut    = new EventEmitter<boolean>();
+  @Output() boolRefreshTable    = new EventEmitter<boolean>();
   /**
    * Este evento se dispara para actualizar un campo del formulario.
    */
@@ -27,12 +29,14 @@ export class FormOneDataComponent implements OnInit, OnChanges {
   fields    : Field[]       = [];
   dataTable : Array<object> = [];
 
-  boolFormValid       = false;
-  boolFormModific     = false;  
-  numIndexTableOutput = 0;
-  boolActionUser      = false;
-  boolActionButton    = false;
+  boolFormValid       = false;    // Formulario válido
+  boolFormModific     = false;    // Formulario modificado
+  numIndexTableOutput = 0;        // Index de la tabla
+  boolActionUser      = false;    // Acción realizada por el usuario
+  boolActionButton    = false;    // Acción realizada por los botones(arrows)
+  //boolRefreshTable    = false;
   arrConditionDelete : Array<any>  = [];
+  arrConditionUpdate : Array<any>  = [];
 
 
   constructor(
@@ -57,27 +61,33 @@ export class FormOneDataComponent implements OnInit, OnChanges {
     this.__changeDR.detectChanges();
   }
 
-  /** Método para actualizar los valores del formulario */
+  /** 
+   * Método para actualizar los valores del formulario segun la
+   * fila seleccionada en la tabla.
+  */
   updateFormValues() {
     if (this.arrDataForm && this.arrDataForm.length > 0 && 
         this.numIndexTableOutput < this.arrDataForm.length) {
       this.form.patchValue(this.arrDataForm[this.numIndexTableOutput]);
-      console.log("Se elimina");
-      
-      this.preparationForButtonDelete();
+
+      /**
+       * Lo pongo aquí ya que solo necesito el valor del campo id
+       */
+      this.preparationForButtonDelete(); 
     }    
   }
 
   /**
-   * Preparación para eliminar registros de una tabla.
+   * Preparación para eliminar registros de una tabla. Este metodo a sido creado
+   * para eliminar uno a más registros de una tabla, ya que la eliinación de un
+   * registro aveces conlleva eliminar registros de otras tablas referenciadas.
    * [ [nameTable1, {nameColumn1: value1}], [nameTable2, {nameColumn2: value2}] ]
    */
   preparationForButtonDelete() {
+    let arrConditionDelete      : Array<any> = [];
     const nameColumnCondition   = this.strIdName;
     const valueCondition        = (this.arrDataForm[this.numIndexTableOutput] as any)[nameColumnCondition];
     
-    let arrConditionDelete: Array<any> = [];
-
     for(let table of this.strTablesNames) {
       arrConditionDelete.push(
         [table, {[nameColumnCondition] : valueCondition}]
@@ -85,6 +95,22 @@ export class FormOneDataComponent implements OnInit, OnChanges {
     }
 
     this.arrConditionDelete = arrConditionDelete;
+  }
+
+  preparationForButtonUpdate() {
+    const nameColumnCondition   = this.strIdName;
+    const valueCondition        = (this.arrDataForm[this.numIndexTableOutput] as any)[this.strIdName];
+    let objDataupdate           = this.form.value;
+    
+    /** Metodo por si se desea quitar alguna columna del update */
+    if(this.strColumnDelete){
+      objDataupdate = this.omitField(objDataupdate, this.strColumnDelete);
+    }
+
+    this.arrConditionUpdate     = [this.strTablesNames[this.strTablesNames.length - 1], 
+                                  { [nameColumnCondition] : valueCondition },
+                                  objDataupdate];
+    
   }
 
   /**  Método para crear los campos del formulario */
@@ -128,8 +154,8 @@ export class FormOneDataComponent implements OnInit, OnChanges {
   listenToFormChanges() {
     this.form.valueChanges.subscribe(() => {
 
-      if(!this.form.pristine) this.boolFormModific = true;  // Formulario modificado
-      this.boolFormValid = this.form.valid;                 // Formulario válido
+      if(!this.form.pristine) { this.boolFormModific = true; }  // Formulario modificado(true)
+      this.boolFormValid = this.form.valid;                     // Formulario válido(true) o invalido(false)
       
       /**
        * boolFormModific : Detecta que el formulario ha sido modificado
@@ -139,6 +165,11 @@ export class FormOneDataComponent implements OnInit, OnChanges {
        */
       this.boolFormOut.emit([ this.boolFormModific, this.boolFormValid, 
                               this.form.value,      this.boolActionUser] );
+
+      /**
+       * Aquí nesecito el valor de todo el fomulario y cada vez que se edite.
+       */
+      this.preparationForButtonUpdate();
       
     });
   }
@@ -174,6 +205,23 @@ export class FormOneDataComponent implements OnInit, OnChanges {
   buttonInsert() {
     this.arrDataOutput.emit(this.form.value);
   }
+  
+  /** Evento para refrescar la tabla y el formulario */
+  boolResponse(boolResponse: boolean) {
+    if (boolResponse) {
+      this.form.reset();
+      this.boolRefreshTable.emit(true);
+    }
+  }
+
+  /** 
+   * Finaliza el update y manda un false, además esta configurado para
+   * los botones de flecha.
+   */
+  boolDisable(boolDisable: boolean) {    
+    this.boolFormModific  = boolDisable;
+    this.form.markAsPristine(); // Marca el formulario como no modificado
+  }
 
   /**
    * Este método fue creado para poder actualizar los campos del formulario
@@ -185,6 +233,21 @@ export class FormOneDataComponent implements OnInit, OnChanges {
     if (this.form.contains(fieldName)) {
       this.form.get(fieldName)?.setValue(value);
     }
+  }
+
+  /**************************************************** */
+  /*         METODOS QUE AYUDAN A OTROS METODOS         */
+  /**************************************************** */
+
+  /**
+   * Este método permite quitar atributos de un objeto
+   * @param obj         Objeto
+   * @param fieldName   Nombre del atributo a eliminar
+   * @returns           Objeto sin el atributo
+   */
+  private omitField(obj: any, fieldName: string): any {
+    const { [fieldName]: _, ...rest } = obj;
+    return rest;
   }
 
 

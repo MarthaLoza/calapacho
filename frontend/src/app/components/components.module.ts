@@ -33,6 +33,7 @@ import { FormTableComponent } from './form-table/form-table.component';
 import { ButtonArrowsComponent } from './form-buttons/button-arrows/button-arrows.component';
 import { TercerosComponent } from './terceros/terceros.component';
 import { FormOneDataComponent } from './form-one-data/form-one-data.component';
+import { ButtonUpdateComponent } from './form-buttons/button-update/button-update.component';
 
 @NgModule({
   imports: [
@@ -95,6 +96,7 @@ import { FormOneDataComponent } from './form-one-data/form-one-data.component';
     ButtonArrowsComponent,
     TercerosComponent,
     FormOneDataComponent,
+    ButtonUpdateComponent,
   ]
 })
 export class ComponentsModule { }

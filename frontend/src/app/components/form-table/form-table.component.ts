@@ -19,7 +19,6 @@ export class FormTableComponent implements AfterViewInit {
   displayedColumns    : string[]  = [];
   dataSource                      = new MatTableDataSource<object>(this.arrDataTable);
   selectedRow         : object    = {};
-  initialSelection    : boolean   = false;
 
   @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
 
@@ -36,21 +35,17 @@ export class FormTableComponent implements AfterViewInit {
   ngOnChanges(changes: SimpleChanges) {
     
     if ((changes['arrDataTable'] && this.arrDataTable.length > 0)) {
-
+      
       this.dataSource.data = this.arrDataTable;
       this.obtainColumns(this.arrDataTable);
       this.__changeDF.detectChanges();
 
       /**
-       * Se llama al rowSelection por primera vez al iniciar la vista para 
-       * poder seleccionar el indice 0. Esto permite que el rowSelection se pueda 
-       * llamar al inicio cuando el arrDataTable tiene datos.
+       * Siempre que el Data table cambie o se actualice, se selecciona la primera fila
        */
-      if (!this.initialSelection) {
-        this.rowSelection({}, 0);
-        this.initialSelection = true;
-      }
-      
+      this.rowSelection({}, this.numIndexTableInput);
+      //console.log(this.numIndexTableInput);
+
     }
 
     /**
@@ -58,7 +53,7 @@ export class FormTableComponent implements AfterViewInit {
      * de botón, para evitar que se ejecute al inicio con la seleccion anterior, se 
      * condiciona el initialSelection.
      */
-    if(changes['boolActionButtonA'] && changes['numIndexTableInput'] && this.initialSelection) {
+    if(changes['boolActionButtonA'] && changes['numIndexTableInput']) {
       this.rowSelection({}, this.numIndexTableInput);
     }
   }

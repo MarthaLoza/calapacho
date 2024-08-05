@@ -24,4 +24,8 @@ export class QueryService {
     return this.http.post<string>(`${this.myAppUrl}${this.myApiUrl}/insert`, data);
   }
 
+  updateOneRow(data: any): Observable<any> {
+    return this.http.put<string>(`${this.myAppUrl}${this.myApiUrl}/update`, data);
+  }
+
 }

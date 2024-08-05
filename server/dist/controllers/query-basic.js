@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.queryBasicController = void 0;
 const connection_1 = __importDefault(require("../db/connection"));
 const ctercero_1 = require("../models/ctercero");
+const cterdire_1 = require("../models/cterdire");
 class QueryBasicController {
     //private getModelMap(): { [key: string]: ModelStatic<Model<any, any>> } {
     //    return {
@@ -40,7 +41,8 @@ class QueryBasicController {
             console.log(strTable, req);
             /** Mapeo de nombres de tablas a modelos */
             const modelMap = {
-                'Ctercero': ctercero_1.Ctercero
+                'Ctercero': ctercero_1.Ctercero,
+                'Cterdire': cterdire_1.Cterdire
             };
             const ModelToUse = modelMap[strTable];
             if (!ModelToUse) {
@@ -81,11 +83,11 @@ class QueryBasicController {
      */
     insertOneRow(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(req.body, "BODY");
             const [strtable, data] = req.body;
             /** Mapeo de nombres de tablas a modelos */
             const modelMap = {
-                'Ctercero': ctercero_1.Ctercero
+                'Ctercero': ctercero_1.Ctercero,
+                'Cterdire': cterdire_1.Cterdire
             };
             const ModelToUse = modelMap[strtable];
             if (!ModelToUse) {
@@ -109,6 +111,51 @@ class QueryBasicController {
                 /** Retornamos un error controlado */
                 res.status(400).json({
                     msg: 'Upps ocurrio un error (insertOneRow)',
+                    error: error
+                });
+            }
+        });
+    }
+    /**
+     * ["TableName", { id: 1 }, { nombre: "Pepe" , apellido: "Perez" , ... }]
+     * @param strTable          Nombre de la tabla
+     * @param objCondition      Condición de id para la actualización
+     * @param data              Datos a actualizar
+     * @returns
+     */
+    updateOneRow(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const [strTable, objCondition, data] = req.body;
+            /** Mapeo de nombres de tablas a modelos */
+            const modelMap = {
+                'Ctercero': ctercero_1.Ctercero,
+                'Cterdire': cterdire_1.Cterdire
+            };
+            const ModelToUse = modelMap[strTable];
+            if (!ModelToUse) {
+                return res.status(400).json({
+                    msg: 'Modelo no encontrado para la tabla especificada',
+                });
+            }
+            /** Iniciamos una transacción (rollback) */
+            const transaction = yield connection_1.default.transaction();
+            try {
+                /** Actualización de la data */
+                yield ModelToUse.update(data, {
+                    where: objCondition,
+                    transaction: transaction
+                });
+                /** Si todo va bien confirmamos la transacción */
+                yield transaction.commit();
+                res.json('El registro a sido actualizado');
+            }
+            catch (error) {
+                /** Si hay un error, revertimos todas las operaciones */
+                yield transaction.rollback();
+                console.log(error);
+                /** Retornamos un error controlado */
+                res.status(400).json({
+                    msg: 'Upps ocurrio un error (updateOneRow)',
                     error: error
                 });
             }

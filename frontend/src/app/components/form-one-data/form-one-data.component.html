@@ -8,8 +8,10 @@
                 <app-button-arrows
                     [numIndexButtonInput]   = "numIndexTableOutput"
                     [numTotalDataTable]     = "dataTable.length"
+                    [boolFormModific]       = "boolFormModific"
                     (numIndexButtonOutput)  = "IndexButtonOutput($event)"
                     (boolActionButton)      = "boolActionButtonArrows($event)"
+                    (boolDisable)           = "boolDisable($event)"
                 ></app-button-arrows>
                 
                 <!-- Botón guardar -->
@@ -21,10 +23,19 @@
                     <mat-icon>add</mat-icon>
                 </button>
 
+                <!-- Botón editar -->
+                <app-button-update
+                    [disabled]      = "boolFormModific"
+                    [arrData]       = "arrConditionUpdate"
+                    (boolDisable)   = "boolDisable($event)"
+                    (boolResponse)  = boolResponse($event)
+                ></app-button-update>
+
                 <!-- Botón eliminar -->
                 <app-button-delete
-                    [disabled]  = "false"
-                    [arrData]   = "arrConditionDelete"
+                    [disabled]      = "boolFormModific"
+                    [arrData]       = "arrConditionDelete"
+                    (boolResponse)  = boolResponse($event)
                 ></app-button-delete>
             </div>
 

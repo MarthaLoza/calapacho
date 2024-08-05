@@ -12,6 +12,7 @@ class QueryBasicRoutes {
     config() {
         this.router.delete('/delete', queryBasicController.deleteOneRow);
         this.router.post('/insert', queryBasicController.insertOneRow);
+        this.router.put('/update', queryBasicController.updateOneRow);
     }
 
 }

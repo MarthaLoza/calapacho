@@ -4,9 +4,10 @@
     objDataForm  : Array de datos completos de la tabla
     strTableName : Nombre de la tabla a utlizar en este componente
     
-    arrDataOutput : Evento que devuelve un array de datos del formulario
-    boolFormOut   : Evento que devuelve los estados booleanos del formulario,
-                    como editado, validado, etc, además devuelve el fomulario completo. 
+    arrDataOutput       : Evento que devuelve un array de datos del formulario
+    boolFormOut         : Evento que devuelve los estados booleanos del formulario,
+                          como editado, validado, etc, además devuelve el fomulario completo.
+    boolRefreshTable    : Evento para refrescar la tabla.
 -->
 
 <app-form-one-data
@@ -15,8 +16,10 @@
     [arrDataForm]       = "arrDataForm"
     [strTablesNames]    = "strTablesNames"
     [strIdName]         = "strIdName"
+    [strColumnDelete]   = "strColumnDelete"
     (arrDataOutput)     = "arrDataOutput($event)"
     (boolFormOut)       = "boolFormOut($event)"
+    (boolRefreshTable)  = "boolRefreshTable($event)"
 ></app-form-one-data>
 
 <notifier-container></notifier-container>
