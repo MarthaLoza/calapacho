@@ -115,6 +115,7 @@ export class TercerosComponent {
     this.arrDataForm  = data;    
   }
 
+  /** Data para armar la busqueda del fomulario */
   dataFilter(data: Field[]) {
     data.forEach(field => {
       this.arrFieldSearch.push({
@@ -136,7 +137,9 @@ export class TercerosComponent {
     this.__tercerService.getListaTerceros({})
       .subscribe(
         response => {
-          this.assembleTableData(response)
+          if(response.length != 0) {
+            this.assembleTableData(response)
+          }
         },
         error => {
           this.__errorservices.msjError(error); 

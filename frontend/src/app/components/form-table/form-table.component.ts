@@ -112,8 +112,8 @@ export class FormTableComponent implements AfterViewInit {
 
   functionSelection(row: object, index: number) {
     let numIndexSelection = this.dataSource.data.indexOf(row);
-    index = numIndexSelection == -1 ? index : numIndexSelection;
-    
+    index = numIndexSelection == -1 ?  index : numIndexSelection;
+
     this.selectedRow = this.dataSource.data[index]; // Selecciona(pinta) la fila
 
     /**  Calcula la página en la que debe estar el índice seleccionado */

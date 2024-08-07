@@ -43,6 +43,7 @@ export class FormOneDataComponent implements OnInit, OnChanges {
   boolActionReset     = false;    // Acción realizada por el botón reset
   boolDisableReset    = false;    // Deshabilita el botón reset
   boolIfSearch        = false;     // Deshabilita el botón search
+  boolActionSearch    = false;    // Acción realizada por el botón search
 
   arrConditionDelete : Array<any>  = [];
   arrConditionUpdate : Array<any>  = [];
@@ -241,9 +242,13 @@ export class FormOneDataComponent implements OnInit, OnChanges {
   }
 
   searchButton() {
+    this.boolActionUser       = false;  // Se desactiva para que no genere el código de tercero
     this.form.reset();
-    this.boolIfSearch = true;
-    this.dataTable    = [];
+    this.boolIfSearch         = true;   // Deja ver la vista de filtro
+    this.dataTable            = [];     // Limpia la tabla
+    this.boolActionSearch     = true;   // Acción de que se uso el botón de buscar
+    this.boolActionUser       = true;   // Se activa para que genere el código de tercero
+    this.numIndexTableOutput  = 0;   // Index de la tabla
   }
 
   /* ***************************************** */
@@ -270,10 +275,19 @@ export class FormOneDataComponent implements OnInit, OnChanges {
    * sea por botón o por la selección del mouse.
    */
   IndexTableOutput(index: number) {
-    this.boolActionUser       = false;
-    this.numIndexTableOutput  = index;
-    this.updateFormValues();
-    this.boolActionUser       = true;    
+    /**
+     * Se condiciona el uso del botón buscar ya que sino toma el index 
+     * que ya estaba antes y lo correcto es que se limpie el formulario
+     * del todo cuando se usa el botón de buscar ya que será un nuevo filtro
+     * y nuevos datos.
+     */    
+    if(!this.boolActionSearch) {
+      this.boolActionUser       = false;
+      this.numIndexTableOutput  = index;
+      this.updateFormValues();
+      this.boolActionUser       = true;
+    }
+    this.boolActionSearch = false;
   }
 
   /** Index que sale de la selección por botones(arrows) */
@@ -306,6 +320,7 @@ export class FormOneDataComponent implements OnInit, OnChanges {
     this.form.markAsPristine(); // Marca el formulario como no modificado
   }
 
+  /** Evento de la busqueda para recibir los datos que se envían desde ese fomulario */
   searchEvent(data : object) {
     this.arrDataSearch.emit(data);
     this.boolIfSearch = false;
