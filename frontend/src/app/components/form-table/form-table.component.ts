@@ -1,6 +1,8 @@
 import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Input, Output, SimpleChanges, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
+import { DialogUpdateComponent } from '../form-dialogs/dialog-update/dialog-update.component';
 
 @Component({
   selector    : 'app-form-table',
@@ -10,11 +12,12 @@ import { MatTableDataSource } from '@angular/material/table';
 export class FormTableComponent implements AfterViewInit {
 
   /** Información del padre */
-  @Input() numIndexTableInput : number = 0;
-  @Input() arrDataTable       : Array<object> = [];
-  @Input() boolActionButtonA  : boolean = false;
+  @Input() numIndexTableInput : number        = 0;      // Index de la tabla
+  @Input() arrDataTable       : Array<object> = [];     // Datos de la tabla, ordenada para la vista del usuario
+  @Input() boolActionButtonA  : boolean       = false;  // Acción de los botones Arrows
+  @Input() boolFormModific    : boolean       = false;  // Formulario modificado
 
-  @Output() searchEvent = new EventEmitter<number>();
+  @Output() searchEvent = new EventEmitter<number>();   // Evento que envia el índice seleccionado
 
   displayedColumns    : string[]  = [];
   dataSource                      = new MatTableDataSource<object>(this.arrDataTable);
@@ -22,7 +25,10 @@ export class FormTableComponent implements AfterViewInit {
 
   @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
 
-  constructor( private __changeDF: ChangeDetectorRef ) {}  
+  constructor( 
+    private __changeDF  : ChangeDetectorRef,
+    private __dialog    : MatDialog
+  ) {}  
 
   ngAfterViewInit() {
 
@@ -46,6 +52,9 @@ export class FormTableComponent implements AfterViewInit {
       this.rowSelection({}, this.numIndexTableInput);
       //console.log(this.numIndexTableInput);
 
+    } else if (changes['arrDataTable'] && this.arrDataTable.length == 0) {
+      this.dataSource.data = [];
+      this.__changeDF.detectChanges();
     }
 
     /**
@@ -89,8 +98,19 @@ export class FormTableComponent implements AfterViewInit {
   }
 
   /** Manejo de la sección de la fila */
-  rowSelection(row: object, index: number) {
-      
+  async rowSelection(row: object, index: number) {
+    
+    if(this.boolFormModific) {
+      const validation = await this.openDialogUpdate();
+      if(validation){
+        this.functionSelection(row, index);
+      }
+    } else {
+      this.functionSelection(row, index);
+    }
+  }
+
+  functionSelection(row: object, index: number) {
     let numIndexSelection = this.dataSource.data.indexOf(row);
     index = numIndexSelection == -1 ? index : numIndexSelection;
     
@@ -107,6 +127,14 @@ export class FormTableComponent implements AfterViewInit {
     }
     
     this.searchEvent.emit(index);
+    this.boolFormModific = false;
+  }
+
+  /** Método para abrir el dialogo de Campos pendientes */
+  openDialogUpdate(): Promise<boolean> {
+    const dialogRef = this.__dialog.open(DialogUpdateComponent, {});
+
+    return dialogRef.afterClosed().toPromise();
   }
 
 }

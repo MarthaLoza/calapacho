@@ -1,5 +1,5 @@
 import { Component, ViewChild } from '@angular/core';
-import { TercerElement, arrTypeCif, arrTypeStatus, arrTypeUser } from 'src/app/interfaces/user';
+import { Field, TercerElement, arrTypeCif, arrTypeStatus, arrTypeUser } from 'src/app/interfaces/user';
 import { ErrorService } from 'src/app/services/error.service';
 import { TerceroService } from 'src/app/services/tercero.service';
 import { numericValidator } from 'src/assets/validator';
@@ -17,7 +17,7 @@ export class TercerosComponent {
 
   @ViewChild(FormOneDataComponent) formOneData!: FormOneDataComponent; // Obtenemos una referencia al componente
 
-  arrFormField = [
+  arrFormField : Field[] = [
     { type: 'select',   label: 'Tipo de tercero',       name: 'terType',  required: true, options: arrTypeUser,   defaultValue: 'T',                onChange: this.generationTercerCode.bind(this) },
     { type: 'text',     label: 'Código',                name: 'codigo',   required: true,                           },
     { type: 'text',     label: 'Nombre o Razon social', name: 'nombre',   required: true                            },
@@ -37,8 +37,9 @@ export class TercerosComponent {
   strIdName         = 'codigo';
   strColumnDelete   = 'terType';  // Secrea para poder enviar columnas que quiero eliminar de un objeto, en este caso del update
 
-  arrDataTable : Array<object>          = []; // Datos de la tabla, ordenada para la vista del usuario
-  arrDataForm  : Array<TercerElement>   = []; // Todos los datos de terceros
+  arrDataTable    : Array<object>          = []; // Datos de la tabla, ordenada para la vista del usuario
+  arrDataForm     : Array<TercerElement>   = []; // Todos los datos de terceros
+  arrFieldSearch  : Field[] = [];
 
   constructor(
     private __tercerService : TerceroService,
@@ -50,6 +51,7 @@ export class TercerosComponent {
   }
 
   ngAfterViewInit() {
+    this.dataFilter(this.arrFormField);
     // Podemos acceder al componente formOneData después de la vista se ha inicializado
   }
 
@@ -73,6 +75,20 @@ export class TercerosComponent {
     if(boolRefreshTable){
       this.getLista();
     }
+  }
+
+  arrDataSearch(arrDataSearch: any) {    
+    this.__tercerService.getListaTerceros(arrDataSearch)
+      .subscribe(
+        response => {
+          if(response.length != 0) {
+            this.assembleTableData(response)
+          }
+        },
+        error => {
+          this.__errorservices.msjError(error);
+        }
+      )
   }
 
   /****************************************************** */
@@ -99,6 +115,16 @@ export class TercerosComponent {
     this.arrDataForm  = data;    
   }
 
+  dataFilter(data: Field[]) {
+    data.forEach(field => {
+      this.arrFieldSearch.push({
+        type    : field.type,
+        label   : field.label,
+        name    : field.name,
+        options : field.options,
+      });
+    });
+  }
 
 
   /******************************* */
@@ -123,7 +149,7 @@ export class TercerosComponent {
     this.__tercerService.getCodigo(this.strInitialTercer)
       .subscribe(
         (response: any) => {
-          if(this.boolActionUser) {            
+          if(this.boolActionUser) {
             /**
              * Este es un ejemplo de como se puede actualizar campos del
              * fomulario ya con datos, aquí se actualiza el campo 'codigo'
@@ -188,4 +214,5 @@ export class TercerosComponent {
     const { [fieldName]: _, ...rest } = obj;
     return rest;
   }
+  
 }

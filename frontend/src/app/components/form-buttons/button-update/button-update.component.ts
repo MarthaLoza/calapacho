@@ -27,8 +27,9 @@ import { ErrorService } from 'src/app/services/error.service';
 
 export class ButtonUpdateComponent {
 
-  @Input() disabled : boolean     = false;
-  @Input() arrData  : Array<any>  = [];
+  @Input() disabled         : boolean     = false;
+  @Input() arrData          : Array<any>  = [];
+  @Input() boolActionReset  : boolean     = false;
 
   @Output() boolDisable  = new EventEmitter<boolean>();
   @Output() boolResponse = new EventEmitter<boolean>();
@@ -42,7 +43,19 @@ export class ButtonUpdateComponent {
   ) { }
 
   ngOnChanges(changes: SimpleChanges) {
-    this.disabled_button = !this.disabled;
+
+    /** 
+     * Condición de reset para mantener al botón de update
+     * deshabilitado hasta que se realice la insertar o refrescar
+     * el componente
+     */
+    if(this.boolActionReset) {
+      this.disabled_button = true;
+      
+    } else {
+      this.disabled_button = !this.disabled;
+    } 
+
   }
 
   updateButton() {

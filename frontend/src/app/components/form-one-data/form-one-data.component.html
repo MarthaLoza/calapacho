@@ -1,4 +1,4 @@
-<div class="card">
+<div class="card" *ngIf="!boolIfSearch; else elseBlock">
     <div class="card-body">
         <form [formGroup]="form" (ngSubmit)="buttonInsert()">
 
@@ -13,6 +13,38 @@
                     (boolActionButton)      = "boolActionButtonArrows($event)"
                     (boolDisable)           = "boolDisable($event)"
                 ></app-button-arrows>
+
+                <!-- Botón buscar -->
+                <button 
+                    mat-fab 
+                    color       = "primary" 
+                    type        = "button"
+                    (click)     = "searchButton()"
+                >
+                    <mat-icon>search</mat-icon>
+                </button>
+
+                <!-- Botón refrescar -->
+                <button 
+                    mat-fab 
+                    color       = "primary" 
+                    type        = "button"
+                    (click)     = "refreshBoton()"
+                >
+                    <mat-icon>refresh</mat-icon>
+                </button>
+
+                <mat-divider [inset]="true" [vertical]="true"></mat-divider>
+
+                <!-- Botón limpiar -->
+                <button 
+                    mat-fab color   = "primary" 
+                    type            = "button" 
+                    [disabled]      = "boolDisableReset"
+                    (click)         = "resetForm()"
+                >
+                    <mat-icon>description</mat-icon>
+                </button>
                 
                 <!-- Botón guardar -->
                 <button 
@@ -27,15 +59,17 @@
                 <app-button-update
                     [disabled]      = "boolFormModific"
                     [arrData]       = "arrConditionUpdate"
+                    [boolActionReset]   = "boolActionReset"
                     (boolDisable)   = "boolDisable($event)"
                     (boolResponse)  = boolResponse($event)
                 ></app-button-update>
 
                 <!-- Botón eliminar -->
                 <app-button-delete
-                    [disabled]      = "boolFormModific"
-                    [arrData]       = "arrConditionDelete"
-                    (boolResponse)  = boolResponse($event)
+                    [disabled]          = "boolFormModific"
+                    [arrData]           = "arrConditionDelete"
+                    [boolActionReset]   = "boolActionReset"
+                    (boolResponse)      = boolResponse($event)
                 ></app-button-delete>
             </div>
 
@@ -64,7 +98,12 @@
             [numIndexTableInput]    = "numIndexTableOutput"
             [arrDataTable]          = "dataTable" 
             [boolActionButtonA]     = "boolActionButton"
+            [boolFormModific]       = "boolFormModific"
             (searchEvent)           = "IndexTableOutput($event)"
         ></app-form-table>
     </div>
 </div>
+
+<ng-template #elseBlock>
+    <app-filters [arrData]="arrFieldSearch" (searchEvent)="searchEvent($event)"></app-filters>
+</ng-template>

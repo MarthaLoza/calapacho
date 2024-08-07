@@ -27,8 +27,9 @@ import { DialogDeleteComponent } from '../../form-dialogs/dialog-delete/dialog-d
 export class ButtonDeleteComponent {
 
   /** Información desde el padre */
-  @Input() disabled : boolean     = false;
-  @Input() arrData  : Array<any>  = [];
+  @Input() disabled         : boolean     = false;
+  @Input() arrData          : Array<any>  = [];
+  @Input() boolActionReset  : boolean     = false;
 
   @Output() boolResponse = new EventEmitter<boolean>();
 
@@ -42,7 +43,13 @@ export class ButtonDeleteComponent {
     private __dialog        : MatDialog
   ) {}
   
-  ngOnChanges(changes: SimpleChanges) {    
+  ngOnChanges(changes: SimpleChanges) {
+    if(changes['boolActionReset']) {
+      
+      if(this.boolActionReset) {
+        this.disabled = true;
+      }
+    }
   }
   
   deleteBoton() {

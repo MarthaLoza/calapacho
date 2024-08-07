@@ -31,75 +31,71 @@ import { DialogUpdateComponent } from '../../form-dialogs/dialog-update/dialog-u
 })
 export class ButtonArrowsComponent {
 
-  @Input() numIndexButtonInput: number  = 0;
-  @Input() numTotalDataTable  : number  = 0;
-  @Input() boolFormModific    : boolean = false;
+  @Input() numIndexButtonInput: number  = 0;      // Index de la tabla
+  @Input() numTotalDataTable  : number  = 0;      // Total de datos de la tabla
+  @Input() boolFormModific    : boolean = false;  // Formulario modificado
   
-  @Output() numIndexButtonOutput  = new EventEmitter<number>();
-  @Output() boolActionButton      = new EventEmitter<boolean>();
-  @Output() boolDisable           = new EventEmitter<boolean>();
+  @Output() numIndexButtonOutput  = new EventEmitter<number>();   // Exportación del index de la tabla
+  @Output() boolActionButton      = new EventEmitter<boolean>();  // Exportación de la acción de los botones
+  @Output() boolDisable           = new EventEmitter<boolean>();  // Exportación de la activación o desactivación de los botones
 
   boolDisabledButtonBack: boolean = false;
   boolDisabledButtonNext: boolean = false;
   boolActionButtonArrows: boolean = false;
-  //boolFormModificForm   : boolean = false;
 
   constructor(
     private __dialog: MatDialog
   ) {}
 
   ngOnChanges() {
+    if(this.numTotalDataTable != 0){
 
-    this.boolDisabledButtonBack = this.numIndexButtonInput == 0 ? true : false;
-    this.boolDisabledButtonNext = this.numIndexButtonInput == this.numTotalDataTable - 1 ? true : false;
-    //this.boolFormModificForm    = this.boolFormModific;
-    
+      this.boolDisabledButtonBack = this.numIndexButtonInput == 0 ? true : false;
+      this.boolDisabledButtonNext = this.numIndexButtonInput == this.numTotalDataTable - 1 ? true : false;    
+
+    } else {
+      this.boolDisabledButtonBack = true;
+      this.boolDisabledButtonNext = true;
+    }
     
   }
 
   async backButton() {
     if(this.boolFormModific){
-      
       const validation = await this.openDialogUpdate();
+
       if(validation){
         this.numIndexButtonInput--;
-        this.boolActionButtonArrows = !this.boolActionButtonArrows;
-        this.numIndexButtonOutput.emit(this.numIndexButtonInput);
-        this.boolActionButton.emit(this.boolActionButtonArrows);
-        this.boolDisable.emit(false);
-        this.boolFormModific = false;
+        this.functionButton();
       }
+
     } else {
       this.numIndexButtonInput--;
-      this.boolActionButtonArrows = !this.boolActionButtonArrows;
-      this.numIndexButtonOutput.emit(this.numIndexButtonInput);
-      this.boolActionButton.emit(this.boolActionButtonArrows);
-      this.boolDisable.emit(false);
-      this.boolFormModific = false;
+      this.functionButton();
     }
   }
 
   async nextButton() {
     if(this.boolFormModific){
-      console.log('Formulario modificado', this.boolFormModific);
-
       const validation = await this.openDialogUpdate();
+      
       if(validation){
         this.numIndexButtonInput++;
-        this.boolActionButtonArrows = !this.boolActionButtonArrows;
-        this.numIndexButtonOutput.emit(this.numIndexButtonInput);
-        this.boolActionButton.emit(this.boolActionButtonArrows);
-        this.boolDisable.emit(false);
-        this.boolFormModific = false;
+        this.functionButton();
       }
+
     } else {
       this.numIndexButtonInput++;
-      this.boolActionButtonArrows = !this.boolActionButtonArrows;
-      this.numIndexButtonOutput.emit(this.numIndexButtonInput);
-      this.boolActionButton.emit(this.boolActionButtonArrows);
-      this.boolDisable.emit(false);
-      this.boolFormModific = false;
+      this.functionButton();
     }
+  }
+
+  functionButton() {
+    this.boolActionButtonArrows = !this.boolActionButtonArrows;
+    this.numIndexButtonOutput.emit(this.numIndexButtonInput);
+    this.boolActionButton.emit(this.boolActionButtonArrows);
+    this.boolDisable.emit(false);
+    this.boolFormModific = false;
   }
 
   /** Método para abrir el dialogo de Campos pendientes */
