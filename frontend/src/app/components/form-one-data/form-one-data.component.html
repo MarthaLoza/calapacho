@@ -7,7 +7,7 @@
                 <!-- Botones flecha -->
                 <app-button-arrows
                     [numIndexButtonInput]   = "numIndexTableOutput"
-                    [numTotalDataTable]     = "dataTable.length"
+                    [numTotalDataTable]     = "arrDataTable.length"
                     [boolFormModific]       = "boolFormModific"
                     (numIndexButtonOutput)  = "IndexButtonOutput($event)"
                     (boolActionButton)      = "boolActionButtonArrows($event)"
@@ -38,9 +38,9 @@
 
                 <!-- Botón limpiar -->
                 <button 
+                    [disabled]      = "boolDisableReset"
                     mat-fab color   = "primary" 
                     type            = "button" 
-                    [disabled]      = "boolDisableReset"
                     (click)         = "resetForm()"
                 >
                     <mat-icon>description</mat-icon>
@@ -48,28 +48,26 @@
                 
                 <!-- Botón guardar -->
                 <button 
+                    [disabled]      = "form.invalid"
                     mat-fab color   = "primary" 
                     type            = "submit" 
-                    [disabled]      = "form.invalid"
                 >
                     <mat-icon>add</mat-icon>
                 </button>
 
                 <!-- Botón editar -->
                 <app-button-update
-                    [disabled]      = "boolFormModific"
+                    [disabled]      = "boolDisableUpdate"
                     [arrData]       = "arrConditionUpdate"
-                    [boolActionReset]   = "boolActionReset"
                     (boolDisable)   = "boolDisable($event)"
-                    (boolResponse)  = boolResponse($event)
+                    (boolFinish)    = "boolFinishUpdate($event)"
                 ></app-button-update>
 
                 <!-- Botón eliminar -->
                 <app-button-delete
-                    [disabled]          = "boolFormModific"
+                    [disabled]          = "boolDisableDelete"
                     [arrData]           = "arrConditionDelete"
-                    [boolActionReset]   = "boolActionReset"
-                    (boolResponse)      = boolResponse($event)
+                    (bollFinish)        = boolFinishUpdate($event)
                 ></app-button-delete>
             </div>
 
@@ -96,7 +94,7 @@
         <!-- Vista de la tabla -->
         <app-form-table
             [numIndexTableInput]    = "numIndexTableOutput"
-            [arrDataTable]          = "dataTable" 
+            [arrDataTable]          = "arrDataTable" 
             [boolActionButtonA]     = "boolActionButton"
             [boolFormModific]       = "boolFormModific"
             (searchEvent)           = "IndexTableOutput($event)"

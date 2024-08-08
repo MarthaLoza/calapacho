@@ -40,7 +40,6 @@ class TerceroController {
             const codigo    = await generateCodigoTercero(cod);
 
             res.json(codigo);
-
         } catch (error) {
             res.status(500).json({ 
                 msg: 'Error al calcular el código del tercero', 

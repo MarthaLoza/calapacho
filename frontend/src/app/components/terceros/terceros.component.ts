@@ -28,17 +28,15 @@ export class TercerosComponent {
     { type: 'select',   label: 'Estado',                name: 'estado',   required: true, options: arrTypeStatus, defaultValue: 'A'  },
   ];
 
-  boolFormModific   = false;
-  boolFormValid     = false;
   boolActionUser    = false;
   strInitialTercer  = '';
   strCodeGenerated  = null;
   strTablesNames    = ['Cterdire', 'Ctercero']; // Si hay tanlas referenciadas, enviarla tabla principal al final
-  strIdName         = 'codigo';
+  strIdName         = 'codigo'; // ERRRRRRRRRRRROOOOOOOR
   strColumnDelete   = 'terType';  // Secrea para poder enviar columnas que quiero eliminar de un objeto, en este caso del update
 
-  arrDataTable    : Array<object>          = []; // Datos de la tabla, ordenada para la vista del usuario
-  arrDataForm     : Array<TercerElement>   = []; // Todos los datos de terceros
+  arrDataTable    : Array<object>          = [{test:"test"}]; // Datos de la tabla, ordenada para la vista del usuario
+  arrDataAll      : Array<TercerElement>   = []; // Todos los datos de terceros
   arrFieldSearch  : Field[] = [];
 
   constructor(
@@ -47,8 +45,12 @@ export class TercerosComponent {
     private __errorservices : ErrorService,
     private __notifyService : NotifierService,
   ) {
-    this.getLista();
+    this.getLista({});
   }
+
+  //ngOnInit() {
+  //  this.getLista({});
+  //}
 
   ngAfterViewInit() {
     this.dataFilter(this.arrFormField);
@@ -65,37 +67,40 @@ export class TercerosComponent {
    * datos del formulario ya que escuche los cambios del mismo.
    */
   boolFormOut(boolFormOut: Array<any>) {
-    this.boolFormModific  = boolFormOut[0];
-    this.boolFormValid    = boolFormOut[1];
-    this.strInitialTercer = boolFormOut[2].terType;
-    this.boolActionUser   = boolFormOut[3];
+    this.strInitialTercer = boolFormOut[0].terType;
+    this.boolActionUser   = boolFormOut[1];
   }
 
+  /**
+   * Este evento viene de los botones de actualizar y eliminar,
+   * se ejecuta cad vez que se termina la acción de actualizar o eliminar.
+   * Así la tabla se refresca con los nuevos datos.
+   * @param boolRefreshTable Booleano que indica si se debe refrescar la tabla
+   */
   boolRefreshTable(boolRefreshTable: boolean) {
     if(boolRefreshTable){
-      this.getLista();
+      this.getLista({});
     }
   }
 
+  /**
+   * Este evento se ejecuta cada vez que e realiza una busqueda de campos,
+   * por ello se le pasa los datos de busqueda al servicio.
+   * @param arrDataSearch   Datos de busqueda
+   */
   arrDataSearch(arrDataSearch: any) {    
-    this.__tercerService.getListaTerceros(arrDataSearch)
-      .subscribe(
-        response => {
-          if(response.length != 0) {
-            this.assembleTableData(response)
-          }
-        },
-        error => {
-          this.__errorservices.msjError(error);
-        }
-      )
+    this.getLista(arrDataSearch);
   }
 
   /****************************************************** */
   /*    SE ALISTAN LOS DATOS PARA ENVIAR AL FOMULARIO     */
   /****************************************************** */
 
-  /** Selecciona la data que se muestra en la tabla */
+  /** 
+   * Se alista la data que se mostrará en la tabla y se asigna
+   * a la variable arrDataAll toda la data de terceros que trae
+   * el servicio.
+   */
   assembleTableData(data : Array<TercerElement>) {
     let viewDataTable = [];
 
@@ -112,7 +117,7 @@ export class TercerosComponent {
       fila.terType = fila.codigo[0];
     }
     this.arrDataTable = viewDataTable;
-    this.arrDataForm  = data;    
+    this.arrDataAll   = data;    
   }
 
   /** Data para armar la busqueda del fomulario */
@@ -132,13 +137,17 @@ export class TercerosComponent {
   /*      USO DE SERVICIOS         */
   /******************************* */
 
-  /** Data de los tercero */
-  getLista() {
-    this.__tercerService.getListaTerceros({})
+  /** Servicio que trae la data del tercero */
+  getLista(dataFilter: any) {    
+    this.__tercerService.getListaTerceros(dataFilter)
       .subscribe(
         response => {
+          // Si no hay datos no podemos armar la tabla
           if(response.length != 0) {
             this.assembleTableData(response)
+          } else {
+            this.arrDataTable = [];
+            this.arrDataAll   = [];
           }
         },
         error => {
@@ -148,22 +157,24 @@ export class TercerosComponent {
   }
 
   /** Genera el código del tercero */
-  generationTercerCode() {    
-    this.__tercerService.getCodigo(this.strInitialTercer)
-      .subscribe(
-        (response: any) => {
-          if(this.boolActionUser) {
-            /**
-             * Este es un ejemplo de como se puede actualizar campos del
-             * fomulario ya con datos, aquí se actualiza el campo 'codigo'
-             */
-            this.formOneData.updateField('codigo', response);
+  generationTercerCode() {
+    if(this.strInitialTercer) {
+      this.__tercerService.getCodigo(this.strInitialTercer)
+        .subscribe(
+          (response: any) => {                       
+            if(this.boolActionUser) {
+              /**
+               * Este es un ejemplo de como se puede actualizar campos del
+               * fomulario ya con datos, aquí se actualiza el campo 'codigo'
+               */
+              this.formOneData.updateField('codigo', response);
+            }
+          },
+          (error: any) => {
+            this.__errorservices.msjError(error);
           }
-        },
-        (error: any) => {
-          this.__errorservices.msjError(error);
-        }
-      );
+        );
+    }
   }
 
   /**
@@ -192,7 +203,7 @@ export class TercerosComponent {
         (response: any) => {
           if (response) {
             this.__notifyService.notify('success', response);
-            this.getLista();
+            this.getLista({});
           }
         },
         (error: any) => {

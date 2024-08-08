@@ -29,9 +29,8 @@ export class ButtonDeleteComponent {
   /** Información desde el padre */
   @Input() disabled         : boolean     = false;
   @Input() arrData          : Array<any>  = [];
-  @Input() boolActionReset  : boolean     = false;
 
-  @Output() boolResponse = new EventEmitter<boolean>();
+  @Output() bollFinish = new EventEmitter<boolean>(); // Evento para saber que terminó de eliminar
 
   strMessage  = '';
   hasError    = false;
@@ -44,12 +43,6 @@ export class ButtonDeleteComponent {
   ) {}
   
   ngOnChanges(changes: SimpleChanges) {
-    if(changes['boolActionReset']) {
-      
-      if(this.boolActionReset) {
-        this.disabled = true;
-      }
-    }
   }
   
   deleteBoton() {
@@ -71,7 +64,7 @@ export class ButtonDeleteComponent {
       if (!this.hasError) {
         // Si no ocurrió ningún error, muestra el mensaje de éxito
         this.__notifyService.notify('success', this.strMessage);
-        this.boolResponse.emit(true); // Se emite un evento para reiniciar la tabla
+        this.bollFinish.emit(true); // Se emite un evento para reiniciar la tabla
       }
       this.hasError = false; // Restablece la bandera de error para la próxima operación
     });

@@ -29,10 +29,9 @@ export class ButtonUpdateComponent {
 
   @Input() disabled         : boolean     = false;
   @Input() arrData          : Array<any>  = [];
-  @Input() boolActionReset  : boolean     = false;
 
   @Output() boolDisable  = new EventEmitter<boolean>();
-  @Output() boolResponse = new EventEmitter<boolean>();
+  @Output() boolFinish   = new EventEmitter<boolean>(); // Eento apra saber que terminó de actualizar
 
   disabled_button = false;
 
@@ -49,13 +48,7 @@ export class ButtonUpdateComponent {
      * deshabilitado hasta que se realice la insertar o refrescar
      * el componente
      */
-    if(this.boolActionReset) {
-      this.disabled_button = true;
-      
-    } else {
-      this.disabled_button = !this.disabled;
-    } 
-
+    this.disabled_button = this.disabled;
   }
 
   updateButton() {
@@ -63,9 +56,9 @@ export class ButtonUpdateComponent {
       .subscribe(
         (response: any) => {
           this.__notifyService.notify('success', response);
-          this.disabled_button = true;
+          //this.disabled_button = true;
           this.boolDisable.emit(false);
-          this.boolResponse.emit(true);
+          this.boolFinish.emit(true); // Ya se terminó de actualizar
         },
         (error: any) => {
           this.__errorservices.msjError(error);

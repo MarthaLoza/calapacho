@@ -114,20 +114,23 @@ export class FormTableComponent implements AfterViewInit {
     let numIndexSelection = this.dataSource.data.indexOf(row);
     index = numIndexSelection == -1 ?  index : numIndexSelection;
 
-    this.selectedRow = this.dataSource.data[index]; // Selecciona(pinta) la fila
+    if(this.dataSource.data.length > 0) {
+      
+      this.selectedRow = this.dataSource.data[index]; // Selecciona(pinta) la fila
+      
+      /**  Calcula la página en la que debe estar el índice seleccionado */
+      const pageSize      = this.paginator?.pageSize || 10;
+      const newPageIndex  = Math.floor(index / pageSize);
 
-    /**  Calcula la página en la que debe estar el índice seleccionado */
-    const pageSize      = this.paginator?.pageSize || 10;
-    const newPageIndex  = Math.floor(index / pageSize);
-
-    /** Si hay un paginator, cambia la página */
-    if (this.paginator) {
-      this.paginator.pageIndex  = newPageIndex;
-      this.dataSource.paginator = this.paginator; // Refresca el paginator
+      /** Si hay un paginator, cambia la página */
+      if (this.paginator) {
+        this.paginator.pageIndex  = newPageIndex;
+        this.dataSource.paginator = this.paginator; // Refresca el paginator
+      }
+      
+      this.searchEvent.emit(index);
+      this.boolFormModific = false; 
     }
-    
-    this.searchEvent.emit(index);
-    this.boolFormModific = false;
   }
 
   /** Método para abrir el dialogo de Campos pendientes */

@@ -13,7 +13,7 @@ import { DialogUpdateComponent } from '../form-dialogs/dialog-update/dialog-upda
 export class FormOneDataComponent implements OnInit, OnChanges {
   @Input() arrFormField   : Field[]       = [];
   @Input() arrDataTable   : Array<object> = []; // Datos de la tabla, ordenada para la vista del usuario
-  @Input() arrDataForm    : Array<object> = []; // Todos los datos de terceros
+  @Input() arrDataAll     : Array<object> = []; // Todos los datos de terceros
   @Input() strTablesNames : Array<string> = []; // Nombre de la tabla
   @Input() strIdName      : string        = ''; // Nombre del campo id o condición a eliminar
   @Input() strColumnDelete: string        = ''; // Nombre de la columna a eliminar
@@ -21,7 +21,6 @@ export class FormOneDataComponent implements OnInit, OnChanges {
 
   @Output() arrDataOutput       = new EventEmitter<object>();
   @Output() boolFormOut         = new EventEmitter<Array<any>>();
-  @Output() boolFormValidOut    = new EventEmitter<boolean>();
   @Output() boolRefreshTable    = new EventEmitter<boolean>();
   @Output() arrDataSearch       = new EventEmitter<object>();
 
@@ -33,17 +32,17 @@ export class FormOneDataComponent implements OnInit, OnChanges {
   /** Datos para el formulario */
   form      : FormGroup;
   fields    : Field[]       = [];
-  dataTable : Array<object> = [];
 
-  boolFormValid       = false;    // Formulario válido
   boolFormModific     = false;    // Formulario modificado
   numIndexTableOutput = 0;        // Index de la tabla
   boolActionUser      = false;    // Acción realizada por el usuario
   boolActionButton    = false;    // Acción realizada por los botones(arrows)
-  boolActionReset     = false;    // Acción realizada por el botón reset
-  boolDisableReset    = false;    // Deshabilita el botón reset
   boolIfSearch        = false;     // Deshabilita el botón search
-  boolActionSearch    = false;    // Acción realizada por el botón search
+
+  boolDisableDelete   = false;    // Deshabilita el botón delete
+  boolDisableUpdate   = false;    // Deshabilita el botón update
+  boolDisableInsert   = false;    // Deshabilita el botón
+  boolDisableReset    = false;    // Deshabilita el botón reset
 
   arrConditionDelete : Array<any>  = [];
   arrConditionUpdate : Array<any>  = [];
@@ -58,13 +57,25 @@ export class FormOneDataComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    this.listenToFormChanges();
+    this.createForm();
   }
 
-  ngOnChanges(changes: SimpleChanges) {    
-    this.fields = this.arrFormField;
-    this.createForm();
-    this.dataTable = this.arrDataTable;
+  ngOnChanges(changes: SimpleChanges) {
+
+    /** Asignación de los campos del formulario */
+    if(changes['arrFormField']) { this.fields = this.arrFormField }
+    
+    if(this.arrDataAll.length > 0) {
+      
+      /** Escucha cada vez que hay un cambio en los Input */
+      this.listenToFormChanges();
+
+    } else {
+
+      this.boolDisableDelete = true;        // Si la tabla no tiene datos se deshabilita
+      this.boolDisableUpdate = true;        // Si la tabla no tiene datos se deshabilita
+      this.boolDisableReset  = true;        // Si la tabla no tiene datos se deshabilita
+    }
   }
 
   ngAfterViewChecked() {
@@ -78,8 +89,7 @@ export class FormOneDataComponent implements OnInit, OnChanges {
       const control = this.__formbuilder.control(
         { value: field.defaultValue ?? '', disabled: field.disabled ?? false },
         this.buildValidators(field)
-      );
-      
+      );      
       this.form.addControl(field.name, control);
 
     });
@@ -117,18 +127,19 @@ export class FormOneDataComponent implements OnInit, OnChanges {
 
   /** 
    * Método para actualizar los valores del formulario segun la
-   * fila seleccionada en la tabla.
-  */
+   * fila seleccionada en la tabla. En pocas palabras, pinta los
+   * datas de la tabla en el formulario.
+   */
   updateFormValues() {
-    if (this.arrDataForm && this.arrDataForm.length > 0 && 
-        this.numIndexTableOutput < this.arrDataForm.length) {          
-      this.form.patchValue(this.arrDataForm[this.numIndexTableOutput]);
+    if (this.arrDataAll.length > 0 && this.numIndexTableOutput < this.arrDataAll.length) {
+
+      this.form.patchValue(this.arrDataAll[this.numIndexTableOutput]);
 
       /**
        * Lo pongo aquí ya que solo necesito el valor del campo id
        */
-      this.preparationForButtonDelete(); 
-    }    
+      if(this.arrDataAll.length > 0) { this.preparationForButtonDelete() }
+    }
   }
 
   /* ****************************************** */
@@ -144,7 +155,7 @@ export class FormOneDataComponent implements OnInit, OnChanges {
   preparationForButtonDelete() {
     let arrConditionDelete      : Array<any> = [];
     const nameColumnCondition   = this.strIdName;
-    const valueCondition        = (this.arrDataForm[this.numIndexTableOutput] as any)[nameColumnCondition];
+    const valueCondition        = (this.arrDataAll[this.numIndexTableOutput] as any)[nameColumnCondition];
     
     for(let table of this.strTablesNames) {
       arrConditionDelete.push(
@@ -155,9 +166,16 @@ export class FormOneDataComponent implements OnInit, OnChanges {
     this.arrConditionDelete = arrConditionDelete;
   }
 
+  /**
+   * Preparación para actualizar registros de una tabla. Este metodo a sido creado
+   * para actualizar solo un dato a la vez.
+   * Recordar que la variable strTablesNames es una array y el nombre de la tabla principal
+   * siempre será el último elemento de la array.
+   * [nameTable, {nameColumn: value}, {nameColumn1: value1, nameColumn2: value2}]
+   */
   preparationForButtonUpdate() {
     const nameColumnCondition   = this.strIdName;
-    const valueCondition        = (this.arrDataForm[this.numIndexTableOutput] as any)[this.strIdName];
+    const valueCondition        = (this.arrDataAll[this.numIndexTableOutput] as any)[this.strIdName];
     let objDataupdate           = this.form.value;
     
     /** Metodo por si se desea quitar alguna columna del update */
@@ -178,28 +196,45 @@ export class FormOneDataComponent implements OnInit, OnChanges {
 
   /** Método que escucha al formulario */
   listenToFormChanges() {
+    
     this.form.valueChanges.subscribe(() => {
       
-      if(!this.form.pristine) { 
-        this.boolFormModific  = true;  // Formulario modificado(true)
-        this.boolDisableReset = true;  // Deshabilita el botón reset
-      }  
-      this.boolFormValid = this.form.valid;                     // Formulario válido(true) o invalido(false)
+      /** 
+       * Si el pristine es falso significa que el fomulario esta editado.
+       */
+      if(!this.form.pristine) {
+        
+        // Si el fomulario esta editado y valido se activa el botón update
+        this.boolDisableUpdate  = (this.arrDataAll.length > 0 && this.form.valid ? false : true);
+
+        this.boolFormModific    = true;  // Formulario modificado(true)
+        this.boolDisableDelete  = true;  // Si el fomulario esta editado descativa
+        this.boolDisableReset   = true;  // Si el fomulario esta editado descativa
+
+      } else {
+        // Si hay datos en la tabla se activa el botón reset y delete
+        this.boolDisableReset   = this.arrDataAll.length > 0 ? false : true;
+        this.boolDisableDelete  = this.arrDataAll.length > 0 ? false : true;
+
+        this.boolDisableUpdate  = true;  // Si el formulario no esta editado
+        this.boolFormModific    = false; // Formulario no modificado(false)
+      }
       
       /**
-       * boolFormModific : Detecta que el formulario ha sido modificado
-       * boolFormValid   : Detecta que el formulario es válido
+       * Este evento envía datos de la vista al componente padre. Se
+       * activa siempre que se haga un cambio en el formulario.
        * form.value      : Datos del formulario
        * boolActionUser  : Detecta si la acción fue realizada por el usuario
        */
-      this.boolFormOut.emit([ this.boolFormModific, this.boolFormValid, 
-                              this.form.value,      this.boolActionUser] );
+      this.boolFormOut.emit([ this.form.value, this.boolActionUser] );
 
       /**
        * Aquí nesecito el valor de todo el fomulario y cada vez que se edite.
        */
-      this.preparationForButtonUpdate();      
+      if(this.arrDataAll.length > 0) { this.preparationForButtonUpdate() }
+
     });
+  
   }
 
 
@@ -207,48 +242,64 @@ export class FormOneDataComponent implements OnInit, OnChanges {
   /*          BOTONES              */
   /* ***************************** */
 
-  /** Evento que envía los datos del fomulario por un evento */
+  /** 
+   * Evento que envía los datos del fomulario por un evento a otro componente.
+   * En este evento se regresa el fomulario como no editado y la variable boolFormModific
+   * se pone en false para poder seguir validando despues cuando el fomulario se edite.
+   * Ya que cuando se insertan datos tambien se edita el fomulario y sus valores no cambian
+   * si no los cambias.
+   */
   buttonInsert() {
-    this.boolFormModific  = false; // Formulario no modificado(false)
-    this.boolActionReset  = false; // Acción reset terminada(false)
-    this.boolDisableReset = false; // Habilita el botón reset
-    this.form.markAsPristine();   // Marca el formulario como no modificado    
     this.arrDataOutput.emit(this.form.value);
+    this.boolFormModific  = false;  // Formulario no modificado(false)
+    this.form.markAsPristine();     // Marca el formulario como no modificado    
   }
 
   resetForm() {
-    this.boolActionUser   = false;    // Se desactiva para que no genere el código de tercero
-    this.boolActionReset  = true;     // Acción reset(true)
-    this.boolDisableReset = true;     // Deshabilita el botón reset
+    this.boolActionUser     = false;  // Se desactiva para que no genere el código de tercero
+    this.arrDataAll         = [];     // Limpia los datos de los terceros
+    this.arrDataTable       = [];     // Limpia los datos de la tabla
     this.form.reset();
 
-    /** Asigno los datos por defecto del formulario */
+    /** Asigno los datos por defecto del formulario */    
     this.fields.forEach(field => {
-      this.form.get(field.name)?.setValue(field.defaultValue ?? '');      
+      this.form.get(field.name)?.setValue(field.defaultValue ?? '');
     });
+
     this.boolActionUser   = true;     // Se activa para que genere el código de tercero
-    this.dataTable        = [];
   }
 
   async refreshBoton() {
-    if(this.boolFormModific) {
-      const validation = await this.openDialogUpdate();
-      if(validation){
-        this.resetComponent();
-      }      
-    } else {
-      this.resetComponent();
-    }
+
+    const validation = this.boolFormModific ? await this.openDialogUpdate() : true;
+    if (validation) { this.resetComponent() }
+    
   }
 
-  searchButton() {
-    this.boolActionUser       = false;  // Se desactiva para que no genere el código de tercero
-    this.form.reset();
-    this.boolIfSearch         = true;   // Deja ver la vista de filtro
-    this.dataTable            = [];     // Limpia la tabla
-    this.boolActionSearch     = true;   // Acción de que se uso el botón de buscar
-    this.boolActionUser       = true;   // Se activa para que genere el código de tercero
-    this.numIndexTableOutput  = 0;   // Index de la tabla
+  async searchButton() {
+    if(this.boolFormModific) {
+      const validation = await this.openDialogUpdate();
+
+      if(validation){
+        this.boolActionUser       = false;  // Se desactiva para que no genere el código de tercero
+        this.form.reset();
+        this.boolIfSearch         = true;   // Deja ver la vista de filtro
+        this.boolActionUser       = true;   // Se activa para que genere el código de tercero
+        this.numIndexTableOutput  = 0;      // Index de la tabla
+
+        this.arrDataAll         = [];     // Limpia los datos de los terceros
+        this.arrDataTable       = [];     // Limpia los datos de la tabla
+      }
+    } else {
+      this.boolActionUser       = false;  // Se desactiva para que no genere el código de tercero
+      this.form.reset();
+      this.boolIfSearch         = true;   // Deja ver la vista de filtro
+      this.boolActionUser       = true;   // Se activa para que genere el código de tercero
+      this.numIndexTableOutput  = 0;      // Index de la tabla
+
+      this.arrDataAll         = [];     // Limpia los datos de los terceros
+      this.arrDataTable       = [];     // Limpia los datos de la tabla
+    }    
   }
 
   /* ***************************************** */
@@ -276,18 +327,15 @@ export class FormOneDataComponent implements OnInit, OnChanges {
    */
   IndexTableOutput(index: number) {
     /**
-     * Se condiciona el uso del botón buscar ya que sino toma el index 
+     * Se condiciona el uso del botón buscar ya que sino toma el index
      * que ya estaba antes y lo correcto es que se limpie el formulario
      * del todo cuando se usa el botón de buscar ya que será un nuevo filtro
      * y nuevos datos.
-     */    
-    if(!this.boolActionSearch) {
-      this.boolActionUser       = false;
-      this.numIndexTableOutput  = index;
-      this.updateFormValues();
-      this.boolActionUser       = true;
-    }
-    this.boolActionSearch = false;
+     */
+    this.boolActionUser       = false;
+    this.numIndexTableOutput  = index;
+    this.updateFormValues();
+    this.boolActionUser       = true;
   }
 
   /** Index que sale de la selección por botones(arrows) */
@@ -303,8 +351,11 @@ export class FormOneDataComponent implements OnInit, OnChanges {
     this.boolActionButton = boolean;
   }
   
-  /** Evento para refrescar la tabla y el formulario */
-  boolResponse(boolResponse: boolean) {
+  /** 
+   * Evento para refrescar la tabla y el formulario despues
+   * de que se haya actualizado un registro.
+   */
+  boolFinishUpdate(boolResponse: boolean) {
     if (boolResponse) {
       this.form.reset();
       this.boolRefreshTable.emit(true);

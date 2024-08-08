@@ -1,7 +1,7 @@
 <!-- 
     arrFormField : Fields del fomulario
     arrDataTable : Array de datos ordenados para la vista de la tabla
-    objDataForm  : Array de datos completos de la tabla
+    arrDataAll  : Array de datos completos de la tabla
     strTableName : Nombre de la tabla a utlizar en este componente
     
     arrDataOutput       : Evento que devuelve un array de datos del formulario
@@ -11,17 +11,20 @@
 -->
 
 <app-form-one-data
+
     [arrFormField]      = "arrFormField"
     [arrDataTable]      = "arrDataTable"
-    [arrDataForm]       = "arrDataForm"
+    [arrDataAll]        = "arrDataAll"
     [strTablesNames]    = "strTablesNames"
     [strIdName]         = "strIdName"
     [strColumnDelete]   = "strColumnDelete"
     [arrFieldSearch]    = "arrFieldSearch"
+
     (arrDataOutput)     = "arrDataOutput($event)"
     (boolFormOut)       = "boolFormOut($event)"
     (boolRefreshTable)  = "boolRefreshTable($event)"
     (arrDataSearch)     = "arrDataSearch($event)"
+
 ></app-form-one-data>
 
 <notifier-container></notifier-container>
