@@ -88,14 +88,6 @@
                             <mat-icon>delete</mat-icon>
                         </button>
                     </div>
-
-                    <!-- <div class="buttons_test">
-                        <app-button-delete 
-                            [disabled]="valid_bot_delete"
-                            [strTable]="table"
-                            [objCond] ="objCond"
-                        ></app-button-delete>
-                    </div> -->
                     <div class="row">
                         <div *ngFor="let field of fields" class="col-lg-6">
                             <mat-form-field class="w-100 fs-16" *ngIf="field.type !== 'checkbox'" appearance="outline" [class.mat-form-field-invalid]="form.get(field.name)?.invalid && (form.get(field.name)?.dirty || form.get(field.name)?.touched)">
@@ -161,21 +153,6 @@
                                     aria-label="Select page of periodic elements">
                     </mat-paginator>
                 </div>
-
-                <mat-divider></mat-divider>
-
-                <!-- Button test -->
-                <app-button-arrows
-                    [numIndexButtonInput]   = "numIndexTableOutput"
-                    [numTotalDataTable]     = "dataTable.length"
-                    (numIndexButtonOutput)  = "IndexButtonOutput($event)"
-                ></app-button-arrows>
-                <!-- Table Test -->
-                <app-form-table
-                    [numIndexTableInput]    = "numIndexTableOutput"
-                    [arrDataTable]          = "dataTable" 
-                    (searchEvent)           = "IndexTableOutput($event)"
-                ></app-form-table>
             </div>
         </div>
     </mat-tab>

@@ -102,7 +102,6 @@ export class TerceroComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.getListaTerceros(this.filter_data);    
     this.dataFilter(this.fields);
-    this.getLista();
   }
 
   /**  Método para crear los campos del formulario */
@@ -479,60 +478,5 @@ export class TerceroComponent implements OnInit, AfterViewInit {
     this.validacion_if  = !this.validacion_if;
 
   }
-  
-
-
-
-
-
-
-
-  /* ************************************************************************************************** */
-  /*                                   TEEEEEEEEST                                                      */
-  /* ************************************************************************************************** */
-
-  numIndexTableOutput = 0;
-  dataTable : Array<object> = [];
-
-  getLista() {
-    this.__tercerService.getListaTerceros({})
-      .subscribe(
-        response => {
-          this.assembleTableData(response)
-        },
-        error => {
-          console.log(error);          
-        }
-      )
-  }
-
-  /** Selecciona la data que se muestra en la tabla */
-  assembleTableData(data : Array<TercerElement>) {
-    let viewDataTable = [];
-
-    for(let fila of data) {
-      viewDataTable.push({
-        id      : fila.seqno,
-        codigo  : fila.codigo,
-        nombre  : fila.nombre,
-        nombre_auxiliar : fila.nomaux,
-        indentificación : fila.cif
-      })
-    }
-
-    this.dataTable = viewDataTable;
-  }
-
-  /** Index que sale de la selección de la tabla */
-  IndexTableOutput(index: number) {
-    this.numIndexTableOutput = index;
-  }
-
-  /** Index que sale de la selección por botones(arrows) */
-  IndexButtonOutput(index: number) {
-    this.numIndexTableOutput = index;
-  }
-
-
 
 }

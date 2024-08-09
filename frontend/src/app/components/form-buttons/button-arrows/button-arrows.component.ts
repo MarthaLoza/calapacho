@@ -34,10 +34,8 @@ export class ButtonArrowsComponent {
   @Input() numIndexButtonInput: number  = 0;      // Index de la tabla
   @Input() numTotalDataTable  : number  = 0;      // Total de datos de la tabla
   @Input() boolFormModific    : boolean = false;  // Formulario modificado
-  
-  @Output() numIndexButtonOutput  = new EventEmitter<number>();   // Exportación del index de la tabla
-  @Output() boolActionButton      = new EventEmitter<boolean>();  // Exportación de la acción de los botones
-  @Output() boolDisable           = new EventEmitter<boolean>();  // Exportación de la activación o desactivación de los botones
+
+  @Output() eventButtonArrows     = new EventEmitter<Array<any>>();   // Exportación del index de la tabla
 
   boolDisabledButtonBack: boolean = false;
   boolDisabledButtonNext: boolean = false;
@@ -61,30 +59,18 @@ export class ButtonArrowsComponent {
   }
 
   async backButton() {
-    if(this.boolFormModific){
-      const validation = await this.openDialogUpdate();
+    const validation = this.boolFormModific ? await this.openDialogUpdate() : true;
 
-      if(validation){
-        this.numIndexButtonInput--;
-        this.functionButton();
-      }
-
-    } else {
+    if (validation) {
       this.numIndexButtonInput--;
       this.functionButton();
     }
   }
 
   async nextButton() {
-    if(this.boolFormModific){
-      const validation = await this.openDialogUpdate();
-      
-      if(validation){
-        this.numIndexButtonInput++;
-        this.functionButton();
-      }
+    const validation = this.boolFormModific ? await this.openDialogUpdate() : true;
 
-    } else {
+    if (validation) {
       this.numIndexButtonInput++;
       this.functionButton();
     }
@@ -92,9 +78,13 @@ export class ButtonArrowsComponent {
 
   functionButton() {
     this.boolActionButtonArrows = !this.boolActionButtonArrows;
-    this.numIndexButtonOutput.emit(this.numIndexButtonInput);
-    this.boolActionButton.emit(this.boolActionButtonArrows);
-    this.boolDisable.emit(false);
+    this.eventButtonArrows.emit(
+      [
+        this.numIndexButtonInput,     // Index de la tabla
+        this.boolActionButtonArrows,  // Acción de los botones
+        false                         // Activación o desactivación de los botones
+      ]
+    );
     this.boolFormModific = false;
   }
 

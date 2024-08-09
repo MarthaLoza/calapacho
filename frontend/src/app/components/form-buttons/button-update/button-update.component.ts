@@ -12,7 +12,7 @@ import { ErrorService } from 'src/app/services/error.service';
                 mat-fab 
                 color         = "primary" 
                 type          = "button"
-                [disabled]    = "disabled_button"
+                [disabled]    = "disabled"
                 (click)       = "updateButton()"
               >
                 <mat-icon>save</mat-icon>
@@ -27,11 +27,11 @@ import { ErrorService } from 'src/app/services/error.service';
 
 export class ButtonUpdateComponent {
 
-  @Input() disabled         : boolean     = false;
-  @Input() arrData          : Array<any>  = [];
+  @Input() disabled : boolean     = false;
+  @Input() arrData  : Array<any>  = [];
 
-  @Output() boolDisable  = new EventEmitter<boolean>();
-  @Output() boolFinish   = new EventEmitter<boolean>(); // Eento apra saber que terminó de actualizar
+  /** Evento para saber que terminó de actualizar */
+  @Output() boolFinish   = new EventEmitter<boolean>();
 
   disabled_button = false;
 
@@ -42,13 +42,6 @@ export class ButtonUpdateComponent {
   ) { }
 
   ngOnChanges(changes: SimpleChanges) {
-
-    /** 
-     * Condición de reset para mantener al botón de update
-     * deshabilitado hasta que se realice la insertar o refrescar
-     * el componente
-     */
-    this.disabled_button = this.disabled;
   }
 
   updateButton() {
@@ -56,8 +49,6 @@ export class ButtonUpdateComponent {
       .subscribe(
         (response: any) => {
           this.__notifyService.notify('success', response);
-          //this.disabled_button = true;
-          this.boolDisable.emit(false);
           this.boolFinish.emit(true); // Ya se terminó de actualizar
         },
         (error: any) => {

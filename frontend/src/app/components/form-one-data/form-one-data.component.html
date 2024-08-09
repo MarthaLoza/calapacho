@@ -9,9 +9,7 @@
                     [numIndexButtonInput]   = "numIndexTableOutput"
                     [numTotalDataTable]     = "arrDataTable.length"
                     [boolFormModific]       = "boolFormModific"
-                    (numIndexButtonOutput)  = "IndexButtonOutput($event)"
-                    (boolActionButton)      = "boolActionButtonArrows($event)"
-                    (boolDisable)           = "boolDisable($event)"
+                    (eventButtonArrows)     = "eventButtonArrows($event)"
                 ></app-button-arrows>
 
                 <!-- Botón buscar -->
@@ -59,7 +57,6 @@
                 <app-button-update
                     [disabled]      = "boolDisableUpdate"
                     [arrData]       = "arrConditionUpdate"
-                    (boolDisable)   = "boolDisable($event)"
                     (boolFinish)    = "boolFinishUpdate($event)"
                 ></app-button-update>
 

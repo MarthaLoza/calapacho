@@ -234,7 +234,6 @@ export class FormOneDataComponent implements OnInit, OnChanges {
       if(this.arrDataAll.length > 0) { this.preparationForButtonUpdate() }
 
     });
-  
   }
 
 
@@ -273,40 +272,27 @@ export class FormOneDataComponent implements OnInit, OnChanges {
 
     const validation = this.boolFormModific ? await this.openDialogUpdate() : true;
     if (validation) { this.resetComponent() }
-    
   }
 
   async searchButton() {
-    if(this.boolFormModific) {
-      const validation = await this.openDialogUpdate();
 
-      if(validation){
-        this.boolActionUser       = false;  // Se desactiva para que no genere el código de tercero
-        this.form.reset();
-        this.boolIfSearch         = true;   // Deja ver la vista de filtro
-        this.boolActionUser       = true;   // Se activa para que genere el código de tercero
-        this.numIndexTableOutput  = 0;      // Index de la tabla
-
-        this.arrDataAll         = [];     // Limpia los datos de los terceros
-        this.arrDataTable       = [];     // Limpia los datos de la tabla
-      }
-    } else {
+    const validation = this.boolFormModific ? await this.openDialogUpdate() : true;
+    if (validation) {
       this.boolActionUser       = false;  // Se desactiva para que no genere el código de tercero
-      this.form.reset();
       this.boolIfSearch         = true;   // Deja ver la vista de filtro
-      this.boolActionUser       = true;   // Se activa para que genere el código de tercero
+      this.form.reset();
       this.numIndexTableOutput  = 0;      // Index de la tabla
-
-      this.arrDataAll         = [];     // Limpia los datos de los terceros
-      this.arrDataTable       = [];     // Limpia los datos de la tabla
-    }    
+      this.arrDataAll           = [];     // Limpia los datos de los terceros
+      this.arrDataTable         = [];     // Limpia los datos de la tabla
+      this.boolActionUser       = true;   // Se activa para que genere el código de tercero
+    }  
   }
 
   /* ***************************************** */
   /*          DIALOGOS DEL FORMULARIO          */
   /* ***************************************** */
 
-  /** Método para abrir el dialogo de Campos pendientes */
+  /** Método para abrir el dialogo de campos pendientes */
   openDialogUpdate(): Promise<boolean> {
     const dialogRef = this.__dialog.open(DialogUpdateComponent, {});
 
@@ -338,17 +324,12 @@ export class FormOneDataComponent implements OnInit, OnChanges {
     this.boolActionUser       = true;
   }
 
-  /** Index que sale de la selección por botones(arrows) */
-  IndexButtonOutput(index: number) {
-    this.numIndexTableOutput  = index;
-  }
-
-  /** 
-   * Este evento nos indica el uso de los botones arrows,
-   * esto se debe a que en el componente de la tabla se necesita.
-   */
-  boolActionButtonArrows(boolean: boolean) {
-    this.boolActionButton = boolean;
+  /** Este evento se ejecuta cuando el botón de arrows se acciona */
+  eventButtonArrows(event: Array<any>) {
+    this.numIndexTableOutput  = event[0]; // Index que sale de la selección por botones(arrows)
+    this.boolActionButton     = event[1]; // Este evento nos indica el uso de los botones arrows
+    this.boolFormModific      = event[2]; // Este evento devuelve un false
+    this.form.markAsPristine();           // Marca el formulario como no modificado
   }
   
   /** 
@@ -360,15 +341,6 @@ export class FormOneDataComponent implements OnInit, OnChanges {
       this.form.reset();
       this.boolRefreshTable.emit(true);
     }
-  }
-
-  /** 
-   * Finaliza el update y manda un false, además esta configurado para
-   * los botones de flecha.
-   */
-  boolDisable(boolDisable: boolean) {    
-    this.boolFormModific  = boolDisable;
-    this.form.markAsPristine(); // Marca el formulario como no modificado
   }
 
   /** Evento de la busqueda para recibir los datos que se envían desde ese fomulario */
