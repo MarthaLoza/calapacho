@@ -19,7 +19,8 @@ export class FullComponent {
 
   search: boolean = false;
 
-  isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
+  //isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset)
+  isHandset$: Observable<boolean> = this.breakpointObserver.observe('(max-width: 959px)')
     .pipe(
       map(result => result.matches),
       shareReplay()

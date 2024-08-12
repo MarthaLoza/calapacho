@@ -11,13 +11,14 @@ import { DialogUpdateComponent } from '../form-dialogs/dialog-update/dialog-upda
   styleUrls: ['./form-one-data.component.scss']
 })
 export class FormOneDataComponent implements OnInit, OnChanges {
-  @Input() arrFormField   : Field[]       = [];
-  @Input() arrDataTable   : Array<object> = []; // Datos de la tabla, ordenada para la vista del usuario
-  @Input() arrDataAll     : Array<object> = []; // Todos los datos de terceros
-  @Input() strTablesNames : Array<string> = []; // Nombre de la tabla
-  @Input() strIdName      : string        = ''; // Nombre del campo id o condición a eliminar
-  @Input() strColumnDelete: string        = ''; // Nombre de la columna a eliminar
-  @Input() arrFieldSearch : Field[]       = [];
+  @Input() getErrorMessage! : (control: any)  => string;  // Mesajes de error del formulario
+  @Input() arrFormField     : Field[]         = [];
+  @Input() arrDataTable     : Array<object>   = [];       // Datos de la tabla, ordenada para la vista del usuario
+  @Input() arrDataAll       : Array<object>   = [];       // Todos los datos de terceros
+  @Input() strTablesNames   : Array<string>   = [];       // Nombre de la tabla
+  @Input() strIdName        : string          = '';       // Nombre del campo id o condición a eliminar
+  @Input() strColumnDelete  : string          = '';       // Nombre de la columna a eliminar
+  @Input() arrFieldSearch   : Field[]         = [];       // Campos del fomulario para la busqueda
 
   @Output() arrDataOutput       = new EventEmitter<object>();
   @Output() boolFormOut         = new EventEmitter<Array<any>>();
@@ -28,6 +29,7 @@ export class FormOneDataComponent implements OnInit, OnChanges {
    * Este evento se dispara para actualizar un campo del formulario.
    */
   @Output() fieldUpdate         = new EventEmitter<{ fieldName: string, value: any }>();
+
 
   /** Datos para el formulario */
   form      : FormGroup;
@@ -103,22 +105,17 @@ export class FormOneDataComponent implements OnInit, OnChanges {
     return validators;
   }
 
-  /** Método para obtener mensajes de error */
-  getErrorMessage(fieldName: string): string {
-    const control = this.form.get(fieldName);
-    // Dato requerido
-    if (control?.hasError('required')) {
-      return 'Este campo es requerido';
-    }
-    // Solo se aceptan numeros
-    if (control?.hasError('numeric')) {
-      return 'Solo se aceptan números';
-    }
-    // Campo tipo email
-    if (control?.hasError('email')) {
-      return 'El email no es válido';
-    }
-    return '';
+  /** 
+   * Método para obtener mensajes de error de los campos del formulario
+   * desde el componente padre.
+   * Este es un ejemplo de como podemos usar funciones de otros componentes
+   * pasado por un Input.
+   * @param fieldName   Nombre del campo
+   */
+  getMessage(fieldName: string): string {
+    const control = this.form.get(fieldName);   
+
+    return this.getErrorMessage(control);
   }
 
   /* ****************************************** */
@@ -250,8 +247,9 @@ export class FormOneDataComponent implements OnInit, OnChanges {
    */
   buttonInsert() {
     this.arrDataOutput.emit(this.form.value);
-    this.boolFormModific  = false;  // Formulario no modificado(false)
-    this.form.markAsPristine();     // Marca el formulario como no modificado    
+    this.boolFormModific      = false;  // Formulario no modificado(false)
+    this.form.markAsPristine();         // Marca el formulario como no modificado
+    this.numIndexTableOutput  = 0;      // Index de la tabla
   }
 
   resetForm() {

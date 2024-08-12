@@ -10,6 +10,7 @@ export class ErrorService {
   constructor(private notify: NotifierService) { }
 
   msjError(e: HttpErrorResponse) {
+    
     if(e.error.msg) {
       this.notify.notify('error', e.error.msg)
     } else {

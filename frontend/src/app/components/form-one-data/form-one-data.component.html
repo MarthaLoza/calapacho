@@ -81,7 +81,7 @@
                             </mat-option>
                         </mat-select>
                         <mat-error *ngIf="form.get(field.name)?.invalid">
-                            {{ getErrorMessage(field.name) }}
+                            {{ getMessage(field.name) }}
                         </mat-error>
                     </mat-form-field>
                 </div>

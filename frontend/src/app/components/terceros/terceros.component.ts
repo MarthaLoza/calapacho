@@ -2,7 +2,7 @@ import { Component, ViewChild } from '@angular/core';
 import { Field, TercerElement, arrTypeCif, arrTypeStatus, arrTypeUser } from 'src/app/interfaces/user';
 import { ErrorService } from 'src/app/services/error.service';
 import { TerceroService } from 'src/app/services/tercero.service';
-import { numericValidator } from 'src/assets/validator';
+import { ceValidator, dniValidator, numericValidator, rucValidator } from 'src/assets/validator';
 import { FormOneDataComponent } from '../form-one-data/form-one-data.component';
 import { NotifierService } from 'angular-notifier';
 import { catchError, of, switchMap } from 'rxjs';
@@ -23,7 +23,7 @@ export class TercerosComponent {
     { type: 'text',     label: 'Nombre o Razon social', name: 'nombre',   required: true                            },
     { type: 'text',     label: 'Nombre auxiliar',       name: 'nomaux',   required: false                           },
     { type: 'select',   label: 'Tipo de documento',     name: 'ciftyp',   required: true, options: arrTypeCif,    defaultValue: '0'  },
-    { type: 'text',     label: 'Numero de documento',   name: 'cif',      required: true,                         validators: [numericValidator] },
+    { type: 'text',     label: 'Numero de documento',   name: 'cif',      required: true,                         validators: [numericValidator]},
     { type: 'text',     label: 'Comentario',            name: 'coment',   required: false                           },
     { type: 'select',   label: 'Estado',                name: 'estado',   required: true, options: arrTypeStatus, defaultValue: 'A'  },
   ];
@@ -32,25 +32,24 @@ export class TercerosComponent {
   strInitialTercer  = '';
   strCodeGenerated  = null;
   strTablesNames    = ['Cterdire', 'Ctercero']; // Si hay tanlas referenciadas, enviarla tabla principal al final
-  strIdName         = 'codigo'; // ERRRRRRRRRRRROOOOOOOR
+  strIdName         = 'codigo';   // Nombre del campo que dará la condición para actualizar o eliminar
   strColumnDelete   = 'terType';  // Secrea para poder enviar columnas que quiero eliminar de un objeto, en este caso del update
+  objDataForm      = {};         // Datos del formulario
 
-  arrDataTable    : Array<object>          = [{test:"test"}]; // Datos de la tabla, ordenada para la vista del usuario
-  arrDataAll      : Array<TercerElement>   = []; // Todos los datos de terceros
-  arrFieldSearch  : Field[] = [];
+  arrDataTable    : Array<object>         = []; // Datos de la tabla, ordenada para la vista del usuario
+  arrDataAll      : Array<TercerElement>  = []; // Todos los datos de terceros
+  arrFieldSearch  : Field[]               = [];
 
   constructor(
     private __tercerService : TerceroService,
     private __queryService  : QueryService,
     private __errorservices : ErrorService,
     private __notifyService : NotifierService,
-  ) {
+  ) {}
+
+  ngOnInit() {
     this.getLista({});
   }
-
-  //ngOnInit() {
-  //  this.getLista({});
-  //}
 
   ngAfterViewInit() {
     this.dataFilter(this.arrFormField);
@@ -67,6 +66,7 @@ export class TercerosComponent {
    * datos del formulario ya que escuche los cambios del mismo.
    */
   boolFormOut(boolFormOut: Array<any>) {
+    this.objDataForm      = boolFormOut[0];
     this.strInitialTercer = boolFormOut[0].terType;
     this.boolActionUser   = boolFormOut[1];
   }
@@ -158,6 +158,7 @@ export class TercerosComponent {
 
   /** Genera el código del tercero */
   generationTercerCode() {
+    
     if(this.strInitialTercer) {
       this.__tercerService.getCodigo(this.strInitialTercer)
         .subscribe(
@@ -193,6 +194,7 @@ export class TercerosComponent {
         switchMap((response: any) => {
           arrData.codigo = response;          
           return this.__queryService.insertOneRow([this.strTablesNames[1], arrData]);
+          //return this.__tercerService.postTercero( arrData);
         }),
         catchError((error) => {
           this.__errorservices.msjError(error);
@@ -202,11 +204,12 @@ export class TercerosComponent {
       .subscribe(
         (response: any) => {
           if (response) {
+            
             this.__notifyService.notify('success', response);
             this.getLista({});
           }
         },
-        (error: any) => {
+        (error: any) => {          
           this.__errorservices.msjError(error);
         }
       );          
@@ -227,6 +230,43 @@ export class TercerosComponent {
   private omitField(obj: any, fieldName: string): any {
     const { [fieldName]: _, ...rest } = obj;
     return rest;
+  }
+
+
+  /** Método para obtener mensajes de error */
+  getErrorMessage(control: any): string {
+    if(this.objDataForm) {
+      if ((this.objDataForm as any).ciftyp == '1' && (this.objDataForm as any).cif.length != 8) {
+        if (control?.hasError('dni')) {
+          return 'El DNI tiene 8 digitos';
+        }
+      }
+    }
+    // Dato requerido
+    if (control?.hasError('required')) {
+      return 'Este campo es requerido';
+    }
+    // Solo se aceptan numeros
+    if (control?.hasError('numeric')) {
+      return 'Solo se aceptan números';
+    }
+    // Campo tipo email
+    if (control?.hasError('email')) {
+      return 'El email no es válido';
+    }
+    // Solo se aceptan 8 números
+    if (control?.hasError('dni')) {
+      return 'El DNI tiene 8 digitos';
+    }
+    // Solo se aceptan 11 números
+    if (control?.hasError('ruc')) {
+      return 'El RUC tiene 11 digitos';
+    }
+    // Solo se aceptan 12 números
+    if (control?.hasError('ce')) {
+      return 'El Carnet de Extranjería tiene 12 digitos';
+    }
+    return '';
   }
   
 }

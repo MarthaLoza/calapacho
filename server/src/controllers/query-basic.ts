@@ -1,22 +1,25 @@
 import { Request, Response } from "express";
-import { Model, ModelStatic, Sequelize } from "sequelize";
+import { Model, ModelStatic, Sequelize, BaseError } from "sequelize";
 import sequelize from "../db/connection";
 import { Ctercero } from "../models/ctercero";
 import { Cterdire } from "../models/cterdire";
 
 class QueryBasicController {
 
-    //private getModelMap(): { [key: string]: ModelStatic<Model<any, any>> } {
-    //    return {
-    //        'Ctercero': Ctercero,
-    //        'Cterdire': Cterdire
-    //    };
-    //}
-//
-    //private getModelByName(tableName: string): ModelStatic<Model<any, any>> | null {
-    //    const modelMap = this.getModelMap();
-    //    return modelMap[tableName] || null;
-    //}
+    /**
+     * Este metodo se encarga de mapear el nombre de la tabla con el modelo correspondiente
+     * para poder devolver el modelo correspondiente a la tabla.
+     * @param tableName     Nombre de la tabla String
+     * @returns             Nombre de la tabla Modelo
+     */
+    private static ModelTableMap(tableName: string): ModelStatic<Model<any, any>> | null {
+        const modelMap: { [key: string]: ModelStatic<Model<any, any>> } = {
+            'Ctercero': Ctercero,
+            'Cterdire': Cterdire
+        };
+
+        return modelMap[tableName] || null;
+    }
 
     /**
      * ["strTable", { id : 1 }]
@@ -28,15 +31,8 @@ class QueryBasicController {
     public async deleteOneRow(req: Request, res: Response) {
         
         const [ strTable, objCondition ] = req.body
-        console.log(strTable, req);
-        
-        /** Mapeo de nombres de tablas a modelos */
-        const modelMap: { [key: string]: ModelStatic<Model<any, any>> } = {
-            'Ctercero': Ctercero,
-            'Cterdire': Cterdire
-        };
 
-        const ModelToUse = modelMap[strTable];
+        const ModelToUse = QueryBasicController.ModelTableMap(strTable);
 
         if (!ModelToUse) {
             return res.status(400).json({
@@ -83,15 +79,9 @@ class QueryBasicController {
      */
     public async insertOneRow(req: Request, res: Response) {
 
-        const [ strtable, data ]  = req.body;
-
-        /** Mapeo de nombres de tablas a modelos */
-        const modelMap: { [key: string]: ModelStatic<Model<any, any>> } = {
-            'Ctercero': Ctercero,
-            'Cterdire': Cterdire
-        };
-
-        const ModelToUse = modelMap[strtable];
+        const [ strtTable, data ]  = req.body;
+        
+        const ModelToUse = QueryBasicController.ModelTableMap(strtTable);
 
         if (!ModelToUse) {
             return res.status(400).json({
@@ -115,13 +105,15 @@ class QueryBasicController {
             /** Si hay un error, revertimos todas las operaciones */
             await transaction.rollback();
 
-            console.log(error);
-            
-            /** Retornamos un error controlado */
-            res.status(400).json({
-                msg     : 'Upps ocurrio un error (insertOneRow)',
-                error   : error
-            });
+            // Manejo del error
+            let errorMessage = 'Error desconocido';
+
+            if (error instanceof BaseError || error instanceof Error) {
+                errorMessage = error.message;
+            }
+
+            // Retornamos un error controlado
+            res.status(400).json({ msg: errorMessage });
         }
     }
 
@@ -135,13 +127,8 @@ class QueryBasicController {
     public async updateOneRow(req: Request, res: Response) {
         const [ strTable, objCondition, data ] = req.body;
 
-        /** Mapeo de nombres de tablas a modelos */
-        const modelMap: { [key: string]: ModelStatic<Model<any, any>> } = {
-            'Ctercero': Ctercero,
-            'Cterdire': Cterdire
-        };
+        const ModelToUse = QueryBasicController.ModelTableMap(strTable);
 
-        const ModelToUse = modelMap[strTable];
 
         if (!ModelToUse) {
             return res.status(400).json({
@@ -167,13 +154,15 @@ class QueryBasicController {
             /** Si hay un error, revertimos todas las operaciones */
             await transaction.rollback();
 
-            console.log(error);
-            
-            /** Retornamos un error controlado */
-            res.status(400).json({
-                msg     : 'Upps ocurrio un error (updateOneRow)',
-                error   : error
-            });
+            // Manejo del error
+            let errorMessage = 'Error desconocido';
+
+            if (error instanceof BaseError || error instanceof Error) {
+                errorMessage = error.message;
+            }
+
+            // Retornamos un error controlado
+            res.status(400).json({ msg: errorMessage });
         }
     }
 }

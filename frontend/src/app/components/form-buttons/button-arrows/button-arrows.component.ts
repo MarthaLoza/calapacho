@@ -5,27 +5,32 @@ import { DialogUpdateComponent } from '../../form-dialogs/dialog-update/dialog-u
 @Component({
   selector: 'app-button-arrows',
   template: `
-      <button 
-        mat-fab 
-        color         = "primary" 
-        type          = "button"
-        [disabled]    = "boolDisabledButtonBack"
-        (click)       = "backButton()"
-      >
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <button 
-        mat-fab 
-        color         = "primary" 
-        type          = "button"
-        [disabled]    = "boolDisabledButtonNext"
-        (click)       = "nextButton()"
-      >
-        <mat-icon>arrow_forward</mat-icon>
-      </button>`,
+      <div class='content'>
+        <button 
+          mat-fab 
+          color         = "primary" 
+          type          = "button"
+          [disabled]    = "boolDisabledButtonBack"
+          (click)       = "backButton()"
+        >
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <button 
+          mat-fab 
+          color         = "primary" 
+          type          = "button"
+          [disabled]    = "boolDisabledButtonNext"
+          (click)       = "nextButton()"
+        >
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>`,
   styles: [`
       button {
         margin: 0px 8px;
+      }
+      .content {
+        display: flex;
       }
   `]
 })
