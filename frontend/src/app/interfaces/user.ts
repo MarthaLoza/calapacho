@@ -43,14 +43,16 @@ export interface DireccElement {
 }
 
 export interface DirecTercero {
-    tipdir: any;
-    coddep: string;
-    codprv: string;
-    coddis: string;
-    direcc: string;
-    contac: string;
-    telef1: string;
-    email : string;
+    codigo? : any;
+    tipdir  : any;
+    nomdir? : string;
+    coddep  : string;
+    codprv  : string;
+    coddis  : string;
+    direcc  : string;
+    contac  : string;
+    telef1  : string;
+    email   : string;
 }
 
 export const arrTypeUser: Selector[] = [
@@ -69,4 +71,12 @@ export const arrTypeStatus: Selector[] = [
     { label: 'Activo',      value: 'A' },
     { label: 'Inactivo',    value: 'I' },
 ];
+
+export const arrTypeDirec: Selector[] = [
+    { label: 'Dirección Fiscal',   value: 0 },
+    { label: 'Dirección 1',        value: 1 },
+    { label: 'Dirección 2',        value: 2 },
+    { label: 'Dirección 3',        value: 3 },
+    { label: 'Dirección 4',        value: 4 },
+  ]
 

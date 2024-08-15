@@ -78,6 +78,7 @@ class QueryBasicController {
      * @returns 
      */
     public async insertOneRow(req: Request, res: Response) {
+        console.log(req.body, "BODY");
 
         const [ strtTable, data ]  = req.body;
         

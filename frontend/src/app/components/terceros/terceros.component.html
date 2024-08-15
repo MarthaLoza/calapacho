@@ -1,31 +1,46 @@
-<!-- 
-    arrFormField : Fields del fomulario
-    arrDataTable : Array de datos ordenados para la vista de la tabla
-    arrDataAll  : Array de datos completos de la tabla
-    strTableName : Nombre de la tabla a utlizar en este componente
-    
-    arrDataOutput       : Evento que devuelve un array de datos del formulario
-    boolFormOut         : Evento que devuelve los estados booleanos del formulario,
-                          como editado, validado, etc, además devuelve el fomulario completo.
-    boolRefreshTable    : Evento para refrescar la tabla.
--->
+<mat-tab-group>
+    <mat-tab label="Data Principal">
+        <!-- 
+            arrFormField    : Fields del fomulario
+            arrDataTable    : Array de datos ordenados para la vista de la tabla
+            arrDataAll      : Array de datos completos de la tabla
+            strTablesNames  : Nombre de las tablas a utlizar en este componente
+            strIdName       : Condición para poder actualizar o eliminar
+            strColumnDelete : Columnas que se desean eliminar del form.value
+            arrFieldSearch  : Array de filds para el fomulario de busqueda
+            getErrorMessage : Descripciones de error para que aparezca en los campos
+            
+            arrDataOutput       : Evento que devuelve un array de datos del formulario
+            boolFormOut         : Evento que devuelve los estados booleanos del formulario,
+                                como editado, validado, etc, además devuelve el fomulario completo.
+            boolRefreshTable    : Evento para refrescar la tabla.
+            arrDataSearch       : Evento que retorna los datos de filtro.
+        -->
 
-<app-form-one-data
+        <app-form-one-data
 
-    [arrFormField]      = "arrFormField"
-    [arrDataTable]      = "arrDataTable"
-    [arrDataAll]        = "arrDataAll"
-    [strTablesNames]    = "strTablesNames"
-    [strIdName]         = "strIdName"
-    [strColumnDelete]   = "strColumnDelete"
-    [arrFieldSearch]    = "arrFieldSearch"
-    [getErrorMessage]   = "getErrorMessage"
+            [arrFormField]      = "arrFormField"
+            [arrDataTable]      = "arrDataTable"
+            [arrDataAll]        = "arrDataAll"
+            [strTablesNames]    = "strTablesNames"
+            [strIdName]         = "strIdName"
+            [strColumnDelete]   = "strColumnDelete"
+            [arrFieldSearch]    = "arrFieldSearch"
+            [getErrorMessage]   = "getErrorMessage"
 
-    (arrDataOutput)     = "arrDataOutput($event)"
-    (boolFormOut)       = "boolFormOut($event)"
-    (boolRefreshTable)  = "boolRefreshTable($event)"
-    (arrDataSearch)     = "arrDataSearch($event)"
+            (arrDataOutput)     = "arrDataOutput($event)"
+            (boolFormOut)       = "boolFormOut($event)"
+            (boolRefreshTable)  = "boolRefreshTable($event)"
+            (arrDataSearch)     = "arrDataSearch($event)"
 
-></app-form-one-data>
+        ></app-form-one-data>
+    </mat-tab>
+
+    <mat-tab label="Direcciones">
+        <!-- <app-cterdire strCodeTercero = "T0001" ></app-cterdire> -->
+        <app-cterdire></app-cterdire>        
+    </mat-tab>
+
+</mat-tab-group>
 
 <notifier-container></notifier-container>

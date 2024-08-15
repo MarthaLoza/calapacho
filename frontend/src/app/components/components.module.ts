@@ -34,6 +34,7 @@ import { ButtonArrowsComponent } from './form-buttons/button-arrows/button-arrow
 import { TercerosComponent } from './terceros/terceros.component';
 import { FormOneDataComponent } from './form-one-data/form-one-data.component';
 import { ButtonUpdateComponent } from './form-buttons/button-update/button-update.component';
+import { PortalUserComponent } from './portal-user/portal-user.component';
 
 @NgModule({
   imports: [
@@ -97,6 +98,7 @@ import { ButtonUpdateComponent } from './form-buttons/button-update/button-updat
     TercerosComponent,
     FormOneDataComponent,
     ButtonUpdateComponent,
+    PortalUserComponent,
   ]
 })
 export class ComponentsModule { }

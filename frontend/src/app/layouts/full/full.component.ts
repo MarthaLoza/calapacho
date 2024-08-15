@@ -43,11 +43,6 @@ export class FullComponent {
       menu: "Terceros",
     },
     {
-      link: "/tercero",
-      icon: "award",
-      menu: "Tercero",
-    },
-    {
       link: "/button",
       icon: "disc",
       menu: "Buttons",

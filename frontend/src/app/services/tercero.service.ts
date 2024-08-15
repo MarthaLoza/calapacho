@@ -33,8 +33,8 @@ export class TerceroService {
     return this.http.post<string>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/list/${seqno}`, {});
   }
 
-  getDireccionesTercero(codigo: string): Observable<Array<DireccElement>> {
-    return this.http.post<Array<DireccElement>>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/list/direcciones/${codigo}`, {});
+  getDireccionesTercero(data: object): Observable<DireccElement[]> {    
+    return this.http.post<DireccElement[]>(`${this.myAppUrl}${this.myApiUrl}/tercero/user/direcciones`, data);
   }
 
   getOneDireccionTercero(codigo: string, tipdir: number): Observable<DirecTercero> {

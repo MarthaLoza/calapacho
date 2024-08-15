@@ -80,6 +80,7 @@ class QueryBasicController {
      */
     insertOneRow(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log(req.body, "BODY");
             const [strtTable, data] = req.body;
             const ModelToUse = QueryBasicController.ModelTableMap(strtTable);
             if (!ModelToUse) {

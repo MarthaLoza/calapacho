@@ -150,6 +150,7 @@ export class FormOneDataComponent implements OnInit, OnChanges {
    * [ [nameTable1, {nameColumn1: value1}], [nameTable2, {nameColumn2: value2}] ]
    */
   preparationForButtonDelete() {
+    
     let arrConditionDelete      : Array<any> = [];
     const nameColumnCondition   = this.strIdName;
     const valueCondition        = (this.arrDataAll[this.numIndexTableOutput] as any)[nameColumnCondition];
@@ -159,7 +160,7 @@ export class FormOneDataComponent implements OnInit, OnChanges {
         [table, {[nameColumnCondition] : valueCondition}]
       )
     }
-
+    
     this.arrConditionDelete = arrConditionDelete;
   }
 

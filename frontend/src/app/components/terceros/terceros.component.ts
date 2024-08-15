@@ -31,10 +31,10 @@ export class TercerosComponent {
   boolActionUser    = false;
   strInitialTercer  = '';
   strCodeGenerated  = null;
-  strTablesNames    = ['Cterdire', 'Ctercero']; // Si hay tanlas referenciadas, enviarla tabla principal al final
-  strIdName         = 'codigo';   // Nombre del campo que dará la condición para actualizar o eliminar
-  strColumnDelete   = 'terType';  // Secrea para poder enviar columnas que quiero eliminar de un objeto, en este caso del update
-  objDataForm      = {};         // Datos del formulario
+  strTablesNames    = ['Ctercero']; // Si hay tanlas referenciadas, enviarla tabla principal al final
+  strIdName         = 'seqno';      // Nombre del campo que dará la condición para actualizar o eliminar
+  strColumnDelete   = 'terType';    // Secrea para poder enviar columnas que quiero eliminar de un objeto, en este caso del update
+  objDataForm       = {};           // Datos del formulario
 
   arrDataTable    : Array<object>         = []; // Datos de la tabla, ordenada para la vista del usuario
   arrDataAll      : Array<TercerElement>  = []; // Todos los datos de terceros
@@ -188,13 +188,12 @@ export class TercerosComponent {
   arrDataOutput(arrData: any ) {
 
     arrData = this.omitField(arrData, 'terType');
-    
+    const numIndexTable = this.strTablesNames.length-1;
     this.__tercerService.getCodigo(this.strInitialTercer)
       .pipe(
         switchMap((response: any) => {
           arrData.codigo = response;          
-          return this.__queryService.insertOneRow([this.strTablesNames[1], arrData]);
-          //return this.__tercerService.postTercero( arrData);
+          return this.__queryService.insertOneRow([this.strTablesNames[numIndexTable], arrData]);
         }),
         catchError((error) => {
           this.__errorservices.msjError(error);

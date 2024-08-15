@@ -21,7 +21,6 @@ import { FullComponent } from './layouts/full/full.component';
 
 import { LoginComponent } from './login/login.component';
 import { AuthGuard } from './utils/auth.guard';
-import { TerceroComponent } from './components/tercero/tercero.component';
 import { TercerosComponent } from './components/terceros/terceros.component';
 
 const routes: Routes = [
@@ -48,7 +47,6 @@ const routes: Routes = [
       {path:"", redirectTo:"/home", pathMatch:"full"},
       {path:"home", component:DashboardComponent},
       {path:"terceros", component:TercerosComponent},
-      {path:"tercero", component:TerceroComponent},
       {path:"alerts", component:AlertsComponent},
       {path:"forms", component:FormsComponent},
       {path:"table", component:ProductComponent},
