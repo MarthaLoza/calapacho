@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, SimpleChanges, ViewChild } from '@angular/core';
 import { arrTypeDirec, DirecTercero, Field } from 'src/app/interfaces/user';
 import { AdressService } from 'src/app/services/adress.service';
 import { ErrorService } from 'src/app/services/error.service';
@@ -17,12 +17,12 @@ export class CterdireComponent {
 
   @ViewChild(FormOneDataComponent) formOneData!: FormOneDataComponent; // Obtenemos una referencia al componente
 
-  //@Input() strCodeTercero : string = '';
+  @Input() strCodeTercero : string = '';
 
   arrFormField: Field[] = [
     { type: 'select',   label: 'Tipo de dirección',     name: 'tipdir',     required: true,   options: arrTypeDirec,      defaultValue: 0},
-    { type: 'select',   label: 'Departameto',           name: 'coddep',     required: true ,  defaultValue: '15' },
-    { type: 'select',   label: 'Provincia',             name: 'codprv',     required: true  },
+    { type: 'select',   label: 'Departameto',           name: 'coddep',     required: true ,  onChange: this.getProvincTest.bind(this) },
+    { type: 'select',   label: 'Provincia',             name: 'codprv',     required: true,  onChange: this.getDistritTest.bind(this) },
     { type: 'select',   label: 'Distrito',              name: 'coddis',     required: true  },
     { type: 'text',     label: 'Dirección',             name: 'direcc',     required: true, },
     { type: 'text',     label: 'Contacto',              name: 'contac',     required: false },
@@ -35,7 +35,7 @@ export class CterdireComponent {
   objDataForm       = {};
   boolActionUser    = false;
 
-  strCodeTercero  : string                = 'T0001';
+  //strCodeTercero  : string                = 'T0001';
   arrDataTable    : Array<object>         = []; // Datos de la tabla, ordenada para la vista del usuario
   arrDataAll      : Array<DirecTercero>   = []; // Todos los datos de terceros
   arrFieldSearch  : Field[]               = [];
@@ -49,17 +49,22 @@ export class CterdireComponent {
     private __errorservices : ErrorService,
     private __adressService : AdressService,
     private __queryServise  : QueryService,
-    private __notifyService : NotifierService
+    private __notifyService : NotifierService,
   ) {}
 
   ngOnInit(): void {
-    this.getLista({});
-    this.getDepart();    
+    //this.getLista({});
+    this.getDepart();
   }
 
   ngAfterViewInit() {
     this.dataFilter(this.arrFormField);
     // Podemos acceder al componente formOneData después de la vista se ha inicializado
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+
+    if(changes['strCodeTercero']) { this.getLista({}); }
   }
 
   /****************************************************** */
@@ -84,7 +89,8 @@ export class CterdireComponent {
     }
     
     this.arrDataTable = viewDataTable;
-    this.arrDataAll   = data;    
+    this.arrDataAll   = data;
+      
   }
 
   /** Data para armar la busqueda del fomulario */
@@ -105,19 +111,22 @@ export class CterdireComponent {
 
   /** Servicio que trae las direcciones por tercero */
   getLista(arrData : object) {
+    console.log(this.strCodeTercero, "Codigo tercero");
+    
     (arrData as any).codigo = this.strCodeTercero;
-    console.log(arrData, "DATA");
     
     this.__terceroService.getDireccionesTercero(arrData)
       .subscribe(
         (response: any) => {
-          console.log(response, "RESPONSE");
           
           if(response.length != 0) {
             this.assembleTableData(response)
+            console.log("hay datos");
+            
           } else {
             this.arrDataTable = [];
             this.arrDataAll   = [];
+            console.log("no hay datos");
           }
         },
         error => {
@@ -128,6 +137,7 @@ export class CterdireComponent {
 
   /** Servicio que trae departamentos */
   getDepart() {
+    "Entra al ongachnge"
     this.__adressService.getDeparta()
       .subscribe(
         (response: any) => {
@@ -140,14 +150,63 @@ export class CterdireComponent {
       )
   }
 
-  /** Servicio que trae las provicias segun departamento */
-  getProvinc(strCodDep : string): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.__adressService.postProvincia(strCodDep)
+  // Método para manejar el cambio de departamento
+  getProvincTest() {
+    let coddep = (this.objDataForm as any).coddep;    
+    if(!coddep) {
+      if(this.arrDataAll.length > 0) {
+        coddep = (this.arrDataAll as any)[0].coddep 
+      } else {
+        console.log("No hay datos");
+        
+      }
+    }
+      
+    if (coddep) {
+      this.__adressService.postProvincia(coddep)
         .subscribe(
           (response: any) => {
             this.arrTerProvin = response ? response : [];
-            resolve(response);
+            this.updateFieldOptions('codprv', this.arrTerProvin);
+          },
+          (error: any) => {
+            this.__errorservices.msjError(error);
+          }
+        );
+    }
+  }
+
+  getDistritTest() {
+    let coddep = (this.objDataForm as any).coddep;    
+    if(!coddep) { coddep = (this.arrDataAll as any)[0].coddep }
+    
+    let codprv = (this.objDataForm as any).codprv
+    if(!codprv) { codprv = (this.arrDataAll as any)[0].codprv }
+
+    if (coddep && codprv) {
+      this.__adressService.postDistrito(coddep, codprv)
+        .subscribe(
+          (response: any) => {
+            this.arrTerDistri = response ? response : [];
+            this.updateFieldOptions('coddis', this.arrTerDistri);
+          },
+          (error: any) => {
+            this.__errorservices.msjError(error);
+          }
+        );
+    }
+  }
+
+  /** Servicio que trae las provicias segun departamento */
+  //getProvinc(strCodDep : string): Promise<any> {
+  getProvinc(): Promise<any> {
+    return new Promise((resolve, reject) => {      
+      this.__adressService.postProvincia((this.objDataForm as any).coddep)
+        .subscribe(
+          (response: any) => {
+            this.arrTerProvin = response ? response : [];
+            this.updateFieldOptions('codprv', this.arrTerProvin);
+            //resolve(response);
             
           },
           (error: any) => {
@@ -158,9 +217,10 @@ export class CterdireComponent {
   }
 
   /** Servicio que trae distritos segun provincia */
-  getDistrit(strCodDep : string, strCodPrv : string): Promise<any> {
+  //getDistrit(strCodDep : string, strCodPrv : string): Promise<any> {
+  getDistrit(): Promise<any> {
     return new Promise((resolve, reject) => {
-      this.__adressService.postDistrito(strCodDep, strCodPrv)
+      this.__adressService.postDistrito((this.objDataForm as any).coddep, (this.objDataForm as any).codprv)
         .subscribe(
           (response: any) => {
             this.arrTerDistri = response ? response : [];
@@ -199,15 +259,12 @@ export class CterdireComponent {
    */
   boolFormOut(boolFormOut: Array<any>) {
     this.objDataForm      = boolFormOut[0];
-    this.boolActionUser   = boolFormOut[1];
-
-    const srtCodeDep = (this.objDataForm as any).coddep;
-    const strCodePrv = (this.objDataForm as any).codprv;
+    this.boolActionUser   = boolFormOut[1];   
     
-    if(srtCodeDep) this.updateColumnPrvDepart(srtCodeDep, strCodePrv);
+    //if(srtCodeDep) this.updateColumnPrvDepart(srtCodeDep, strCodePrv);
   }
 
-  updateColumnPrvDepart(srtCodeDep: any ,strCodePrv: any) {
+/*   updateColumnPrvDepart(srtCodeDep: any ,strCodePrv: any) {
     this.getProvinc(srtCodeDep)
       .then(response => {
         this.updateFieldOptions('codprv', this.arrTerProvin);
@@ -225,7 +282,7 @@ export class CterdireComponent {
       .catch(error => {
         console.error("Error al obtener las provincias", error);
       });
-  }
+  } */
 
   /**
    * Este evento viene de los botones de actualizar y eliminar,
@@ -274,6 +331,7 @@ export class CterdireComponent {
   }
 
   updateFieldOptions(fieldName: string, options: any[]) {
+    
     const field = this.arrFormField.find(f => f.name === fieldName);
     if (field) {
       field.options = options;

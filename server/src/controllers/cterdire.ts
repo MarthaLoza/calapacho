@@ -14,7 +14,8 @@ class CterdireController {
         // Crear el objeto de condiciones
         const conditions: { [key: string]: any }[] = [];
         
-        if (tipdir || tipdir == 0) { 
+        
+        if (tipdir === 0 || ( tipdir != null && tipdir != '' && tipdir != undefined)) { 
             console.log(tipdir, "ERRORTIPDIR");
             
             conditions.push({ tipdir: { [Op.eq] : tipdir } }); 

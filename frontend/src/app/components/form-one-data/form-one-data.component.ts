@@ -24,6 +24,7 @@ export class FormOneDataComponent implements OnInit, OnChanges {
   @Output() boolFormOut         = new EventEmitter<Array<any>>();
   @Output() boolRefreshTable    = new EventEmitter<boolean>();
   @Output() arrDataSearch       = new EventEmitter<object>();
+  @Output() intIndex            = new EventEmitter<number>();
 
   /**
    * Este evento se dispara para actualizar un campo del formulario.
@@ -66,17 +67,30 @@ export class FormOneDataComponent implements OnInit, OnChanges {
 
     /** Asignación de los campos del formulario */
     if(changes['arrFormField']) { this.fields = this.arrFormField }
+
+    if(changes['arrDataAll']) {
+      console.log("Cambios en arrDataAll", this.arrDataAll);
+      this.updateFormValues();
+    }
     
-    if(this.arrDataAll.length > 0) {
+    //if(this.arrDataAll.length > 0) {
       
       /** Escucha cada vez que hay un cambio en los Input */
+      
       this.listenToFormChanges();
 
-    } else {
+    //} else {
 
-      this.boolDisableDelete = true;        // Si la tabla no tiene datos se deshabilita
-      this.boolDisableUpdate = true;        // Si la tabla no tiene datos se deshabilita
-      this.boolDisableReset  = true;        // Si la tabla no tiene datos se deshabilita
+      //his.boolDisableDelete  = true;        // Si la tabla no tiene datos se deshabilita
+      //his.boolDisableUpdate  = true;        // Si la tabla no tiene datos se deshabilita
+      //his.boolDisableReset   = true;        // Si la tabla no tiene datos se deshabilita
+    //}
+
+    if(this.arrDataAll.length === 0) {
+      
+      this.boolDisableDelete  = true;        // Si la tabla no tiene datos se deshabilita
+      this.boolDisableUpdate  = true;        // Si la tabla no tiene datos se deshabilita
+      this.boolDisableReset   = true;        // Si la tabla no tiene datos se deshabilita
     }
   }
 
@@ -129,7 +143,7 @@ export class FormOneDataComponent implements OnInit, OnChanges {
    */
   updateFormValues() {
     if (this.arrDataAll.length > 0 && this.numIndexTableOutput < this.arrDataAll.length) {
-
+      
       this.form.patchValue(this.arrDataAll[this.numIndexTableOutput]);
 
       /**
@@ -150,7 +164,7 @@ export class FormOneDataComponent implements OnInit, OnChanges {
    * [ [nameTable1, {nameColumn1: value1}], [nameTable2, {nameColumn2: value2}] ]
    */
   preparationForButtonDelete() {
-    
+        
     let arrConditionDelete      : Array<any> = [];
     const nameColumnCondition   = this.strIdName;
     const valueCondition        = (this.arrDataAll[this.numIndexTableOutput] as any)[nameColumnCondition];
@@ -196,7 +210,6 @@ export class FormOneDataComponent implements OnInit, OnChanges {
   listenToFormChanges() {
     
     this.form.valueChanges.subscribe(() => {
-      
       /** 
        * Si el pristine es falso significa que el fomulario esta editado.
        */
@@ -223,13 +236,17 @@ export class FormOneDataComponent implements OnInit, OnChanges {
        * activa siempre que se haga un cambio en el formulario.
        * form.value      : Datos del formulario
        * boolActionUser  : Detecta si la acción fue realizada por el usuario
-       */
+       */      
       this.boolFormOut.emit([ this.form.value, this.boolActionUser] );
 
       /**
        * Aquí nesecito el valor de todo el fomulario y cada vez que se edite.
        */
-      if(this.arrDataAll.length > 0) { this.preparationForButtonUpdate() }
+      if(this.arrDataAll.length > 0) { this.preparationForButtonUpdate() } else {
+        this.boolDisableDelete  = true;        // Si la tabla no tiene datos se deshabilita
+        this.boolDisableUpdate  = true;        // Si la tabla no tiene datos se deshabilita
+        this.boolDisableReset   = true;   
+      }
 
     });
   }
@@ -284,7 +301,8 @@ export class FormOneDataComponent implements OnInit, OnChanges {
       this.arrDataAll           = [];     // Limpia los datos de los terceros
       this.arrDataTable         = [];     // Limpia los datos de la tabla
       this.boolActionUser       = true;   // Se activa para que genere el código de tercero
-    }  
+      
+    }
   }
 
   /* ***************************************** */
@@ -318,7 +336,8 @@ export class FormOneDataComponent implements OnInit, OnChanges {
      * y nuevos datos.
      */
     this.boolActionUser       = false;
-    this.numIndexTableOutput  = index;
+    this.numIndexTableOutput  = index;    
+    this.intIndex.emit(index);
     this.updateFormValues();
     this.boolActionUser       = true;
   }

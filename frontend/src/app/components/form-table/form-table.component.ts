@@ -31,10 +31,8 @@ export class FormTableComponent implements AfterViewInit {
   ) {}  
 
   ngAfterViewInit() {
-
     this.obtainColumns(this.arrDataTable);
     this.dataSource.paginator = this.paginator || null;
-
   }
 
   /** Método de angular, escucha cambios */
@@ -111,6 +109,7 @@ export class FormTableComponent implements AfterViewInit {
   }
 
   functionSelection(row: object, index: number) {
+    
     let numIndexSelection = this.dataSource.data.indexOf(row);
     index = numIndexSelection == -1 ?  index : numIndexSelection;
 

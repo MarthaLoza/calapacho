@@ -24,7 +24,7 @@ class CterdireController {
             const { codigo, tipdir, coddep, codprv, coddis, direcc, contac, telef1, email } = req.body;
             // Crear el objeto de condiciones
             const conditions = [];
-            if (tipdir || tipdir == 0) {
+            if (tipdir === 0 || (tipdir != null && tipdir != '' && tipdir != undefined)) {
                 console.log(tipdir, "ERRORTIPDIR");
                 conditions.push({ tipdir: { [sequelize_1.Op.eq]: tipdir } });
             }

@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild } from '@angular/core';
 import { Field, TercerElement, arrTypeCif, arrTypeStatus, arrTypeUser } from 'src/app/interfaces/user';
 import { ErrorService } from 'src/app/services/error.service';
 import { TerceroService } from 'src/app/services/tercero.service';
@@ -18,7 +18,7 @@ export class TercerosComponent {
   @ViewChild(FormOneDataComponent) formOneData!: FormOneDataComponent; // Obtenemos una referencia al componente
 
   arrFormField : Field[] = [
-    { type: 'select',   label: 'Tipo de tercero',       name: 'terType',  required: true, options: arrTypeUser,   defaultValue: 'T',                onChange: this.generationTercerCode.bind(this) },
+    { type: 'select',   label: 'Tipo de tercero',       name: 'terType',  required: true, options: arrTypeUser,                onChange: this.generationTercerCode.bind(this) },
     { type: 'text',     label: 'Código',                name: 'codigo',   required: true,                           },
     { type: 'text',     label: 'Nombre o Razon social', name: 'nombre',   required: true                            },
     { type: 'text',     label: 'Nombre auxiliar',       name: 'nomaux',   required: false                           },
@@ -35,6 +35,7 @@ export class TercerosComponent {
   strIdName         = 'seqno';      // Nombre del campo que dará la condición para actualizar o eliminar
   strColumnDelete   = 'terType';    // Secrea para poder enviar columnas que quiero eliminar de un objeto, en este caso del update
   objDataForm       = {};           // Datos del formulario
+  strCodeTercero    = '';           // Código del tercero
 
   arrDataTable    : Array<object>         = []; // Datos de la tabla, ordenada para la vista del usuario
   arrDataAll      : Array<TercerElement>  = []; // Todos los datos de terceros
@@ -45,9 +46,11 @@ export class TercerosComponent {
     private __queryService  : QueryService,
     private __errorservices : ErrorService,
     private __notifyService : NotifierService,
+    private __changeDR      : ChangeDetectorRef,
   ) {}
 
   ngOnInit() {
+    //this.getLista({codigo : 'T1234'});
     this.getLista({});
   }
 
@@ -63,7 +66,9 @@ export class TercerosComponent {
   /**
    * Inicialmente creado para pasar booleanos de validación y modificación,
    * pero se ha modificado para pasar el tipo de tercero. Con ello todos los
-   * datos del formulario ya que escuche los cambios del mismo.
+   * datos del formulario ya que escuche los cambios del mismo. Solo debe ser
+   * usado en casos especiales ya que al cambiar cada vez que el formulario
+   * se edite, causa problamas con los daros que recibe.
    */
   boolFormOut(boolFormOut: Array<any>) {
     this.objDataForm      = boolFormOut[0];
@@ -91,6 +96,18 @@ export class TercerosComponent {
   arrDataSearch(arrDataSearch: any) {    
     this.getLista(arrDataSearch);
   }
+
+  /**
+   * Este evento nos envia el index de la fila seleccionada en la tabla
+   * cada vez que se selecciona una fila.
+   * @param intIndexTable Index de la fila seleccionada
+  */
+    intIndex(intIndex: number) {
+      if(intIndex >= 0) {
+        this.strCodeTercero = this.arrDataAll[intIndex].codigo
+        this.__changeDR.detectChanges(); 
+      }
+    }
 
   /****************************************************** */
   /*    SE ALISTAN LOS DATOS PARA ENVIAR AL FOMULARIO     */
@@ -158,18 +175,17 @@ export class TercerosComponent {
 
   /** Genera el código del tercero */
   generationTercerCode() {
-    
-    if(this.strInitialTercer) {
+    if( this.strInitialTercer && (this.boolActionUser || this.arrDataAll.length == 0) ) {
+      console.log('Generando código', this.boolActionUser, this.arrDataAll.length);
+      
       this.__tercerService.getCodigo(this.strInitialTercer)
         .subscribe(
-          (response: any) => {                       
-            if(this.boolActionUser) {
-              /**
-               * Este es un ejemplo de como se puede actualizar campos del
-               * fomulario ya con datos, aquí se actualiza el campo 'codigo'
-               */
-              this.formOneData.updateField('codigo', response);
-            }
+          (response: any) => {
+            /**
+             * Este es un ejemplo de como se puede actualizar campos del
+             * fomulario ya con datos, aquí se actualiza el campo 'codigo'
+             */
+            this.formOneData.updateField('codigo', response);
           },
           (error: any) => {
             this.__errorservices.msjError(error);

@@ -8,7 +8,12 @@ export function numericValidator(control: AbstractControl): ValidationErrors | n
 
 /** Validación de email */
 export function emailValidator(control: AbstractControl): ValidationErrors | null {
-  const valid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(control.value);
+  let valid = true;
+
+  if(control.value) {
+    valid = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(control.value);
+  }
+  
   return valid ? null : { email: true };
 }
 
