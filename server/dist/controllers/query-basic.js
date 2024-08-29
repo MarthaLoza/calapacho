@@ -62,12 +62,13 @@ class QueryBasicController {
             catch (error) {
                 /** Si hay un error, revertimos todas las operaciones */
                 yield transaction.rollback();
-                console.log(error);
-                /** Retornamos un error controlado */
-                res.status(400).json({
-                    msg: 'Upps ocurrio un error (deleteOneRow)',
-                    error: error
-                });
+                // Manejo del error
+                let errorMessage = 'Error desconocido';
+                if (error instanceof sequelize_1.BaseError || error instanceof Error) {
+                    errorMessage = error.message;
+                }
+                // Retornamos un error controlado
+                res.status(400).json({ msg: errorMessage });
             }
         });
     }
@@ -141,9 +142,11 @@ class QueryBasicController {
             catch (error) {
                 /** Si hay un error, revertimos todas las operaciones */
                 yield transaction.rollback();
+                console.log(error, "ERROR");
                 // Manejo del error
                 let errorMessage = 'Error desconocido';
                 if (error instanceof sequelize_1.BaseError || error instanceof Error) {
+                    console.log("ENTRAAA", error.message);
                     errorMessage = error.message;
                 }
                 // Retornamos un error controlado

@@ -13,7 +13,7 @@ exports.Gprovinc = connection_1.default.define('gprovinc', {
         allowNull: false,
     },
     codprv: {
-        type: sequelize_1.DataTypes.CHAR(2),
+        type: sequelize_1.DataTypes.CHAR(4),
         primaryKey: true,
         allowNull: false,
     },

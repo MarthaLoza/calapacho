@@ -16,7 +16,7 @@ exports.Gdistrit = connection_1.default.define('gdistrit', {
         }
     },
     codprv: {
-        type: sequelize_1.DataTypes.CHAR(2),
+        type: sequelize_1.DataTypes.CHAR(4),
         allowNull: false,
         references: {
             model: 'gprovinc',
@@ -24,7 +24,7 @@ exports.Gdistrit = connection_1.default.define('gdistrit', {
         }
     },
     coddis: {
-        type: sequelize_1.DataTypes.CHAR(2),
+        type: sequelize_1.DataTypes.CHAR(6),
         allowNull: false
     },
     nomdis: {

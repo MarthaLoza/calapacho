@@ -11,7 +11,7 @@ export const Gdistrit = sequelize.define('gdistrit', {
         }
     },
     codprv: {
-        type: DataTypes.CHAR(2),
+        type: DataTypes.CHAR(4),
         allowNull: false,
         references: {
           model: 'gprovinc',
@@ -19,7 +19,7 @@ export const Gdistrit = sequelize.define('gdistrit', {
         }
     },
     coddis: {
-        type: DataTypes.CHAR(2),
+        type: DataTypes.CHAR(6),
         allowNull: false
     },
     nomdis: {

@@ -20,22 +20,26 @@ export class CterdireComponent {
   @Input() strCodeTercero : string = '';
 
   arrFormField: Field[] = [
-    { type: 'select',   label: 'Tipo de dirección',     name: 'tipdir',     required: true,   options: arrTypeDirec,      defaultValue: 0},
-    { type: 'select',   label: 'Departameto',           name: 'coddep',     required: true ,  onChange: this.getProvincTest.bind(this) },
-    { type: 'select',   label: 'Provincia',             name: 'codprv',     required: true,  onChange: this.getDistritTest.bind(this) },
-    { type: 'select',   label: 'Distrito',              name: 'coddis',     required: true  },
-    { type: 'text',     label: 'Dirección',             name: 'direcc',     required: true, },
-    { type: 'text',     label: 'Contacto',              name: 'contac',     required: false },
+    { type: 'select',   label: 'Tipo de dirección',     name: 'tipdir',     required: true,   options: arrTypeDirec},
+    { type: 'select',   label: 'Departameto',           name: 'coddep',     required: true },
+    { type: 'select',   label: 'Provincia',             name: 'codprv',     required: true },
+    { type: 'select',   label: 'Distrito',              name: 'coddis',     required: true    },
+    { type: 'text',     label: 'Dirección',             name: 'direcc',     required: true,   },
+    { type: 'text',     label: 'Contacto',              name: 'contac',     required: false   },
     { type: 'text',     label: 'Num. Celular',          name: 'telef1',     required: true,   validators: [numericValidator]  },
     { type: 'text',     label: 'Correo Electronico',    name: 'email',      required: false,  validators: [emailValidator] },
   ];
 
-  strTablesNames    = ['Cterdire'];   // Si hay tanlas referenciadas, enviarla tabla principal al final
-  strIdName         = 'codigo';       // Nombre del campo que dará la condición para actualizar o eliminar
+  strTablesNames    = 'Cterdire';           // Si hay tanlas referenciadas, enviarla tabla principal al final
+  strIdName         = ['codigo', 'tipdir']; // Nombre del campo que dará la condición para actualizar o eliminar
+  strColumnDelete   = '';            // Se crea para poder enviar columnas que quiero eliminar de un objeto, en este caso del update
   objDataForm       = {};
   boolActionUser    = false;
+  intIndexSelect    = -1;
+  strCodDep         = '';
+  strCodPrv         = '';
+  strCodDis         = '';
 
-  //strCodeTercero  : string                = 'T0001';
   arrDataTable    : Array<object>         = []; // Datos de la tabla, ordenada para la vista del usuario
   arrDataAll      : Array<DirecTercero>   = []; // Todos los datos de terceros
   arrFieldSearch  : Field[]               = [];
@@ -50,10 +54,11 @@ export class CterdireComponent {
     private __adressService : AdressService,
     private __queryServise  : QueryService,
     private __notifyService : NotifierService,
+    private __changeDR      : ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    //this.getLista({});
+    this.getLista({});
     this.getDepart();
   }
 
@@ -111,38 +116,36 @@ export class CterdireComponent {
 
   /** Servicio que trae las direcciones por tercero */
   getLista(arrData : object) {
-    console.log(this.strCodeTercero, "Codigo tercero");
-    
-    (arrData as any).codigo = this.strCodeTercero;
-    
-    this.__terceroService.getDireccionesTercero(arrData)
-      .subscribe(
-        (response: any) => {
-          
-          if(response.length != 0) {
-            this.assembleTableData(response)
-            console.log("hay datos");
+
+    if(this.strCodeTercero) {
+
+      (arrData as any).codigo = this.strCodeTercero;
+      this.__terceroService.getDireccionesTercero(arrData)
+        .subscribe(
+          (response: any) => {
             
-          } else {
-            this.arrDataTable = [];
-            this.arrDataAll   = [];
-            console.log("no hay datos");
+            if(response.length != 0) {
+              this.assembleTableData(response)            
+            } else {
+              this.arrDataTable = [];
+              this.arrDataAll   = [];
+            }
+          },
+          error => {
+            this.__errorservices.msjError(error); 
           }
-        },
-        error => {
-          this.__errorservices.msjError(error); 
-        }
       )
+    }
   }
 
   /** Servicio que trae departamentos */
   getDepart() {
-    "Entra al ongachnge"
     this.__adressService.getDeparta()
       .subscribe(
         (response: any) => {
           this.arrAllDepart = response ? response : [];
           this.updateFieldOptions('coddep', this.arrAllDepart);
+          this.__changeDR.detectChanges();
         },
         (error: any) => {
           this.__errorservices.msjError(error);
@@ -150,45 +153,46 @@ export class CterdireComponent {
       )
   }
 
-  // Método para manejar el cambio de departamento
-  getProvincTest() {
-    let coddep = (this.objDataForm as any).coddep;    
-    if(!coddep) {
-      if(this.arrDataAll.length > 0) {
-        coddep = (this.arrDataAll as any)[0].coddep 
-      } else {
-        console.log("No hay datos");
-        
+  /** Método para manejar el cambio de departamento */
+  getProvinc() {
+
+      if(!this.strCodDep) {
+        if(this.arrDataAll.length > 0) {
+          this.strCodDep = (this.arrDataAll as any)[this.intIndexSelect]?.coddep;          
+        }
       }
-    }
-      
-    if (coddep) {
-      this.__adressService.postProvincia(coddep)
-        .subscribe(
-          (response: any) => {
-            this.arrTerProvin = response ? response : [];
-            this.updateFieldOptions('codprv', this.arrTerProvin);
-          },
-          (error: any) => {
-            this.__errorservices.msjError(error);
-          }
-        );
-    }
+
+      if(this.strCodDep) {
+        this.__adressService.postProvincia(this.strCodDep)
+          .subscribe(
+            (response: any) => {
+              this.arrTerProvin = response ? response : [];
+              this.updateFieldOptions('codprv', this.arrTerProvin);
+              this.__changeDR.detectChanges();
+            },
+            (error: any) => {
+              this.__errorservices.msjError(error);
+            }
+          );
+      }
   }
 
-  getDistritTest() {
-    let coddep = (this.objDataForm as any).coddep;    
-    if(!coddep) { coddep = (this.arrDataAll as any)[0].coddep }
-    
-    let codprv = (this.objDataForm as any).codprv
-    if(!codprv) { codprv = (this.arrDataAll as any)[0].codprv }
+  /** Método para manejar el cambio de provincia */
+  getDistrit() {
 
-    if (coddep && codprv) {
-      this.__adressService.postDistrito(coddep, codprv)
+    if(!this.strCodPrv) { 
+      if(this.arrDataAll.length > 0) {
+        this.strCodPrv = (this.arrDataAll as any)[this.intIndexSelect]?.codprv;
+      }
+    }
+     
+    if(this.strCodDep && this.strCodPrv) {      
+      this.__adressService.postDistrito(this.strCodDep, this.strCodPrv)
         .subscribe(
           (response: any) => {
             this.arrTerDistri = response ? response : [];
             this.updateFieldOptions('coddis', this.arrTerDistri);
+            this.__changeDR.detectChanges();
           },
           (error: any) => {
             this.__errorservices.msjError(error);
@@ -197,42 +201,10 @@ export class CterdireComponent {
     }
   }
 
-  /** Servicio que trae las provicias segun departamento */
-  //getProvinc(strCodDep : string): Promise<any> {
-  getProvinc(): Promise<any> {
-    return new Promise((resolve, reject) => {      
-      this.__adressService.postProvincia((this.objDataForm as any).coddep)
-        .subscribe(
-          (response: any) => {
-            this.arrTerProvin = response ? response : [];
-            this.updateFieldOptions('codprv', this.arrTerProvin);
-            //resolve(response);
-            
-          },
-          (error: any) => {
-            this.__errorservices.msjError(error);
-          }
-        )
-    });
-  }
-
-  /** Servicio que trae distritos segun provincia */
-  //getDistrit(strCodDep : string, strCodPrv : string): Promise<any> {
-  getDistrit(): Promise<any> {
-    return new Promise((resolve, reject) => {
-      this.__adressService.postDistrito((this.objDataForm as any).coddep, (this.objDataForm as any).codprv)
-        .subscribe(
-          (response: any) => {
-            this.arrTerDistri = response ? response : [];
-            resolve(response);
-          },
-          (error: any) => {
-            this.__errorservices.msjError(error);
-          }
-        )
-    });
-  }
-
+  /** Servicio para insertar una nueva
+   * dirección de un tercero
+   * @param arrData Datos de la dirección
+   */
   arrDataOutput(arrData: any ) {
     arrData.codigo = this.strCodeTercero;
     this.__queryServise.insertOneRow(['Cterdire', arrData] )
@@ -259,30 +231,21 @@ export class CterdireComponent {
    */
   boolFormOut(boolFormOut: Array<any>) {
     this.objDataForm      = boolFormOut[0];
-    this.boolActionUser   = boolFormOut[1];   
+    this.boolActionUser   = boolFormOut[1];
+
+    let data = (this.objDataForm as any);
     
-    //if(srtCodeDep) this.updateColumnPrvDepart(srtCodeDep, strCodePrv);
+    if(data.coddep && data.coddep != this.strCodDep) { 
+      this.strCodDep = data.coddep;
+      this.getProvinc(); 
+    }
+    if(data.codprv && data.codprv != this.strCodPrv) { 
+      this.strCodPrv = data.codprv;
+      this.getDistrit();
+    }
+    if(data.coddis) { this.strCodDis = data.coddis }
+    
   }
-
-/*   updateColumnPrvDepart(srtCodeDep: any ,strCodePrv: any) {
-    this.getProvinc(srtCodeDep)
-      .then(response => {
-        this.updateFieldOptions('codprv', this.arrTerProvin);
-
-        if(strCodePrv) {
-          this.getDistrit(srtCodeDep, strCodePrv)
-            .then(response => {
-              this.updateFieldOptions('coddis', this.arrTerDistri);
-            })
-            .catch(error => {
-              console.error("Error al obtener los distritos", error);
-            });
-        } 
-      })
-      .catch(error => {
-        console.error("Error al obtener las provincias", error);
-      });
-  } */
 
   /**
    * Este evento viene de los botones de actualizar y eliminar,
@@ -302,10 +265,17 @@ export class CterdireComponent {
    * @param arrDataSearch   Datos de busqueda
    */
   arrDataSearch(arrDataSearch: any) {
-    arrDataSearch.codigo = this.strCodeTercero;
-    console.log(arrDataSearch, "FILTRO");
-    
+    arrDataSearch.codigo = this.strCodeTercero;    
     this.getLista(arrDataSearch);
+  }
+
+  /**
+   * Este evento se ejecuta cada vez que se selecciona una fila de la tabla,
+   * ya sea por botón o por el mouse.
+   * @param intIndex Index de la fila seleccionada
+   */
+  intIndex(intIndex: number) {
+    this.intIndexSelect = intIndex;
   }
 
 

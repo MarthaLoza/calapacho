@@ -31,9 +31,9 @@ export class TercerosComponent {
   boolActionUser    = false;
   strInitialTercer  = '';
   strCodeGenerated  = null;
-  strTablesNames    = ['Ctercero']; // Si hay tanlas referenciadas, enviarla tabla principal al final
-  strIdName         = 'seqno';      // Nombre del campo que dará la condición para actualizar o eliminar
-  strColumnDelete   = 'terType';    // Secrea para poder enviar columnas que quiero eliminar de un objeto, en este caso del update
+  strTablesNames    = 'Ctercero';   // Si hay tanlas referenciadas, enviarla tabla principal al final
+  strIdName         = ['seqno'];    // Nombre del campo que dará la condición para actualizar o eliminar
+  strColumnDelete   = 'terType';    // Se crea para poder enviar columnas que quiero eliminar de un objeto, en este caso del update
   objDataForm       = {};           // Datos del formulario
   strCodeTercero    = '';           // Código del tercero
 
@@ -175,9 +175,7 @@ export class TercerosComponent {
 
   /** Genera el código del tercero */
   generationTercerCode() {
-    if( this.strInitialTercer && (this.boolActionUser || this.arrDataAll.length == 0) ) {
-      console.log('Generando código', this.boolActionUser, this.arrDataAll.length);
-      
+    if( this.strInitialTercer && (this.boolActionUser || this.arrDataAll.length == 0) ) {      
       this.__tercerService.getCodigo(this.strInitialTercer)
         .subscribe(
           (response: any) => {

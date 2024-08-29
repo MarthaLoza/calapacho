@@ -15,8 +15,8 @@ export class FormOneDataComponent implements OnInit, OnChanges {
   @Input() arrFormField     : Field[]         = [];
   @Input() arrDataTable     : Array<object>   = [];       // Datos de la tabla, ordenada para la vista del usuario
   @Input() arrDataAll       : Array<object>   = [];       // Todos los datos de terceros
-  @Input() strTablesNames   : Array<string>   = [];       // Nombre de la tabla
-  @Input() strIdName        : string          = '';       // Nombre del campo id o condición a eliminar
+  @Input() strTablesNames   : string          = '';       // Nombre de la tabla
+  @Input() strIdName        : Array<string>   = [];       // Nombre del campo id o condición a eliminar
   @Input() strColumnDelete  : string          = '';       // Nombre de la columna a eliminar
   @Input() arrFieldSearch   : Field[]         = [];       // Campos del fomulario para la busqueda
 
@@ -53,7 +53,6 @@ export class FormOneDataComponent implements OnInit, OnChanges {
   constructor(
     private __formbuilder   : FormBuilder,
     private __changeDR      : ChangeDetectorRef,
-    private __router        : Router,
     private __dialog        : MatDialog
   ) {
     this.form = this.__formbuilder.group({});  
@@ -61,31 +60,15 @@ export class FormOneDataComponent implements OnInit, OnChanges {
 
   ngOnInit() {
     this.createForm();
+    this.listenToFormChanges();
   }
 
   ngOnChanges(changes: SimpleChanges) {
 
-    /** Asignación de los campos del formulario */
-    if(changes['arrFormField']) { this.fields = this.arrFormField }
-
-    if(changes['arrDataAll']) {
-      console.log("Cambios en arrDataAll", this.arrDataAll);
-      this.updateFormValues();
+    if(changes['arrFormField']) { this.fields = this.arrFormField } // Asignación de los campos del formulario
+    if(changes['arrDataAll'])   {      
+      if(this.arrDataAll.length == 0) { this.form.reset() }
     }
-    
-    //if(this.arrDataAll.length > 0) {
-      
-      /** Escucha cada vez que hay un cambio en los Input */
-      
-      this.listenToFormChanges();
-
-    //} else {
-
-      //his.boolDisableDelete  = true;        // Si la tabla no tiene datos se deshabilita
-      //his.boolDisableUpdate  = true;        // Si la tabla no tiene datos se deshabilita
-      //his.boolDisableReset   = true;        // Si la tabla no tiene datos se deshabilita
-    //}
-
     if(this.arrDataAll.length === 0) {
       
       this.boolDisableDelete  = true;        // Si la tabla no tiene datos se deshabilita
@@ -139,19 +122,18 @@ export class FormOneDataComponent implements OnInit, OnChanges {
   /** 
    * Método para actualizar los valores del formulario segun la
    * fila seleccionada en la tabla. En pocas palabras, pinta los
-   * datas de la tabla en el formulario.
+   * datos de la tabla en el formulario.
    */
   updateFormValues() {
     if (this.arrDataAll.length > 0 && this.numIndexTableOutput < this.arrDataAll.length) {
       
       this.form.patchValue(this.arrDataAll[this.numIndexTableOutput]);
-
       /**
        * Lo pongo aquí ya que solo necesito el valor del campo id
        */
       if(this.arrDataAll.length > 0) { this.preparationForButtonDelete() }
-    }
-  }
+    } else { this.form.reset(); }
+  } 
 
   /* ****************************************** */
   /*          PREPARACIÓN DE VARIABLES          */
@@ -159,46 +141,58 @@ export class FormOneDataComponent implements OnInit, OnChanges {
 
   /**
    * Preparación para eliminar registros de una tabla. Este metodo a sido creado
-   * para eliminar uno a más registros de una tabla, ya que la eliinación de un
-   * registro aveces conlleva eliminar registros de otras tablas referenciadas.
-   * [ [nameTable1, {nameColumn1: value1}], [nameTable2, {nameColumn2: value2}] ]
+   * para eliminar solo un dato a la vez. Pero se pueden enviar varias condiciones
+   * como para cterdire que necesita el código del tercero y el tipo de dirección.
+   * [ nameTable1, {nameColumn1: value1, nameColumn2: value2} ]
    */
   preparationForButtonDelete() {
         
-    let arrConditionDelete      : Array<any> = [];
-    const nameColumnCondition   = this.strIdName;
-    const valueCondition        = (this.arrDataAll[this.numIndexTableOutput] as any)[nameColumnCondition];
+    let arrConditionDelete : Array<any>              = [];
+    let objConditionDelete : { [key: string]: any }  = {};
+    let valueCondition     : any;
     
-    for(let table of this.strTablesNames) {
-      arrConditionDelete.push(
-        [table, {[nameColumnCondition] : valueCondition}]
-      )
+    for(let rowCondition of this.strIdName) {
+
+      valueCondition = (this.arrDataAll[this.numIndexTableOutput] as any)[rowCondition]
+      objConditionDelete[rowCondition] = valueCondition;     
+      
     }
-    
+
+    arrConditionDelete.push( [this.strTablesNames, objConditionDelete] );
     this.arrConditionDelete = arrConditionDelete;
+    
   }
 
   /**
    * Preparación para actualizar registros de una tabla. Este metodo a sido creado
-   * para actualizar solo un dato a la vez.
-   * Recordar que la variable strTablesNames es una array y el nombre de la tabla principal
-   * siempre será el último elemento de la array.
+   * para actualizar solo un dato a la vez. Pero se pueden enviar varias condiciones.
+   *    tabla       condiciones           datos
    * [nameTable, {nameColumn: value}, {nameColumn1: value1, nameColumn2: value2}]
    */
   preparationForButtonUpdate() {
-    const nameColumnCondition   = this.strIdName;
-    const valueCondition        = (this.arrDataAll[this.numIndexTableOutput] as any)[this.strIdName];
-    let objDataupdate           = this.form.value;
-    
-    /** Metodo por si se desea quitar alguna columna del update */
+
+    let objConditionUpdate : { [key: string]: any }  = {};
+    let valueCondition     : any;
+
+    let objDataupdate  = this.form.value;
+
+    for(let rowCondition of this.strIdName) {
+
+      valueCondition = (this.arrDataAll[this.numIndexTableOutput] as any)[rowCondition]
+      objConditionUpdate[rowCondition] = valueCondition;     
+      
+    }
+
+    //Metodo por si se desea quitar alguna columna del update
     if(this.strColumnDelete){
       objDataupdate = this.omitField(objDataupdate, this.strColumnDelete);
     }
 
-    this.arrConditionUpdate     = [this.strTablesNames[this.strTablesNames.length - 1], 
-                                  { [nameColumnCondition] : valueCondition },
-                                  objDataupdate];
+    console.log(objDataupdate);
     
+
+    this.arrConditionUpdate = [this.strTablesNames, objConditionUpdate, objDataupdate];
+
   }
 
 
@@ -236,7 +230,7 @@ export class FormOneDataComponent implements OnInit, OnChanges {
        * activa siempre que se haga un cambio en el formulario.
        * form.value      : Datos del formulario
        * boolActionUser  : Detecta si la acción fue realizada por el usuario
-       */      
+       */
       this.boolFormOut.emit([ this.form.value, this.boolActionUser] );
 
       /**
@@ -245,10 +239,11 @@ export class FormOneDataComponent implements OnInit, OnChanges {
       if(this.arrDataAll.length > 0) { this.preparationForButtonUpdate() } else {
         this.boolDisableDelete  = true;        // Si la tabla no tiene datos se deshabilita
         this.boolDisableUpdate  = true;        // Si la tabla no tiene datos se deshabilita
-        this.boolDisableReset   = true;   
+        this.boolDisableReset   = true;
       }
 
     });
+    
   }
 
 
@@ -275,9 +270,9 @@ export class FormOneDataComponent implements OnInit, OnChanges {
     this.arrDataAll         = [];     // Limpia los datos de los terceros
     this.arrDataTable       = [];     // Limpia los datos de la tabla
     this.form.reset();
-
+    
     /** Asigno los datos por defecto del formulario */    
-    this.fields.forEach(field => {
+    this.fields.forEach(field => {      
       this.form.get(field.name)?.setValue(field.defaultValue ?? '');
     });
 
@@ -328,16 +323,16 @@ export class FormOneDataComponent implements OnInit, OnChanges {
    * a updateFormValues asegurandonos que siempre se va a ejecutar, ya
    * sea por botón o por la selección del mouse.
    */
-  IndexTableOutput(index: number) {
+  IndexTableOutput(index: number) {    
     /**
      * Se condiciona el uso del botón buscar ya que sino toma el index
      * que ya estaba antes y lo correcto es que se limpie el formulario
      * del todo cuando se usa el botón de buscar ya que será un nuevo filtro
      * y nuevos datos.
-     */
+     */    
     this.boolActionUser       = false;
     this.numIndexTableOutput  = index;    
-    this.intIndex.emit(index);
+    this.intIndex.emit(index);    
     this.updateFormValues();
     this.boolActionUser       = true;
   }
@@ -397,12 +392,15 @@ export class FormOneDataComponent implements OnInit, OnChanges {
 
   /** Método para resetear el componente y te redirige de nuevo al mismo */
   resetComponent() {
-    const currentUrl = this.__router.url;
-  
-    this.__router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
-      this.__router.navigate([currentUrl]);
-    });
-    
+    this.boolFormModific = false;
+    this.boolRefreshTable.emit(true);
+    //this.boolActionUser = false;
+    this.numIndexTableOutput = 0;
+    //const currentUrl = this.__router.url;
+    //
+    //this.__router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
+    //  this.__router.navigate([currentUrl]);
+    //});
   }
 
 }

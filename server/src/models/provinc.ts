@@ -8,7 +8,7 @@ export const Gprovinc = sequelize.define('gprovinc', {
         allowNull: false,
       },
       codprv: {
-        type: DataTypes.CHAR(2),
+        type: DataTypes.CHAR(4),
         primaryKey: true,
         allowNull: false,
       },

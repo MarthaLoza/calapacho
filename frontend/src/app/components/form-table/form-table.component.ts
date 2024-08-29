@@ -17,7 +17,7 @@ export class FormTableComponent implements AfterViewInit {
   @Input() boolActionButtonA  : boolean       = false;  // Acción de los botones Arrows
   @Input() boolFormModific    : boolean       = false;  // Formulario modificado
 
-  @Output() searchEvent = new EventEmitter<number>();   // Evento que envia el índice seleccionado
+  @Output() IndexTableOutput = new EventEmitter<number>();   // Evento que envia el índice seleccionado
 
   displayedColumns    : string[]  = [];
   dataSource                      = new MatTableDataSource<object>(this.arrDataTable);
@@ -36,8 +36,7 @@ export class FormTableComponent implements AfterViewInit {
   }
 
   /** Método de angular, escucha cambios */
-  ngOnChanges(changes: SimpleChanges) {
-    
+  ngOnChanges(changes: SimpleChanges) {    
     if ((changes['arrDataTable'] && this.arrDataTable.length > 0)) {
       
       this.dataSource.data = this.arrDataTable;
@@ -96,8 +95,7 @@ export class FormTableComponent implements AfterViewInit {
   }
 
   /** Manejo de la sección de la fila */
-  async rowSelection(row: object, index: number) {
-    
+  async rowSelection(row: object, index: number) { 
     if(this.boolFormModific) {
       const validation = await this.openDialogUpdate();
       if(validation){
@@ -127,7 +125,7 @@ export class FormTableComponent implements AfterViewInit {
         this.dataSource.paginator = this.paginator; // Refresca el paginator
       }
       
-      this.searchEvent.emit(index);
+      this.IndexTableOutput.emit(index);
       this.boolFormModific = false; 
     }
   }
